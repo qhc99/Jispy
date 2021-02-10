@@ -110,7 +110,6 @@ public class Jisp {
         return eval(x, GlobalEnv);
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
     private static Object eval(Object x, Map<Object, Object> env) {
         if (x.getClass().equals(String.class)) {
             return env.get(x);
@@ -121,25 +120,28 @@ public class Jisp {
         List<Object> list = convert(x);
 
         if (list.get(0) == "if") {
-            var t = (List<Object>) x;
-            Object test = t.get(1);
-            Object conseq = t.get(2);
-            Object alt = t.get(3);
-            Object exp = (Boolean) eval(test, env) ? conseq : alt;
+            Object test = list.get(1);
+            Object conseq = list.get(2);
+            Object alt = list.get(3);
+            var t = (Boolean) eval(test, env);
+            if(t == null){
+                throw new NullPointerException("null is not boolean");
+            }
+            Object exp = t ? conseq : alt;
             return eval(exp, env);
         }
         else if (list.get(0).equals("define")) {
-
-            var t = (List<Object>) x;
-            Object symbol = t.get(1);
-            Object exp = t.get(2);
+            Object symbol = list.get(1);
+            Object exp = list.get(2);
             env.put(symbol, eval(exp, env));
             return null;
         }
         else {
             Function<List<Object>, Object> proc = convert(eval(list.get(0), env));
             List<Object> args = new ArrayList<>();
-
+            if(proc == null){
+                throw new NullPointerException("null is not function");
+            }
             for (int i = 1; i < ((List<?>) x).size(); i++) {
                 args.add(eval(((List<?>) x).get(i), env));
             }
