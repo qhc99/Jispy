@@ -1,8 +1,8 @@
 package org.nathan.interpreter;
 
-import static org.nathan.interpreter.Utils.*;
+import static org.nathan.interpreter.Utils.value;
 
-public class Operators {
+public class NumericOperators {
 
     static boolean lessThan(Object a, Object b) {
         return value(a) < value(b);
@@ -12,16 +12,16 @@ public class Operators {
         return value(a) <= value(b);
     }
 
-    static boolean equal(Object a, Object b){
+    static boolean equal(Object a, Object b) {
         return value(a) == value(b);
     }
 
-    static Object negative(Object a){
-        if(a.getClass().equals(Integer.class)){
+    static Object negative(Object a) {
+        if (a.getClass().equals(Integer.class)) {
             return -(Integer) a;
         }
-        else if(a.getClass().equals(Double.class)){
-            return -(Double)a;
+        else if (a.getClass().equals(Double.class)) {
+            return -(Double) a;
         }
         else {
             throw new ClassCastException();

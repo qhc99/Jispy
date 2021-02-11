@@ -1,12 +1,14 @@
 package org.nathan.interpreter;
 
+import org.nathan.interpreter.Env.Lambda;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import org.nathan.interpreter.Env.Lambda;
 import java.util.stream.Collectors;
-import static org.nathan.interpreter.Utils.*;
+
+import static org.nathan.interpreter.Utils.convert;
 
 // TODO transplant from C# code
 public class Jisp {
@@ -57,7 +59,10 @@ public class Jisp {
             }
             Object val = null;
             try {
+                long t1 = System.nanoTime();
                 val = runScheme(s);
+                long t2 = System.nanoTime();
+                System.out.println((t2-t1)/Math.pow(10,6));
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -94,7 +99,7 @@ public class Jisp {
                 Boolean test = convert(eval(args.get(0), env));
                 var conseq = args.get(1);
                 var alt = args.get(2);
-                if(test == null){
+                if (test == null) {
                     throw new NullPointerException();
                 }
                 var exp = test ? conseq : alt;
