@@ -4,43 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.function.Function;
+import org.nathan.interpreter.Env.Lambda;
 import java.util.stream.Collectors;
-
 import static org.nathan.interpreter.Utils.*;
 
 // TODO transplant from C# code
 public class Jisp {
-    static class SchemeList implements Iterable<Object> {
-        Object Car;
-        Object Cdr;
 
-        SchemeList() {
-        }
-
-        SchemeList(Object car, Object cdr) {
-            Car = car;
-            Cdr = cdr;
-        }
-
-        private class ThisIterator implements Iterator<Object> {
-
-            @Override
-            public boolean hasNext() {
-                return !Cdr.equals(Nil);
-            }
-
-            @Override
-            public Object next() {
-                return Cdr;
-            }
-        }
-
-        @Override
-        public Iterator<Object> iterator() {
-            return new ThisIterator();
-        }
-    }
 
     @SuppressWarnings("unused")
     static class ArgumentsCountException extends RuntimeException {
@@ -65,9 +35,9 @@ public class Jisp {
     }
 
 
-    private static final String Nil = "'()";
+    static final String Nil = "'()";
 
-    private static final Map<Object, Object> GlobalEnv = new HashMap<>(StandardEnv.NewEnv());
+    static final Env GlobalEnv = Env.NewStandardEnv();
 
     public static void repl() {
         var prompt = "Jis.py>";
@@ -89,8 +59,7 @@ public class Jisp {
             try {
                 val = runScheme(s);
             } catch (Exception e) {
-                System.out.printf("%s: %s\n%n", e.getClass().getName(), e.getMessage());
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
             if (val != null) {
                 System.out.println(val);
@@ -102,7 +71,7 @@ public class Jisp {
         return eval(parse(program));
     }
 
-    private static Object parse(String program) {
+    static Object parse(String program) {
         return readFromTokens(tokenize(program));
     }
 
@@ -110,43 +79,46 @@ public class Jisp {
         return eval(x, GlobalEnv);
     }
 
-    private static Object eval(Object x, Map<Object, Object> env) {
+    private static Object eval(Object x, Env env) {
         if (x.getClass().equals(String.class)) {
-            return env.get(x);
+            return env.find(x).get(x);
         }
         else if (!x.getClass().equals(ArrayList.class)) {
             return x;
         }
         List<Object> list = convert(x);
-
-        if (list.get(0) == "if") {
-            Object test = list.get(1);
-            Object conseq = list.get(2);
-            Object alt = list.get(3);
-            var t = (Boolean) eval(test, env);
-            if(t == null){
-                throw new NullPointerException("null is not boolean");
+        String op = convert(list.get(0));
+        var args = list.subList(1, list.size());
+        switch (op) {
+            case "if" -> {
+                Boolean test = convert(eval(args.get(0), env));
+                var conseq = args.get(1);
+                var alt = args.get(2);
+                if(test == null){
+                    throw new NullPointerException();
+                }
+                var exp = test ? conseq : alt;
+                return eval(exp, env);
             }
-            Object exp = t ? conseq : alt;
-            return eval(exp, env);
-        }
-        else if (list.get(0).equals("define")) {
-            Object symbol = list.get(1);
-            Object exp = list.get(2);
-            env.put(symbol, eval(exp, env));
-            return null;
-        }
-        else {
-            Function<List<Object>, Object> proc = convert(eval(list.get(0), env));
-            List<Object> args = new ArrayList<>();
-            if(proc == null){
-                throw new NullPointerException("null is not function");
+            case "define" -> {
+                var symbol = args.get(0);
+                var exp = args.get(1);
+                env.put(symbol, eval(exp, env));
+                return null;
             }
-            for (int i = 1; i < ((List<?>) x).size(); i++) {
-                args.add(eval(((List<?>) x).get(i), env));
+            case "lambda" -> {
+                var parameter = args.get(0);
+                var body = args.get(1);
+                return (Lambda) arguments -> eval(body, new Env(convert(parameter), arguments, env));
             }
-
-            return proc.apply(args);
+            default -> {
+                Lambda proc = convert(eval(op, env));
+                var vals = args.stream().map(arg -> eval(arg, env)).collect(Collectors.toList());
+                if (proc == null) {
+                    throw new ClassCastException("null is not function");
+                }
+                return proc.apply(vals);
+            }
         }
     }
 
@@ -164,7 +136,7 @@ public class Jisp {
             return l;
         }
         else if (token.equals(")")) throw new LispParseException("unexpected ')'");
-        else return convertToAtom(token);
+        else return toAtom(token);
     }
 
     private static Queue<String> tokenize(String program) {
@@ -173,5 +145,32 @@ public class Jisp {
         return new LinkedList<>(t);
     }
 
+    private static Object toAtom(String x) {
+        boolean succ = false;
+        int t = 0;
+        try {
+            t = Integer.parseInt(x);
+            succ = true;
+        } catch (NumberFormatException ignore) {
 
+        }
+        if (!succ) {
+            boolean succ1 = false;
+            double t1 = 0;
+            try {
+                t1 = Double.parseDouble(x);
+                succ1 = true;
+            } catch (NumberFormatException ignore) {
+            }
+            if (!succ1) {
+                return x;
+            }
+            else {
+                return t1;
+            }
+        }
+        else {
+            return t;
+        }
+    }
 }
