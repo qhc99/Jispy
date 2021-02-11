@@ -13,6 +13,7 @@ import static org.nathan.interpreter.Utils.convert;
 // TODO transplant from C# code
 public class Jisp {
 
+    private static final boolean TIMER_ON = false;
 
     @SuppressWarnings("unused")
     static class ArgumentsCountException extends RuntimeException {
@@ -59,10 +60,15 @@ public class Jisp {
             }
             Object val = null;
             try {
-                long t1 = System.nanoTime();
+                long t1, t2;
+                if (TIMER_ON){
+                    t1 = System.nanoTime();
+                }
                 val = runScheme(s);
-                long t2 = System.nanoTime();
-                System.out.println((t2-t1)/Math.pow(10,6));
+                if (TIMER_ON) {
+                    t2 = System.nanoTime();
+                    System.out.println((t2 - t1) / Math.pow(10, 6));
+                }
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
