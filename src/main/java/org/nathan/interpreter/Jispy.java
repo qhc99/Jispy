@@ -1,5 +1,8 @@
 package org.nathan.interpreter;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexFormat;
+import org.apache.commons.math3.exception.MathParseException;
 import org.nathan.interpreter.Env.Lambda;
 
 import java.io.BufferedReader;
@@ -7,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.nathan.interpreter.Symbol.eof;
+import static org.nathan.interpreter.Symbol.quotes;
 
 
 public class Jispy {
@@ -25,12 +31,12 @@ public class Jispy {
     }
 
     @SuppressWarnings("unused")
-    static class LispParseException extends RuntimeException {
-        public LispParseException() {
+    static class SyntaxException extends RuntimeException {
+        public SyntaxException() {
             super();
         }
 
-        public LispParseException(String s) {
+        public SyntaxException(String s) {
             super(s);
         }
     }
@@ -59,9 +65,7 @@ public class Jispy {
             Object val = null;
             try {
                 long t1, t2;
-                if (TIMER_ON){
-                    t1 = System.nanoTime();
-                }
+                if (TIMER_ON) t1 = System.nanoTime();
                 val = runScheme(s);
                 if (TIMER_ON) {
                     t2 = System.nanoTime();
@@ -70,9 +74,7 @@ public class Jispy {
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
-            if (val != null) {
-                System.out.println(val);
-            }
+            if (val != null) System.out.println(val);
         }
     }
 
@@ -89,18 +91,14 @@ public class Jispy {
     }
 
     private static Object eval(Object x, Env env) {
-        if (x.getClass().equals(String.class)) {
-            return env.find(x).get(x);
-        }
-        else if (!x.getClass().equals(ArrayList.class)) {
-            return x;
-        }
-        List<Object> list = (List<Object>)(x);
-        String op = (String)(list.get(0));
+        if (x.getClass().equals(String.class)) return env.find(x).get(x);
+        else if (!x.getClass().equals(ArrayList.class)) return x;
+        List<Object> list = (List<Object>) (x);
+        String op = (String) (list.get(0));
         var args = list.subList(1, list.size());
         switch (op) {
             case "if" -> {
-                Boolean test = (Boolean)(eval(args.get(0), env));
+                Boolean test = (Boolean) (eval(args.get(0), env));
                 var conseq = args.get(1);
                 var alt = args.get(2);
                 if (test == null) {
@@ -132,19 +130,16 @@ public class Jispy {
     }
 
     private static Object readFromTokens(Queue<String> tokens) {
-        if (tokens.size() == 0) throw new LispParseException("unexpected EOF");
+        if (tokens.size() == 0) throw new SyntaxException("unexpected EOF");
         var token = tokens.poll();
         if (token.equals("(")) {
             var l = new ArrayList<>();
             //noinspection ConstantConditions
-            while (!tokens.peek().equals(")")) {
-                l.add(readFromTokens(tokens));
-            }
-
+            while (!tokens.peek().equals(")")) l.add(readFromTokens(tokens));
             tokens.poll();
             return l;
         }
-        else if (token.equals(")")) throw new LispParseException("unexpected ')'");
+        else if (token.equals(")")) throw new SyntaxException("unexpected ')'");
         else return toAtom(token);
     }
 
@@ -155,31 +150,101 @@ public class Jispy {
     }
 
     private static Object toAtom(String x) {
-        boolean succ = false;
-        int t = 0;
-        try {
-            t = Integer.parseInt(x);
-            succ = true;
-        } catch (NumberFormatException ignore) {
+        if (x.equals("#t")) return true;
+        else if (x.equals("#f")) return false;
+        else if (x.startsWith("\\")) return x.substring(1, x.length() - 1);
+        else {
+            boolean isInt = false;
+            int t = 0;
+            try {
+                t = Integer.parseInt(x);
+                isInt = true;
+            } catch (NumberFormatException ignore) {
+
+            }
+            if (!isInt) {
+                boolean isDouble = false;
+                double t1 = 0;
+                try {
+                    t1 = Double.parseDouble(x);
+                    isDouble = true;
+                } catch (NumberFormatException ignore) {
+                }
+                if (!isDouble) {
+                    try {
+                        return ComplexFormat.getInstance().parse(x);
+                    } catch (MathParseException ignore) {
+                        return new Symbol(x);
+                    }
+                }
+                else return t1;
+
+            }
+            else return t;
 
         }
-        if (!succ) {
-            boolean succ1 = false;
-            double t1 = 0;
-            try {
-                t1 = Double.parseDouble(x);
-                succ1 = true;
-            } catch (NumberFormatException ignore) {
-            }
-            if (!succ1) {
-                return x;
-            }
-            else {
-                return t1;
-            }
+    }
+
+    private static Object readChar(InPort inPort) {
+        if (!inPort.line.equals("")) {
+            var c = inPort.line.charAt(0);
+            inPort.line = inPort.line.substring(1);
+            return c;
         }
         else {
-            return t;
+            String c;
+            try {
+                c = Character.toString(inPort.file.read());
+            } catch (IOException ignore) {
+                return eof;
+            }
+            return c;
         }
+    }
+
+    private static Object read(InPort inPort) {
+        var token = inPort.nextToken();
+        if (token == eof) return eof;
+        else return readAhead(token, inPort);
+
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    private static Object readAhead(Object token, InPort inPort) {
+        if (token.equals("(")) {
+            List<Object> l = new ArrayList<>();
+            while (true) {
+                token = inPort.nextToken();
+                if (token.equals(")")) {
+                    return l;
+                }
+                else {
+                    l.add(readAhead(token, inPort));
+                }
+            }
+        }
+        else if (token.equals(")")) throw new SyntaxException("unexpected )");
+        else if (quotes.containsKey(token)) return Arrays.asList(quotes.get(token), read(inPort));
+        else if (token == eof) throw new SyntaxException("unexpected EOF in list");
+        else return toAtom((String) token);
+    }
+
+    private static String toString(Object x) {
+        if (x.equals(true)) return "#t";
+        else if (x.equals(false)) return "#f";
+        else if (x instanceof Symbol) return x.toString();
+        else if (x instanceof String) return ((String) x).substring(1, ((String) x).length() - 1);
+        else if (x instanceof ArrayList) {
+            var s = new StringBuilder("(");
+            for(var i : (ArrayList<Object>)x){
+                s.append(toString(i));
+                s.append(" ");
+            }
+            s.delete(s.length()-1,s.length());
+            s.append(")");
+            return s.toString();
+        }
+        else if(x instanceof Complex) return ComplexFormat.getInstance().format((Complex) x);
+        else return x.toString();
     }
 }
