@@ -294,7 +294,7 @@ public class Jispy {
     @SuppressWarnings("SuspiciousMethodCalls")
     private static Object expand(Object x, boolean topLevel) {
         require(x, x != Nil);
-        if (!(x instanceof ArrayList)) return x;
+        if (!(x instanceof List)) return x;
         List<Object> l = (ArrayList<Object>) x;
         if (l.get(0).equals(_quote)) {
             require(x, l.size() == 2);
@@ -316,7 +316,7 @@ public class Jispy {
             var _def = l.get(0);
             var v = l.get(1);
             var body = l.subList(2, l.size());
-            if (v instanceof ArrayList && !((ArrayList<?>) v).isEmpty()) {
+            if (v instanceof List && !((ArrayList<?>) v).isEmpty()) {
                 List<Object> lv = (ArrayList<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
@@ -344,7 +344,7 @@ public class Jispy {
             require(x, l.size() >= 3);
             var vars = l.get(1);
             var body = l.subList(2, l.size());
-            require(x, (vars instanceof ArrayList &&
+            require(x, (vars instanceof List &&
                     ((ArrayList<Object>) vars).stream().allMatch(v -> v instanceof Symbol)));
             Object exp;
             if (body.size() == 1) exp = body.get(0);
@@ -408,7 +408,7 @@ public class Jispy {
         var bindings = args.get(0);
         var body = args.subList(1, args.size());
         for (var b : (Iterable<Object>) bindings) {
-            if (!(b instanceof ArrayList) ||
+            if (!(b instanceof List) ||
                     ((ArrayList<?>) b).size() != 2 ||
                     !(((ArrayList<?>) b).get(0) instanceof Symbol)) {
                 throw new SyntaxException(toString(x) + "illegal binding list");
@@ -427,7 +427,10 @@ public class Jispy {
     private static Object callcc(Lambda proc){
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try{
-            return proc.apply(r->raise(r, ball));
+            return proc.apply(Arrays.asList((Lambda) objects -> {
+                raise(objects,ball);
+                return null;
+            }));
         }
         catch (RuntimeWarning w){
             if(w.equals(ball)){
@@ -440,7 +443,7 @@ public class Jispy {
 
     }
 
-    private static Object raise(Object r, RuntimeWarning ball){
+    private static void raise(Object r, RuntimeWarning ball){
         ball.returnValue = r;
         throw ball;
     }

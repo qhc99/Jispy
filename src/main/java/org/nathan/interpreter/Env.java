@@ -21,6 +21,9 @@ public class Env extends HashMap<Object, Object> {
         while (keyIter.hasNext() && valIter.hasNext()) {
             put(keyIter.next(), valIter.next());
         }
+        if(keyIter.hasNext() || valIter.hasNext()){
+            throw new RuntimeException("env build error");
+        }
     }
 
     Env(Iterable<Entry<Object, Object>> entries) {
@@ -33,6 +36,9 @@ public class Env extends HashMap<Object, Object> {
     Env find(Object o) {
         if (containsKey(o)) {
             return this;
+        }
+        else if(outer == null){
+            throw new RuntimeException("look up error");
         }
         else {
             return outer.find(o);
