@@ -2,7 +2,6 @@ package org.nathan.interpreter;
 
 import java.util.Iterator;
 
-import static org.nathan.interpreter.Utils.convert;
 
 public class SList implements Iterable<Object> {
     Object Car;
@@ -36,10 +35,10 @@ public class SList implements Iterable<Object> {
         if(l.getClass().equals(SList.class)){
             if(Cdr.equals(Jispy.Nil)){
                 Cdr = l;
-                return convert(l);
+                return (SList) (l);
             }
             else {
-                SList cdr = convert(Cdr);
+                SList cdr = (SList) (Cdr);
                 return cdr.chainAppend(l);
             }
         }

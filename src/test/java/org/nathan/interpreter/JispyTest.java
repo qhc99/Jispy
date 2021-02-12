@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.nathan.interpreter.Utils.*;
+
 import static org.nathan.interpreter.Jispy.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +23,7 @@ public class JispyTest {
                 }
             }
             else {
-                if (!listTreeEqual(convert(item1), convert(item2))) {
+                if (!listTreeEqual((List<Object>) (item1), (List<Object>) (item2))) {
                     return false;
                 }
             }
@@ -36,7 +36,7 @@ public class JispyTest {
         List<Object> expected = Arrays.asList("begin",
                 Arrays.asList("define", "r", 10),
                 Arrays.asList("*", "pi", Arrays.asList("*","r","r")));
-        assertTrue(listTreeEqual(expected, convert(parse("(begin (define r 10) (* pi (* r r)))"))));
+        assertTrue(listTreeEqual(expected,(List<Object>) (parse("(begin (define r 10) (* pi (* r r)))"))));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class JispyTest {
         var res = runScheme("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
         var b = new SListBuilder();
         b.append(2).append(4).append(6).append(8.0);
-        assertTrue(b.toSchemeList().contentEqual(convert(res)));
+        assertTrue(b.toSchemeList().contentEqual(res));
     }
 
     @Test

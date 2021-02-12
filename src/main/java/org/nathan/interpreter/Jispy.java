@@ -8,9 +8,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.nathan.interpreter.Utils.convert;
 
-// TODO transplant from C# code
 public class Jispy {
 
     private static final boolean TIMER_ON = false;
@@ -97,12 +95,12 @@ public class Jispy {
         else if (!x.getClass().equals(ArrayList.class)) {
             return x;
         }
-        List<Object> list = convert(x);
-        String op = convert(list.get(0));
+        List<Object> list = (List<Object>)(x);
+        String op = (String)(list.get(0));
         var args = list.subList(1, list.size());
         switch (op) {
             case "if" -> {
-                Boolean test = convert(eval(args.get(0), env));
+                Boolean test = (Boolean)(eval(args.get(0), env));
                 var conseq = args.get(1);
                 var alt = args.get(2);
                 if (test == null) {
@@ -120,10 +118,10 @@ public class Jispy {
             case "lambda" -> {
                 var parameter = args.get(0);
                 var body = args.get(1);
-                return (Lambda) arguments -> eval(body, new Env(convert(parameter), arguments, env));
+                return (Lambda) arguments -> eval(body, new Env((Iterable<Object>) (parameter), arguments, env));
             }
             default -> {
-                Lambda proc = convert(eval(op, env));
+                Lambda proc = (Lambda) (eval(op, env));
                 var vals = args.stream().map(arg -> eval(arg, env)).collect(Collectors.toList());
                 if (proc == null) {
                     throw new ClassCastException("null is not function");
