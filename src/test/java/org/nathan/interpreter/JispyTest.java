@@ -33,10 +33,12 @@ public class JispyTest {
 
     @Test
     public void parseTest() {
-        List<Object> expected = Arrays.asList("begin",
-                Arrays.asList("define", "r", 10),
-                Arrays.asList("*", "pi", Arrays.asList("*","r","r")));
-        assertTrue(listTreeEqual(expected,(List<Object>) (parse("(begin (define r 10) (* pi (* r r)))"))));
+        List<Object> expected = Arrays.asList(new Symbol("begin"),
+                Arrays.asList(new Symbol("define"), new Symbol("r"), 10),
+                Arrays.asList(new Symbol("*"), new Symbol("pi"),
+                        Arrays.asList(new Symbol("*"),new Symbol("r"),new Symbol("r"))));
+        var t= (List<Object>) (parse("(begin (define r 10) (* pi (* r r)))"));
+        assertTrue(listTreeEqual(expected, t));
     }
 
     @Test

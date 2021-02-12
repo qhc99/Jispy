@@ -3,7 +3,6 @@ package org.nathan.interpreter;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
-import org.nathan.interpreter.Env.Lambda;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -130,40 +129,53 @@ public class Jispy {
     }
 
     private static Object eval(Object x, Env env) {
-        if (x.getClass().equals(String.class)) return env.find(x).get(x);
-        else if (!x.getClass().equals(ArrayList.class)) return x;
-        List<Object> list = (List<Object>) (x);
-        String op = (String) (list.get(0));
-        var args = list.subList(1, list.size());
-        switch (op) {
-            case "if" -> {
-                Boolean test = (Boolean) (eval(args.get(0), env));
-                var conseq = args.get(1);
-                var alt = args.get(2);
-                if (test == null) {
-                    throw new NullPointerException();
-                }
-                var exp = test ? conseq : alt;
-                return eval(exp, env);
+        while (true){
+            if(x instanceof Symbol) return env.find(x).get(x);
+            else if(!(x instanceof List)) return x;
+            List<Object> l = (ArrayList<Object>)x;
+            var op = l.get(0);
+            if(op.equals(_quote)) return l.subList(1,l.size());
+            else if(op.equals(_if)) {
+                var test = l.get(1);
+                var conseq = l.get(2);
+                var alt = l.get(3);
+                Boolean t = (Boolean)eval(test,env);
+                if(t == null) throw new SyntaxException("null is not boolean");
+                if(t) x = conseq;
+                else x = alt;
             }
-            case "define" -> {
-                var symbol = args.get(0);
-                var exp = args.get(1);
-                env.put(symbol, eval(exp, env));
+            else if(op.equals(_set)){
+                var v = l.get(1);
+                var exp = l.get(2);
+                env.find(v).put(v, eval(exp,env));
                 return null;
             }
-            case "lambda" -> {
-                var parameter = args.get(0);
-                var body = args.get(1);
-                return (Lambda) arguments -> eval(body, new Env((Iterable<Object>) (parameter), arguments, env));
+            else if(op.equals(_define)){
+                var v = l.get(1);
+                var exp = l.get(2);
+                env.put(v, eval(exp,env));
+                return null;
             }
-            default -> {
-                Lambda proc = (Lambda) (eval(op, env));
-                var vals = args.stream().map(arg -> eval(arg, env)).collect(Collectors.toList());
-                if (proc == null) {
-                    throw new ClassCastException("null is not function");
+            else if(op.equals(_lambda)){
+                var vars = l.get(1);
+                var exp = l.get(2);
+                return newProcedure((Iterable<Object>) vars,exp,env);
+            }
+            else if(op.equals(_begin)){
+                for(var exp : l.subList(1,l.size()-1)) eval(exp, env);
+                x = l.get(l.size()-1);
+            }
+            else{
+                Env finalEnv = env;
+                var exps = l.stream().map(exp->eval(exp, finalEnv)).collect(Collectors.toList());
+                var proc = exps.get(0);
+                exps = exps.subList(1,exps.size());
+                if(proc instanceof Procedure){
+                    Procedure p = (Procedure) proc;
+                    x = p.expression();
+                    env = new Env(p.parameters(), exps, p.environment());
                 }
-                return proc.apply(vals);
+                else return ((Lambda)proc).apply(exps);
             }
         }
     }
@@ -296,37 +308,37 @@ public class Jispy {
         require(x, x != Nil);
         if (!(x instanceof List)) return x;
         List<Object> l = (ArrayList<Object>) x;
-        if (l.get(0).equals(_quote)) {
+        var op = l.get(0);
+        if (op.equals(_quote)) {
             require(x, l.size() == 2);
             return l;
         }
-        else if (l.get(0).equals(_if)) {
+        else if (op.equals(_if)) {
             if (l.size() == 3) l.add(null);
             require(x, l.size() == 4);
             return l.stream().map(Jispy::expand).collect(Collectors.toList());
         }
-        else if (l.get(0).equals(_set)) {
+        else if (op.equals(_set)) {
             require(x, l.size() == 3);
             var v = l.get(1);
             require(x, v instanceof Symbol, "can set! only a symbol");
             return Arrays.asList(_set, v, expand(l.get(2)));
         }
-        else if (l.get(0).equals(_define) || l.get(0).equals(_define_macro)) {
+        else if (op.equals(_define) || op.equals(_define_macro)) {
             require(x, l.size() >= 3);
-            var _def = l.get(0);
             var v = l.get(1);
             var body = l.subList(2, l.size());
             if (v instanceof List && !((ArrayList<?>) v).isEmpty()) {
                 List<Object> lv = (ArrayList<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
-                return expand(Arrays.asList(_def, f, Arrays.asList(_lambda, args, body)));
+                return expand(Arrays.asList(op, f, Arrays.asList(_lambda, args, body)));
             }
             else {
                 require(x, l.size() == 3);
                 require(x, v instanceof Symbol, "can define only a symbol");
                 var exp = expand(l.get(2));
-                if (_def.equals(_define_macro)) {
+                if (op.equals(_define_macro)) {
                     require(x, topLevel, "define-macro only allowed at top level");
                     var proc = eval(exp);
                     require(x, proc instanceof Lambda, "macro must be a procedure");
@@ -336,11 +348,11 @@ public class Jispy {
                 return Arrays.asList(_define,v,exp);
             }
         }
-        else if (l.get(0).equals(_begin)) {
+        else if (op.equals(_begin)) {
             if (l.size() == 1) return null;
             else return l.stream().map(i -> expand(i, topLevel)).collect(Collectors.toList());
         }
-        else if (l.get(0).equals(_lambda)) {
+        else if (op.equals(_lambda)) {
             require(x, l.size() >= 3);
             var vars = l.get(1);
             var body = l.subList(2, l.size());
@@ -356,11 +368,11 @@ public class Jispy {
             }
             return Arrays.asList(_lambda, vars, expand(exp));
         }
-        else if (l.get(0).equals(_quasi_quote)) {
+        else if (op.equals(_quasi_quote)) {
             require(x, l.size() == 2);
             return expandQuasiQuote(l.get(1));
         }
-        else if(l.get(0) instanceof Symbol && macro_table.containsKey(l.get(0))){
+        else if(op instanceof Symbol && macro_table.containsKey(l.get(0))){
             return expand(macro_table.get(l.get(0)).apply(l.subList(1,l.size())),topLevel);
         }
         else return l.stream().map(Jispy::expand).collect(Collectors.toList());
@@ -448,5 +460,27 @@ public class Jispy {
         throw ball;
     }
 
+    private static Lambda newProcedure(Iterable<Object> params, Object exp, Env env){
+        return new Procedure() {
+            @Override
+            public Object apply(List<Object> args) {
+                return eval(exp, new Env(params,args,env));
+            }
 
+            @Override
+            public Object expression(){
+                return exp;
+            }
+
+            @Override
+            public Env environment(){
+                return env;
+            }
+
+            @Override
+            public Iterable<Object> parameters(){
+                return params;
+            }
+        };
+    }
 }
