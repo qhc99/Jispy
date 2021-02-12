@@ -5,7 +5,6 @@ import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.nathan.interpreter.Env.Lambda;
 
-import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -13,12 +12,11 @@ import java.util.stream.Collectors;
 
 import static org.nathan.interpreter.Symbol.*;
 
-
+@SuppressWarnings("unused")
 public class Jispy {
 
     private static final boolean TIMER_ON = false;
 
-    @SuppressWarnings("unused")
     static class ArgumentsCountException extends RuntimeException {
         public ArgumentsCountException() {
             super();
@@ -29,7 +27,7 @@ public class Jispy {
         }
     }
 
-    @SuppressWarnings("unused")
+
     static class SyntaxException extends RuntimeException {
         public SyntaxException() {
             super();
@@ -37,6 +35,14 @@ public class Jispy {
 
         public SyntaxException(String s) {
             super(s);
+        }
+    }
+
+    private static class RuntimeWarning extends RuntimeException{
+        Object returnValue;
+        RuntimeWarning(){}
+        RuntimeWarning(String m){
+            super(m);
         }
     }
 
@@ -417,4 +423,27 @@ public class Jispy {
         res.addAll(((ArrayList<Object>) vals).stream().map(Jispy::expand).collect(Collectors.toList()));
         return res;
     }
+
+    private static Object callcc(Lambda proc){
+        var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
+        try{
+            return proc.apply(r->raise(r, ball));
+        }
+        catch (RuntimeWarning w){
+            if(w.equals(ball)){
+                return ball.returnValue;
+            }
+            else{
+                throw w;
+            }
+        }
+
+    }
+
+    private static Object raise(Object r, RuntimeWarning ball){
+        ball.returnValue = r;
+        throw ball;
+    }
+
+
 }
