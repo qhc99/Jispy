@@ -124,11 +124,11 @@ public class Jispy {
         return expand(read((InPort) in), true);
     }
 
-    private static Object eval(Object x) {
+    static Object eval(Object x) {
         return eval(x, GlobalEnv);
     }
 
-    private static Object eval(Object x, Env env) {
+    static Object eval(Object x, Env env) {
         while (true){
             if(x instanceof Symbol) return env.find(x).get(x);
             else if(!(x instanceof List)) return x;
@@ -159,7 +159,7 @@ public class Jispy {
             else if(op.equals(_lambda)){
                 var vars = l.get(1);
                 var exp = l.get(2);
-                return newProcedure((Iterable<Object>) vars,exp,env);
+                return Procedure.newProcedure((Iterable<Object>) vars,exp,env);
             }
             else if(op.equals(_begin)){
                 for(var exp : l.subList(1,l.size()-1)) eval(exp, env);
@@ -460,27 +460,4 @@ public class Jispy {
         throw ball;
     }
 
-    private static Lambda newProcedure(Iterable<Object> params, Object exp, Env env){
-        return new Procedure() {
-            @Override
-            public Object apply(List<Object> args) {
-                return eval(exp, new Env(params,args,env));
-            }
-
-            @Override
-            public Object expression(){
-                return exp;
-            }
-
-            @Override
-            public Env environment(){
-                return env;
-            }
-
-            @Override
-            public Iterable<Object> parameters(){
-                return params;
-            }
-        };
-    }
 }
