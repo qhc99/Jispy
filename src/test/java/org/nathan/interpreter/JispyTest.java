@@ -3,6 +3,7 @@ package org.nathan.interpreter;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.nathan.interpreter.Utils.*;
@@ -32,22 +33,9 @@ public class JispyTest {
 
     @Test
     public void parseTest() {
-        List<Object> expected = new ArrayList<>();
-        expected.add("begin");
-        List<Object> t1 = new ArrayList<>();
-        t1.add("define");
-        t1.add("r");
-        t1.add(10);
-        expected.add(t1);
-        List<Object> t2 = new ArrayList<>();
-        t2.add("*");
-        t2.add("pi");
-        List<Object> t3 = new ArrayList<>();
-        t3.add("*");
-        t3.add("r");
-        t3.add("r");
-        t2.add(t3);
-        expected.add(t2);
+        List<Object> expected = Arrays.asList("begin",
+                Arrays.asList("define", "r", 10),
+                Arrays.asList("*", "pi", Arrays.asList("*","r","r")));
         assertTrue(listTreeEqual(expected, convert(parse("(begin (define r 10) (* pi (* r r)))"))));
     }
 

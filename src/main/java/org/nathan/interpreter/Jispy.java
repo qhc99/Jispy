@@ -1,16 +1,19 @@
 package org.nathan.interpreter;
 
+import org.nathan.interpreter.Env.Lambda;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import org.nathan.interpreter.Env.Lambda;
 import java.util.stream.Collectors;
-import static org.nathan.interpreter.Utils.*;
+
+import static org.nathan.interpreter.Utils.convert;
 
 // TODO transplant from C# code
 public class Jispy {
 
+    private static final boolean TIMER_ON = false;
 
     @SuppressWarnings("unused")
     static class ArgumentsCountException extends RuntimeException {
@@ -57,7 +60,15 @@ public class Jispy {
             }
             Object val = null;
             try {
+                long t1, t2;
+                if (TIMER_ON){
+                    t1 = System.nanoTime();
+                }
                 val = runScheme(s);
+                if (TIMER_ON) {
+                    t2 = System.nanoTime();
+                    System.out.println((t2 - t1) / Math.pow(10, 6));
+                }
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -94,7 +105,7 @@ public class Jispy {
                 Boolean test = convert(eval(args.get(0), env));
                 var conseq = args.get(1);
                 var alt = args.get(2);
-                if(test == null){
+                if (test == null) {
                     throw new NullPointerException();
                 }
                 var exp = test ? conseq : alt;
