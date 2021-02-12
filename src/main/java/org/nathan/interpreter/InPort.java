@@ -1,9 +1,6 @@
 package org.nathan.interpreter;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.regex.Pattern;
@@ -17,11 +14,13 @@ public class InPort {
         file = new BufferedReader(new InputStreamReader(in));
     }
 
+    public InPort(String in){
+        file = new BufferedReader(new StringReader(in));
+    }
+
     Object nextToken() {
         while (true) {
-            if (!queue.isEmpty()) {
-                return queue.poll();
-            }
+            if (!queue.isEmpty()) return queue.poll();
             if (line.equals("")) {
                 try {
                     line = file.readLine();
@@ -42,9 +41,7 @@ public class InPort {
                     queue.add(token);
                 }
             }
-            if (!queue.isEmpty()) {
-                return queue.poll();
-            }
+            if (!queue.isEmpty()) return queue.poll();
         }
     }
 }

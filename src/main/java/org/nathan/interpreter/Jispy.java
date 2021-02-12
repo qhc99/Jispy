@@ -5,14 +5,13 @@ import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.nathan.interpreter.Env.Lambda;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.swing.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.nathan.interpreter.Symbol.eof;
-import static org.nathan.interpreter.Symbol.quotes;
+import static org.nathan.interpreter.Symbol.*;
 
 
 public class Jispy {
@@ -42,7 +41,7 @@ public class Jispy {
     }
 
 
-    static final String Nil = "'()";
+    static final List<Object> Nil = Collections.emptyList();
 
     static final Env GlobalEnv = Env.NewStandardEnv();
 
@@ -78,12 +77,46 @@ public class Jispy {
         }
     }
 
+    private static void repl(String prompt, Reader inPort, Writer out) {
+        try {
+            System.err.write("Jispy version 2.0\\n".getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        while (true) {
+            try {
+                if (prompt != null) {
+                    try {
+                        System.err.write(prompt.getBytes(StandardCharsets.UTF_8));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+                var x = parse(inPort);
+                if (x.equals(eof)) return;
+                var val = eval(x);
+                if (val != null && out != null) {
+                    out.write(toString(val));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static Object runScheme(String program) {
         return eval(parse(program));
     }
 
     static Object parse(String program) {
         return readFromTokens(tokenize(program));
+    }
+
+    private static Object parse(Object in) {
+        if (in instanceof String) in = new InPort((String) in);
+        return expand(read((InPort) in), true);
     }
 
     private static Object eval(Object x) {
@@ -204,7 +237,7 @@ public class Jispy {
 
     private static Object read(InPort inPort) {
         var token = inPort.nextToken();
-        if (token == eof) return eof;
+        if (token.equals(eof)) return eof;
         else return readAhead(token, inPort);
 
     }
@@ -225,7 +258,7 @@ public class Jispy {
         }
         else if (token.equals(")")) throw new SyntaxException("unexpected )");
         else if (quotes.containsKey(token)) return Arrays.asList(quotes.get(token), read(inPort));
-        else if (token == eof) throw new SyntaxException("unexpected EOF in list");
+        else if (token.equals(eof)) throw new SyntaxException("unexpected EOF in list");
         else return toAtom((String) token);
     }
 
@@ -234,17 +267,154 @@ public class Jispy {
         else if (x.equals(false)) return "#f";
         else if (x instanceof Symbol) return x.toString();
         else if (x instanceof String) return ((String) x).substring(1, ((String) x).length() - 1);
-        else if (x instanceof ArrayList) {
+        else if (x instanceof List) {
             var s = new StringBuilder("(");
-            for(var i : (ArrayList<Object>)x){
+            for (var i : (ArrayList<Object>) x) {
                 s.append(toString(i));
                 s.append(" ");
             }
-            s.delete(s.length()-1,s.length());
+            s.delete(s.length() - 1, s.length());
             s.append(")");
             return s.toString();
         }
-        else if(x instanceof Complex) return ComplexFormat.getInstance().format((Complex) x);
+        else if (x instanceof Complex) return ComplexFormat.getInstance().format((Complex) x);
         else return x.toString();
+    }
+
+    private static Object expand(Object x) {
+        return expand(x, false);
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    private static Object expand(Object x, boolean topLevel) {
+        require(x, x != Nil);
+        if (!(x instanceof ArrayList)) return x;
+        List<Object> l = (ArrayList<Object>) x;
+        if (l.get(0).equals(_quote)) {
+            require(x, l.size() == 2);
+            return l;
+        }
+        else if (l.get(0).equals(_if)) {
+            if (l.size() == 3) l.add(null);
+            require(x, l.size() == 4);
+            return l.stream().map(Jispy::expand).collect(Collectors.toList());
+        }
+        else if (l.get(0).equals(_set)) {
+            require(x, l.size() == 3);
+            var v = l.get(1);
+            require(x, v instanceof Symbol, "can set! only a symbol");
+            return Arrays.asList(_set, v, expand(l.get(2)));
+        }
+        else if (l.get(0).equals(_define) || l.get(0).equals(_define_macro)) {
+            require(x, l.size() >= 3);
+            var _def = l.get(0);
+            var v = l.get(1);
+            var body = l.subList(2, l.size());
+            if (v instanceof ArrayList && !((ArrayList<?>) v).isEmpty()) {
+                List<Object> lv = (ArrayList<Object>) v;
+                var f = lv.get(0);
+                var args = lv.subList(1, lv.size());
+                return expand(Arrays.asList(_def, f, Arrays.asList(_lambda, args, body)));
+            }
+            else {
+                require(x, l.size() == 3);
+                require(x, v instanceof Symbol, "can define only a symbol");
+                var exp = expand(l.get(2));
+                if (_def.equals(_define_macro)) {
+                    require(x, topLevel, "define-macro only allowed at top level");
+                    var proc = eval(exp);
+                    require(x, proc instanceof Lambda, "macro must be a procedure");
+                    macro_table.put((Symbol) v, (Lambda) proc);
+                    return null;
+                }
+                return Arrays.asList(_define,v,exp);
+            }
+        }
+        else if (l.get(0).equals(_begin)) {
+            if (l.size() == 1) return null;
+            else return l.stream().map(i -> expand(i, topLevel)).collect(Collectors.toList());
+        }
+        else if (l.get(0).equals(_lambda)) {
+            require(x, l.size() >= 3);
+            var vars = l.get(1);
+            var body = l.subList(2, l.size());
+            require(x, (vars instanceof ArrayList &&
+                    ((ArrayList<Object>) vars).stream().allMatch(v -> v instanceof Symbol)));
+            Object exp;
+            if (body.size() == 1) exp = body.get(0);
+            else {
+                List<Object> t = new ArrayList<>();
+                exp = t;
+                t.add(_begin);
+                t.addAll(body);
+            }
+            return Arrays.asList(_lambda, vars, expand(exp));
+        }
+        else if (l.get(0).equals(_quasi_quote)) {
+            require(x, l.size() == 2);
+            return expandQuasiQuote(l.get(1));
+        }
+        else if(l.get(0) instanceof Symbol && macro_table.containsKey(l.get(0))){
+            return expand(macro_table.get(l.get(0)).apply(l.subList(1,l.size())),topLevel);
+        }
+        else return l.stream().map(Jispy::expand).collect(Collectors.toList());
+    }
+
+    private static Object expandQuasiQuote(Object x){
+        if(!isPair(x)){
+            return Arrays.asList(_quote,x);
+        }
+        List<Object> l = (ArrayList<Object>)x;
+        require(x, !l.get(0).equals(_unquote_splicing), "can't splice here");
+        if(l.get(0).equals(_unquote)){
+            require(x, l.size() == 2);
+            return l.get(1);
+        }
+        else if(isPair(l.get(0)) && ((ArrayList<?>)l.get(0)).get(0).equals(_unquote_splicing)){
+            require(l.get(0),((ArrayList<?>) l.get(0)).size() == 2);
+            return Arrays.asList(_append,((ArrayList<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size())));
+        }
+        else return Arrays.asList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1,l.size())));
+    }
+
+    private static boolean isPair(Object x){
+        if(x instanceof List){
+            return !((ArrayList<?>) x).isEmpty();
+        }
+        return false;
+    }
+
+    private static void require(Object x, boolean predicate) {
+        require(x, predicate, "wrong length");
+    }
+
+    private static void require(Object x, boolean predicate, String m) {
+        if (!predicate) {
+            throw new SecurityException(x.toString() + m);
+        }
+    }
+
+    static Object let(Object... arguments) {
+        var args = Arrays.stream(arguments).collect(Collectors.toList());
+        List<Object> x = Arrays.asList(_let);
+        x.add(args);
+        if (x.size() <= 1) throw new SyntaxException(x.toString() + "wrong length");
+        var bindings = args.get(0);
+        var body = args.subList(1, args.size());
+        for (var b : (Iterable<Object>) bindings) {
+            if (!(b instanceof ArrayList) ||
+                    ((ArrayList<?>) b).size() != 2 ||
+                    !(((ArrayList<?>) b).get(0) instanceof Symbol)) {
+                throw new SyntaxException(toString(x) + "illegal binding list");
+            }
+        }
+        var bd = (ArrayList<Object>) bindings;
+        var vars = bd.get(0);
+        var vals = bd.get(1);
+        var listVars = Arrays.asList(vars);
+        listVars.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
+        List<Object> res = Arrays.asList(Arrays.asList(_lambda, listVars));
+        res.addAll(((ArrayList<Object>) vals).stream().map(Jispy::expand).collect(Collectors.toList()));
+        return res;
     }
 }

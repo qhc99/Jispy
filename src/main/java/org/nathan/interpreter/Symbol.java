@@ -2,6 +2,7 @@ package org.nathan.interpreter;
 
 import java.util.Map;
 import java.util.Objects;
+import static org.nathan.interpreter.Env.*;
 
 public class Symbol {
     final String str;
@@ -33,20 +34,24 @@ public class Symbol {
         return str;
     }
 
-    static Map<String, Symbol> _quote = Map.of("quote", new Symbol("quote"));
-    static Map<String, Symbol> _if = Map.of("if", new Symbol("if"));
-    static Map<String, Symbol> _set = Map.of("set!", new Symbol("set!"));
-    static Map<String, Symbol> _define = Map.of("define", new Symbol("define"));
-    static Map<String, Symbol> _lambda = Map.of("lambda", new Symbol("lambda"));
-    static Map<String, Symbol> _begin = Map.of("begin", new Symbol("begin"));
-    static Map<String, Symbol> _define_macro = Map.of("define-macro", new Symbol("define-macro"));
-    static Map<String, Symbol> _quasi_quote = Map.of("quasi-quote", new Symbol("quasi-quote"));
-    static Map<String, Symbol> _unquote = Map.of("unquote", new Symbol("unquote"));
-    static Map<String, Symbol> _unquote_splicing = Map.of("unquote-splicing", new Symbol("unquote-splicing"));
+    static Symbol _quote = new Symbol("quote");
+    static Symbol _if = new Symbol("if");
+    static Symbol _set = new Symbol("set!");
+    static Symbol _define =  new Symbol("define");
+    static Symbol _lambda =  new Symbol("lambda");
+    static Symbol _begin = new Symbol("begin");
+    static Symbol _define_macro =  new Symbol("define-macro");
+    static Symbol _quasi_quote =  new Symbol("quasi-quote");
+    static Symbol _unquote =  new Symbol("unquote");
+    static Symbol _unquote_splicing =  new Symbol("unquote-splicing");
     static Symbol eof = new Symbol("#<eof-object>");
-    static Map<String, Map<String, Symbol>> quotes = Map.of(
+    static Map<String, Symbol> quotes = Map.of(
             "'", _quote,
             "`", _quasi_quote,
             ",", _unquote,
             ",@", _unquote_splicing);
+    static Symbol _append = new Symbol("append");
+    static Symbol _cons = new Symbol("cons");
+    static Symbol _let = new Symbol("let");
+    static Map<Symbol, Lambda> macro_table = Map.of(_let, Jispy::let);
 }

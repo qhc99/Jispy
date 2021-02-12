@@ -201,7 +201,7 @@ public class Env extends HashMap<Object, Object> {
                     while (true) {
                         List<Object> vals = new ArrayList<>();
                         for (int i = 0; i < lists.size(); i++) {
-                            if (!lists.get(i).equals(Jispy.Nil)) {
+                            if (lists.get(i) != Jispy.Nil) {
                                 SList list = (SList) (lists.get(i));
                                 vals.add(list.Car);
                                 lists.set(i, list.Cdr);
@@ -227,7 +227,7 @@ public class Env extends HashMap<Object, Object> {
                 Map.entry("null?", (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
-                    return args.get(0).equals(Jispy.Nil);
+                    return args.get(0) != Jispy.Nil;
                 })),
                 Map.entry("number?", (Lambda) (args ->
                 {
