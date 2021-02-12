@@ -52,7 +52,7 @@ public class JispyTest {
     @Test
     public void caseTest3() {
         var res = runScheme("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
-        var b = new SchemeListBuilder();
+        var b = new SListBuilder();
         b.append(2).append(4).append(6).append(8.0);
         assertTrue(b.toSchemeList().contentEqual(convert(res)));
     }
@@ -80,7 +80,7 @@ public class JispyTest {
 
     @Test
     public void caseTest7() {
-        var b = new SchemeListBuilder();
+        var b = new SListBuilder();
         b.append(1).append(4).append(9).append(16);
         assertTrue(b.toSchemeList().contentEqual(runScheme("(begin " +
                 "(define square (lambda (x) (* x x))) " +
@@ -90,7 +90,7 @@ public class JispyTest {
 
     @Test
     public void caseTest8() {
-        var expected = new SchemeListBuilder();
+        var expected = new SListBuilder();
         expected.append(4).append(6).append(8).append(10);
         assertTrue(expected.toSchemeList().contentEqual(runScheme("(begin " +
                 "(define two (lambda (a b) (+ a b 2))) " +
@@ -100,7 +100,7 @@ public class JispyTest {
 
     @Test
     public void caseTest9(){
-        var expected = new SchemeListBuilder();
+        var expected = new SListBuilder();
         expected.append(1).append(2).append(3).append(4).append(5).append(6);
         var res = runScheme("(append (list 1 2) (list 3 4) (list 5 6))");
         assertTrue(expected.toSchemeList().contentEqual(res));

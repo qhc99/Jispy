@@ -4,25 +4,25 @@ import java.util.Iterator;
 
 import static org.nathan.interpreter.Utils.convert;
 
-public class SchemeList implements Iterable<Object> {
+public class SList implements Iterable<Object> {
     Object Car;
     Object Cdr;
 
-    SchemeList(Object car) {
+    SList(Object car) {
         Car = car;
         Cdr = Jispy.Nil;
     }
 
 
-    SchemeList(Object car, Object cdr) {
+    SList(Object car, Object cdr) {
         Car = car;
         Cdr = cdr;
     }
 
-    SchemeList chainAdd(Object o){
-        if(!(o.getClass().equals(SchemeList.class))){
-            Cdr = new SchemeList(o);
-            return (SchemeList) Cdr;
+    SList chainAdd(Object o){
+        if(!(o.getClass().equals(SList.class))){
+            Cdr = new SList(o);
+            return (SList) Cdr;
         }
         else{
             throw new ClassCastException("can only add element");
@@ -32,14 +32,14 @@ public class SchemeList implements Iterable<Object> {
 
 
 
-    SchemeList chainAppend(Object l){
-        if(l.getClass().equals(SchemeList.class)){
+    SList chainAppend(Object l){
+        if(l.getClass().equals(SList.class)){
             if(Cdr.equals(Jispy.Nil)){
                 Cdr = l;
                 return convert(l);
             }
             else {
-                SchemeList cdr = convert(Cdr);
+                SList cdr = convert(Cdr);
                 return cdr.chainAppend(l);
             }
         }
@@ -49,12 +49,12 @@ public class SchemeList implements Iterable<Object> {
     }
 
     boolean contentEqual(Object l){
-        if(Car.equals(((SchemeList)l).Car)){
-            if(Cdr.getClass().equals(SchemeList.class)){
-                return ((SchemeList)Cdr).contentEqual(((SchemeList)l).Cdr);
+        if(Car.equals(((SList)l).Car)){
+            if(Cdr.getClass().equals(SList.class)){
+                return ((SList)Cdr).contentEqual(((SList)l).Cdr);
             }
             else{
-                return Cdr.equals(((SchemeList) l).Cdr);
+                return Cdr.equals(((SList) l).Cdr);
             }
         }
         return false;
@@ -65,7 +65,7 @@ public class SchemeList implements Iterable<Object> {
             return 1;
         }
         else{
-            return 1 + ((SchemeList)Cdr).length();
+            return 1 + ((SList)Cdr).length();
         }
     }
 
@@ -96,7 +96,7 @@ public class SchemeList implements Iterable<Object> {
 
         @Override
         public Object next() {
-            var c = ((SchemeList)ptr);
+            var c = ((SList)ptr);
             var r = c.Car;
             ptr = c.Cdr;
             return r;
@@ -109,26 +109,3 @@ public class SchemeList implements Iterable<Object> {
     }
 }
 
-class SchemeListBuilder{
-
-    SchemeList head;
-    SchemeList ptr;
-    SchemeListBuilder(){
-        head = new SchemeList(Jispy.Nil);
-        ptr = head;
-    }
-
-    SchemeListBuilder append(Object o){
-        if(head.Car.equals(Jispy.Nil)){
-            head.Car = o;
-        }
-        else{
-            ptr = ptr.chainAdd(o);
-        }
-        return this;
-    }
-
-    SchemeList toSchemeList(){
-        return head;
-    }
-}

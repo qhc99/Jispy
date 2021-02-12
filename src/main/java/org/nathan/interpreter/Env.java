@@ -3,7 +3,7 @@ package org.nathan.interpreter;
 import java.util.*;
 import java.util.function.Function;
 
-import static org.nathan.interpreter.Operators.*;
+import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
 
 
@@ -65,7 +65,7 @@ public class Env extends HashMap<Object, Object> {
                         return val;
                     }
                     else {
-                        var res = args.stream().reduce(Operators::plus);
+                        var res = args.stream().reduce(NumericOperators::plus);
                         return res.get();
                     }
                 }),
@@ -134,7 +134,7 @@ public class Env extends HashMap<Object, Object> {
                     var res = args.get(0);
                     var ptr = res;
                     for(int i = 1; i < args.size(); i++){
-                        ptr = ((SchemeList)ptr).chainAppend(args.get(i));
+                        ptr = ((SList)ptr).chainAppend(args.get(i));
                     }
                     return res;
                 })),
@@ -147,17 +147,17 @@ public class Env extends HashMap<Object, Object> {
                 Map.entry("car", (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
-                    return ((SchemeList) args.get(0)).Car;
+                    return ((SList) args.get(0)).Car;
                 })),
                 Map.entry("cdr", (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
-                    return ((SchemeList) (args.get(0))).Cdr;
+                    return ((SList) (args.get(0))).Cdr;
                 })),
                 Map.entry("cons", (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
-                    return new SchemeList(args.get(0),args.get(1));
+                    return new SList(args.get(0),args.get(1));
                 })),
                 Map.entry("eq?", (Lambda) (args ->
                 {
@@ -177,12 +177,12 @@ public class Env extends HashMap<Object, Object> {
                 Map.entry("length", (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
-                    return ((SchemeList)args.get(0)).length();
+                    return ((SList)args.get(0)).length();
                 })),
                 Map.entry("list", (Lambda) (args ->
                 {
                     if (args.size() < 1) throw new Jispy.ArgumentsCountException();
-                    var res = new SchemeList(args.get(0));
+                    var res = new SList(args.get(0));
                     var p = res;
                     for(int i = 1; i < args.size(); i++){
                         p = p.chainAdd(args.get(i));
@@ -192,18 +192,18 @@ public class Env extends HashMap<Object, Object> {
                 Map.entry("list?", (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
-                    return args.get(0).getClass().equals(SchemeList.class);
+                    return args.get(0).getClass().equals(SList.class);
                 })),
                 Map.entry("map", (Lambda) (args -> {
                     if (args.size() < 1) throw new Jispy.ArgumentsCountException();
                     Lambda proc = convert(args.get(0));
                     var lists = args.subList(1, args.size());
-                    var res = new SchemeListBuilder();
+                    var res = new SListBuilder();
                     while(true){
                         List<Object> vals = new ArrayList<>();
                         for(int i = 0; i < lists.size(); i++){
                             if(!lists.get(i).equals(Jispy.Nil)){
-                                SchemeList list = convert(lists.get(i));
+                                SList list = convert(lists.get(i));
                                 vals.add(list.Car);
                                 lists.set(i, list.Cdr);
                             }

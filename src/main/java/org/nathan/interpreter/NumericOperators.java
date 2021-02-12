@@ -1,7 +1,5 @@
 package org.nathan.interpreter;
 
-import static org.nathan.interpreter.Utils.value;
-
 public class NumericOperators {
 
     static boolean lessThan(Object a, Object b) {
@@ -166,6 +164,18 @@ public class NumericOperators {
             else {
                 throw new ClassCastException();
             }
+        }
+        else {
+            throw new ClassCastException();
+        }
+    }
+
+    static double value(Object o) {
+        if (o instanceof Double) {
+            return (Double) o;
+        }
+        else if (o instanceof Integer) {
+            return (Integer) o;
         }
         else {
             throw new ClassCastException();
