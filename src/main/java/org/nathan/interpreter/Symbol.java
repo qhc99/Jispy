@@ -20,7 +20,7 @@ public class Symbol {
             return str.equals(o);
         }
         Symbol symbol = (Symbol) o;
-        return Objects.equals(str, symbol.str);
+        return str.equals(symbol.str);
     }
 
     @Override

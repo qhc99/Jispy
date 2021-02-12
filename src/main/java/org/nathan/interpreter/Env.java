@@ -57,7 +57,7 @@ public class Env extends HashMap<Object, Object> {
 
     static Env NewStandardEnv() {
         Map<Object, Object> m = Map.ofEntries(
-                Map.entry("+", (Lambda) args -> {
+                Map.entry(new Symbol("+"), (Lambda) args -> {
                     if (args.size() < 1) throw new Jispy.ArgumentsCountException();
                     if (args.size() == 1) {
                         var val = args.get(0);
@@ -71,7 +71,7 @@ public class Env extends HashMap<Object, Object> {
                         return res.get();
                     }
                 }),
-                Map.entry("-", (Lambda) args ->
+                Map.entry(new Symbol("-"), (Lambda) args ->
                 {
                     if (args.size() != 1 && args.size() != 2) throw new Jispy.ArgumentsCountException();
                     if (args.size() == 1) {
@@ -85,42 +85,42 @@ public class Env extends HashMap<Object, Object> {
                         return minus(args.get(0), args.get(1));
                     }
                 }),
-                Map.entry("*", (Lambda) args ->
+                Map.entry(new Symbol("*"), (Lambda) args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return multiply(args.get(0), args.get(1));
                 }),
-                Map.entry("/", (Lambda) (args ->
+                Map.entry(new Symbol("/"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return divide(args.get(0), args.get(1));
                 })),
-                Map.entry(">", (Lambda) (args ->
+                Map.entry(new Symbol(">"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return lessThan(args.get(1), args.get(0));
                 })),
-                Map.entry("<", (Lambda) (args ->
+                Map.entry(new Symbol("<"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return lessThan(args.get(0), args.get(1));
                 })),
-                Map.entry(">=", (Lambda) (args ->
+                Map.entry(new Symbol(">="), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return lessOrEqual(args.get(1), args.get(0));
                 })),
-                Map.entry("<=", (Lambda) (args ->
+                Map.entry(new Symbol("<="), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return lessOrEqual(args.get(0), args.get(1));
                 })),
-                Map.entry("=", (Lambda) (args ->
+                Map.entry(new Symbol("="), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return equal(args.get(0), args.get(1));
                 })),
-                Map.entry("abs", (Lambda) (args ->
+                Map.entry(new Symbol("abs"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     if (value(args.get(0)) >= 0) {
@@ -130,7 +130,7 @@ public class Env extends HashMap<Object, Object> {
                         return negative(args.get(0));
                     }
                 })),
-                Map.entry("append", (Lambda) (args ->
+                Map.entry(new Symbol("append"), (Lambda) (args ->
                 {
                     if (args.size() < 2) throw new Jispy.ArgumentsCountException();
                     var res = args.get(0);
@@ -140,48 +140,48 @@ public class Env extends HashMap<Object, Object> {
                     }
                     return res;
                 })),
-                Map.entry("apply", (Lambda) (args ->
+                Map.entry(new Symbol("apply"), (Lambda) (args ->
                 {
                     Object proc = args.get(0);
                     return ((Lambda) proc).apply(args.subList(1, args.size()));
                 })),
-                Map.entry("begin", (Lambda) (args -> args.get(args.size() - 1))),
+                Map.entry(new Symbol("begin"), (Lambda) (args -> args.get(args.size() - 1))),
                 Map.entry("car", (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return ((SList) args.get(0)).Car;
                 })),
-                Map.entry("cdr", (Lambda) (args ->
+                Map.entry(new Symbol("cdr"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return ((SList) (args.get(0))).Cdr;
                 })),
-                Map.entry("cons", (Lambda) (args ->
+                Map.entry(new Symbol("cons"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return new SList(args.get(0), args.get(1));
                 })),
-                Map.entry("eq?", (Lambda) (args ->
+                Map.entry(new Symbol("eq?"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return args.get(0) == args.get(1);
                 })),
-                Map.entry("expt", (Lambda) (args ->
+                Map.entry(new Symbol("expt"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return Math.pow(value(args.get(0)), value(args.get(1)));
                 })),
-                Map.entry("equal?", (Lambda) (args ->
+                Map.entry(new Symbol("equal?"), (Lambda) (args ->
                 {
                     if (args.size() != 2) throw new Jispy.ArgumentsCountException();
                     return args.get(0).equals(args.get(1));
                 })),
-                Map.entry("length", (Lambda) (args ->
+                Map.entry(new Symbol("length"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return ((SList) args.get(0)).length();
                 })),
-                Map.entry("list", (Lambda) (args ->
+                Map.entry(new Symbol("list"), (Lambda) (args ->
                 {
                     if (args.size() < 1) throw new Jispy.ArgumentsCountException();
                     var res = new SList(args.get(0));
@@ -191,12 +191,12 @@ public class Env extends HashMap<Object, Object> {
                     }
                     return res;
                 })),
-                Map.entry("list?", (Lambda) (args ->
+                Map.entry(new Symbol("list?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return args.get(0).getClass().equals(SList.class);
                 })),
-                Map.entry("map", (Lambda) (args -> {
+                Map.entry(new Symbol("map"), (Lambda) (args -> {
                     if (args.size() < 1) throw new Jispy.ArgumentsCountException();
                     Lambda proc = (Lambda) (args.get(0));
                     var lists = args.subList(1, args.size());
@@ -220,49 +220,57 @@ public class Env extends HashMap<Object, Object> {
                     return res.toSchemeList();
 
                 })),
-                Map.entry("max", (Lambda) (args -> args.stream().max((o1, o2) -> {
+                Map.entry(new Symbol("max"), (Lambda) (args -> args.stream().max((o1, o2) -> {
                     var t = value(o1) - value(o2);
                     if (t > 0) return 1;
                     else if (t < 0) return -1;
                     else return 0;
                 }))),
-                Map.entry("min", (Lambda) (args -> args.stream().min((o1, o2) -> {
+                Map.entry(new Symbol("min"), (Lambda) (args -> args.stream().min((o1, o2) -> {
                     var t = value(o1) - value(o2);
                     if (t > 0) return 1;
                     else if (t < 0) return -1;
                     else return 0;
-                }))), Map.entry("not", (Lambda) (args ->
+                }))),
+                Map.entry(new Symbol("not"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return !(boolean) args.get(0);
-                })), Map.entry("null?", (Lambda) (args ->
+                })),
+                Map.entry(new Symbol("null?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return args.get(0) == Jispy.Nil;
-                })), Map.entry("number?", (Lambda) (args ->
+                })),
+                Map.entry(new Symbol("number?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     Object type = args.get(0).getClass();
                     return type.equals(Integer.class) || type.equals(Double.class);
-                })), Map.entry("print", (Lambda) args -> {
+                })),
+                Map.entry(new Symbol("print"), (Lambda) args -> {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     System.out.println(args.get(0));
                     return null;
-                }), Map.entry("procedure?", (Lambda) (args ->
+                }),
+                Map.entry(new Symbol("procedure?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     Object type = args.get(0).getClass();
                     return type.equals(Function.class);
-                })), Map.entry("round", (Lambda) (args ->
+                })),
+                Map.entry(new Symbol("round"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return Math.round(value(args.get(0)));
-                })), Map.entry("symbol?", (Lambda) (args ->
+                })),
+                Map.entry(new Symbol("symbol?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return args.get(0) instanceof Symbol;
-                })), Map.entry("pi", Math.PI), Map.entry("nil", Jispy.Nil),
-                Map.entry("boolean?",(Lambda)args->{
+                })),
+                Map.entry(new Symbol("pi"), Math.PI), Map.entry("nil", Jispy.Nil),
+                Map.entry(new Symbol("boolean?"), (Lambda) args -> {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return args.get(0) instanceof Boolean;
                 }));
