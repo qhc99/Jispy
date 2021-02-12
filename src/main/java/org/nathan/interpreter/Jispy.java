@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import static org.nathan.interpreter.Utils.*;
 
 // TODO transplant from C# code
-public class Jisp {
+public class Jispy {
 
 
     @SuppressWarnings("unused")

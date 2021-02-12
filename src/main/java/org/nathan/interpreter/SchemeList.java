@@ -10,7 +10,7 @@ public class SchemeList implements Iterable<Object> {
 
     SchemeList(Object car) {
         Car = car;
-        Cdr = Jisp.Nil;
+        Cdr = Jispy.Nil;
     }
 
 
@@ -34,7 +34,7 @@ public class SchemeList implements Iterable<Object> {
 
     SchemeList chainAppend(Object l){
         if(l.getClass().equals(SchemeList.class)){
-            if(Cdr.equals(Jisp.Nil)){
+            if(Cdr.equals(Jispy.Nil)){
                 Cdr = l;
                 return convert(l);
             }
@@ -61,7 +61,7 @@ public class SchemeList implements Iterable<Object> {
     }
 
     int length(){
-        if(Cdr.equals(Jisp.Nil)){
+        if(Cdr.equals(Jispy.Nil)){
             return 1;
         }
         else{
@@ -91,7 +91,7 @@ public class SchemeList implements Iterable<Object> {
 
         @Override
         public boolean hasNext() {
-            return !ptr.equals(Jisp.Nil);
+            return !ptr.equals(Jispy.Nil);
         }
 
         @Override
@@ -114,12 +114,12 @@ class SchemeListBuilder{
     SchemeList head;
     SchemeList ptr;
     SchemeListBuilder(){
-        head = new SchemeList(Jisp.Nil);
+        head = new SchemeList(Jispy.Nil);
         ptr = head;
     }
 
     SchemeListBuilder append(Object o){
-        if(head.Car.equals(Jisp.Nil)){
+        if(head.Car.equals(Jispy.Nil)){
             head.Car = o;
         }
         else{

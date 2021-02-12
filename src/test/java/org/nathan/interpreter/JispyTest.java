@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.nathan.interpreter.Utils.*;
-import static org.nathan.interpreter.Jisp.*;
+import static org.nathan.interpreter.Jispy.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JispTest {
+public class JispyTest {
     static boolean listTreeEqual(List<Object> l1, List<Object> l2) {
         var i1 = l1.iterator();
         var i2 = l2.iterator();
