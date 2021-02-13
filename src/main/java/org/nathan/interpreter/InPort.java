@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.util.regex.Pattern;
 
-public class InPort {
+public class InPort implements Closeable {
     BufferedReader file;
     String line = "";
     String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
@@ -14,11 +14,11 @@ public class InPort {
         file = new BufferedReader(new InputStreamReader(in));
     }
 
-    public InPort(@NotNull String in){
+    public InPort(@NotNull String in) {
         file = new BufferedReader(new StringReader(in));
     }
 
-    public InPort(@NotNull File file){
+    public InPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
@@ -31,7 +31,7 @@ public class InPort {
             if (line.equals("")) {
                 try {
                     line = file.readLine();
-                    if(line == null) line = "";
+                    if (line == null) { line = ""; }
                 } catch (IOException e) {
                     e.printStackTrace(System.out);
                     continue;
@@ -42,13 +42,18 @@ public class InPort {
             }
             var pattern = Pattern.compile(tokenizer);
             var matcher = pattern.matcher(line);
-            if(matcher.find()){
+            if (matcher.find()) {
                 var s = matcher.start(1);
                 var e = matcher.end(1);
-                var token = line.substring(s,e);
+                var token = line.substring(s, e);
                 line = line.substring(e);
                 return token;
             }
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        file.close();
     }
 }

@@ -24,7 +24,7 @@ public interface Procedure extends Lambda {
             }
 
             @Override
-            public  @NotNull Iterable<Object> parameters() {
+            public @NotNull Iterable<Object> parameters() {
                 return params;
             }
         };

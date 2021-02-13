@@ -59,7 +59,7 @@ public class Jispy {
         repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)));
     }
 
-    static void repl(@NotNull String prompt, @NotNull Object inPort, @NotNull Writer out) {
+    static void repl(String prompt, @NotNull Object inPort, Writer out) {
         try {
             System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -68,12 +68,13 @@ public class Jispy {
 
         while (true) {
             try {
-                out.write(prompt);
-                out.flush();
+                if (prompt != null) {
+                    System.err.println(prompt);
+                }
                 var x = parse(inPort);
-                if (x.equals(eof)) continue;
+                if (x.equals(eof)) { return; }
                 var val = eval(x);
-                if (val != null) {
+                if (val != null && out != null) {
                     out.write(toString(val));
                     out.write("\n");
                     out.flush();
@@ -84,10 +85,15 @@ public class Jispy {
                     break;
                 }
                 else {
-                    e.printStackTrace(new PrintWriter(out));
+                    e.printStackTrace(System.out);
                 }
             }
         }
+    }
+
+    static void load(String fileName) {
+        var file = new File(fileName);
+        repl(null, new InPort(file), null);
     }
 
     public static Object runScheme(@NotNull String program) {
@@ -95,7 +101,7 @@ public class Jispy {
     }
 
     static Object parse(@NotNull Object in) {
-        if (in instanceof String) in = new InPort((String) in);
+        if (in instanceof String) { in = new InPort((String) in); }
         return expand(read((InPort) in), true);
     }
 
@@ -105,19 +111,19 @@ public class Jispy {
 
     static Object eval(Object x, @NotNull Env env) {
         while (true) {
-            if (x instanceof Symbol) return env.find(x).get(x);
-            else if (!(x instanceof List)) return x;
+            if (x instanceof Symbol) { return env.find(x).get(x); }
+            else if (!(x instanceof List)) { return x; }
             List<Object> l = (List<Object>) x;
             var op = l.get(0);
-            if (op.equals(_quote)) return l.get(1);
+            if (op.equals(_quote)) { return l.get(1); }
             else if (op.equals(_if)) {
                 var test = l.get(1);
                 var conseq = l.get(2);
                 var alt = l.get(3);
                 Boolean t = (Boolean) eval(test, env);
-                if (t == null) throw new SyntaxException("null is not boolean");
-                if (t) x = conseq;
-                else x = alt;
+                if (t == null) { throw new SyntaxException("null is not boolean"); }
+                if (t) { x = conseq; }
+                else { x = alt; }
             }
             else if (op.equals(_set)) {
                 var v = l.get(1);
@@ -142,7 +148,11 @@ public class Jispy {
             }
             else {
                 Env finalEnv = env;
-                var exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
+                List<Object> exps = new ArrayList<>();
+//                exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
+                for (var exp : l) {
+                    exps.add(eval(exp, env));
+                }
                 var proc = exps.get(0);
                 exps = exps.subList(1, exps.size());
                 if (proc instanceof Procedure) {
@@ -150,7 +160,7 @@ public class Jispy {
                     x = p.expression();
                     env = new Env(p.parameters(), exps, p.environment());
                 }
-                else return ((Lambda) proc).apply(exps);
+                else { return ((Lambda) proc).apply(exps); }
             }
         }
     }
@@ -162,9 +172,9 @@ public class Jispy {
     }
 
     private static @NotNull Object toAtom(@NotNull String x) {
-        if (x.equals("#t")) return true;
-        else if (x.equals("#f")) return false;
-        else if (x.startsWith("\\")) return x.substring(1, x.length() - 1);
+        if (x.equals("#t")) { return true; }
+        else if (x.equals("#f")) { return false; }
+        else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
         else {
             boolean isInt = false;
             int t = 0;
@@ -189,10 +199,10 @@ public class Jispy {
                         return new Symbol(x);
                     }
                 }
-                else return t1;
+                else { return t1; }
 
             }
-            else return t;
+            else { return t; }
 
         }
     }
@@ -216,8 +226,8 @@ public class Jispy {
 
     private static @NotNull Object read(@NotNull InPort inPort) {
         var token = inPort.nextToken();
-        if (token.equals(eof)) return eof;
-        else return readAhead(token, inPort);
+        if (token.equals(eof)) { return eof; }
+        else { return readAhead(token, inPort); }
 
     }
 
@@ -235,17 +245,17 @@ public class Jispy {
                 }
             }
         }
-        else if (token.equals(")")) throw new SyntaxException("unexpected )");
-        else if (quotes.containsKey(token)) return treeList(quotes.get(token), read(inPort));
-        else if (token.equals(eof)) throw new SyntaxException("unexpected EOF in list");
-        else return toAtom((String) token);
+        else if (token.equals(")")) { throw new SyntaxException("unexpected )"); }
+        else if (quotes.containsKey(token)) { return treeList(quotes.get(token), read(inPort)); }
+        else if (token.equals(eof)) { throw new SyntaxException("unexpected EOF in list"); }
+        else { return toAtom((String) token); }
     }
 
     private static @NotNull String toString(@NotNull Object x) {
-        if (x.equals(true)) return "#t";
-        else if (x.equals(false)) return "#f";
-        else if (x instanceof Symbol) return x.toString();
-        else if (x instanceof String) return ((String) x).substring(1, ((String) x).length() - 1);
+        if (x.equals(true)) { return "#t"; }
+        else if (x.equals(false)) { return "#f"; }
+        else if (x instanceof Symbol) { return x.toString(); }
+        else if (x instanceof String) { return ((String) x).substring(1, ((String) x).length() - 1); }
         else if (x instanceof List) {
             var s = new StringBuilder("(");
             for (var i : (List<Object>) x) {
@@ -256,18 +266,18 @@ public class Jispy {
             s.append(")");
             return s.toString();
         }
-        else if (x instanceof Complex) return ComplexFormat.getInstance().format((Complex) x);
-        else return x.toString();
+        else if (x instanceof Complex) { return ComplexFormat.getInstance().format((Complex) x); }
+        else { return x.toString(); }
     }
 
-    private static Object expand(@NotNull Object x) {
+    static Object expand(@NotNull Object x) {
         return expand(x, false);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
     private static Object expand(@NotNull Object x, boolean topLevel) {
         require(x, x != Nil);
-        if (!(x instanceof List)) return x;
+        if (!(x instanceof List)) { return x; }
         List<Object> l = (List<Object>) x;
         var op = l.get(0);
         if (op.equals(_quote)) {
@@ -275,7 +285,7 @@ public class Jispy {
             return x;
         }
         else if (op.equals(_if)) {
-            if (l.size() == 3) l.add(null);
+            if (l.size() == 3) { l.add(null); }
             require(x, l.size() == 4);
             return l.stream().map(Jispy::expand).collect(Collectors.toList());
         }
@@ -293,7 +303,7 @@ public class Jispy {
                 List<Object> lv = (List<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
-                var t =treeList(_lambda, args);
+                var t = treeList(_lambda, args);
                 t.addAll(body);
                 return expand(treeList(op, f, t));
             }
@@ -312,8 +322,8 @@ public class Jispy {
             }
         }
         else if (op.equals(_begin)) {
-            if (l.size() == 1) return null;
-            else return l.stream().map(i -> expand(i, topLevel)).collect(Collectors.toList());
+            if (l.size() == 1) { return null; }
+            else { return l.stream().map(i -> expand(i, topLevel)).collect(Collectors.toList()); }
         }
         else if (op.equals(_lambda)) {
             require(x, l.size() >= 3);
@@ -322,7 +332,7 @@ public class Jispy {
             require(x, (vars instanceof List &&
                     ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)));
             Object exp;
-            if (body.size() == 1) exp = body.get(0);
+            if (body.size() == 1) { exp = body.get(0); }
             else {
                 List<Object> t = new ArrayList<>();
                 exp = t;
@@ -338,7 +348,7 @@ public class Jispy {
         else if (op instanceof Symbol && macro_table.containsKey(l.get(0))) {
             return expand(macro_table.get(l.get(0)).apply(l.subList(1, l.size())), topLevel);
         }
-        else return l.stream().map(Jispy::expand).collect(Collectors.toList());
+        else { return l.stream().map(Jispy::expand).collect(Collectors.toList()); }
     }
 
     private static @NotNull Object expandQuasiQuote(Object x) {
@@ -355,8 +365,7 @@ public class Jispy {
             require(l.get(0), ((List<?>) l.get(0)).size() == 2);
             return treeList(_append, ((List<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size())));
         }
-        else
-            return treeList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size())));
+        else { return treeList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size()))); }
     }
 
     private static boolean isPair(@NotNull Object x) {
@@ -395,7 +404,7 @@ public class Jispy {
         return r;
     }
 
-    private static @NotNull Object callcc(@NotNull Lambda proc) {
+    static @NotNull Object callcc(@NotNull Lambda proc) {
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try {
             return proc.apply(treeList((Lambda) objects -> {

@@ -15,9 +15,9 @@ public class NumericOperators {
     }
 
     static Object negative(Object a) {
-        if (a.getClass().equals(Integer.class)) return -(Integer) a;
-        else if (a.getClass().equals(Double.class)) return -(Double) a;
-        else throw new ClassCastException();
+        if (a.getClass().equals(Integer.class)) { return -(Integer) a; }
+        else if (a.getClass().equals(Double.class)) { return -(Double) a; }
+        else { throw new ClassCastException(); }
 
     }
 
@@ -33,7 +33,7 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c + d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
 
         }
         else if (a.getClass().equals(Double.class)) {
@@ -47,10 +47,10 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c + d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
 
         }
-        else throw new ClassCastException();
+        else { throw new ClassCastException(); }
     }
 
 
@@ -66,7 +66,7 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c - d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
         }
         else if (a.getClass().equals(Double.class)) {
             if (b.getClass().equals(Integer.class)) {
@@ -79,9 +79,9 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c - d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
         }
-        else throw new ClassCastException();
+        else { throw new ClassCastException(); }
     }
 
     static Object divide(Object a, Object b) {
@@ -96,7 +96,7 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c / d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
         }
         else if (a.getClass().equals(Double.class)) {
             if (b.getClass().equals(Integer.class)) {
@@ -109,9 +109,9 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c / d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
         }
-        else throw new ClassCastException();
+        else { throw new ClassCastException(); }
     }
 
     static Object multiply(Object a, Object b) {
@@ -126,7 +126,7 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c * d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
         }
         else if (a.getClass().equals(Double.class)) {
             if (b.getClass().equals(Integer.class)) {
@@ -139,14 +139,14 @@ public class NumericOperators {
                 Double d = (Double) (b);
                 return c * d;
             }
-            else throw new ClassCastException();
+            else { throw new ClassCastException(); }
         }
-        else throw new ClassCastException();
+        else { throw new ClassCastException(); }
     }
 
     static double value(Object o) {
-        if (o instanceof Double) return (Double) o;
-        else if (o instanceof Integer) return (Integer) o;
-        else throw new ClassCastException();
+        if (o instanceof Double) { return (Double) o; }
+        else if (o instanceof Integer) { return (Integer) o; }
+        else { throw new ClassCastException(); }
     }
 }

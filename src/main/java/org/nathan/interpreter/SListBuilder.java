@@ -1,4 +1,5 @@
 package org.nathan.interpreter;
+
 import static org.nathan.interpreter.Jispy.*;
 
 class SListBuilder {

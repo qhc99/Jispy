@@ -25,7 +25,7 @@ public class Utils {
         return true;
     }
 
-    public static List<Object> treeList(Object... o){
+    public static List<Object> treeList(Object... o) {
         return new ArrayList<>(Arrays.asList(o));
     }
 }

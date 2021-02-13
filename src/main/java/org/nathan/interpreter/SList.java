@@ -1,5 +1,7 @@
 package org.nathan.interpreter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 
 
@@ -18,22 +20,20 @@ public class SList implements Iterable<Object> {
         Cdr = cdr;
     }
 
-    SList chainAdd(Object o){
-        if(!(o.getClass().equals(SList.class))){
+    SList chainAdd(Object o) {
+        if (!(o.getClass().equals(SList.class))) {
             Cdr = new SList(o);
             return (SList) Cdr;
         }
-        else{
+        else {
             throw new ClassCastException("can only add element");
         }
     }
 
 
-
-
-    SList chainAppend(Object l){
-        if(l.getClass().equals(SList.class)){
-            if(Cdr.equals(Jispy.Nil)){
+    SList chainAppend(Object l) {
+        if (l.getClass().equals(SList.class)) {
+            if (Cdr.equals(Jispy.Nil)) {
                 Cdr = l;
                 return (SList) (l);
             }
@@ -42,36 +42,36 @@ public class SList implements Iterable<Object> {
                 return cdr.chainAppend(l);
             }
         }
-        else{
+        else {
             throw new ClassCastException("can only append list");
         }
     }
 
-    boolean contentEqual(Object l){
-        if(Car.equals(((SList)l).Car)){
-            if(Cdr.getClass().equals(SList.class)){
-                return ((SList)Cdr).contentEqual(((SList)l).Cdr);
+    boolean contentEqual(Object l) {
+        if (Car.equals(((SList) l).Car)) {
+            if (Cdr.getClass().equals(SList.class)) {
+                return ((SList) Cdr).contentEqual(((SList) l).Cdr);
             }
-            else{
+            else {
                 return Cdr.equals(((SList) l).Cdr);
             }
         }
         return false;
     }
 
-    int length(){
-        if(Cdr.equals(Jispy.Nil)){
+    int length() {
+        if (Cdr.equals(Jispy.Nil)) {
             return 1;
         }
-        else{
-            return 1 + ((SList)Cdr).length();
+        else {
+            return 1 + ((SList) Cdr).length();
         }
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         var s = new StringBuilder("[");
-        for(var i : this){
+        for (var i : this) {
             s.append(i);
             s.append(", ");
         }
@@ -84,7 +84,7 @@ public class SList implements Iterable<Object> {
 
         Object ptr;
 
-        SchemeListIterator(Object l){
+        SchemeListIterator(Object l) {
             ptr = l;
         }
 
@@ -95,7 +95,7 @@ public class SList implements Iterable<Object> {
 
         @Override
         public Object next() {
-            var c = ((SList)ptr);
+            var c = ((SList) ptr);
             var r = c.Car;
             ptr = c.Cdr;
             return r;
@@ -103,7 +103,7 @@ public class SList implements Iterable<Object> {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public @NotNull Iterator<Object> iterator() {
         return new SchemeListIterator(this);
     }
 }
