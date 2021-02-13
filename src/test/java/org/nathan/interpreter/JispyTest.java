@@ -1,5 +1,6 @@
 package org.nathan.interpreter;
 
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -16,8 +17,8 @@ public class JispyTest {
         List<Object> expected = Arrays.asList(new Symbol("begin"),
                 Arrays.asList(new Symbol("define"), new Symbol("r"), 10),
                 Arrays.asList(new Symbol("*"), new Symbol("pi"),
-                        Arrays.asList(new Symbol("*"),new Symbol("r"),new Symbol("r"))));
-        var t= (List<Object>) (parse("(begin (define r 10) (* pi (* r r)))"));
+                        Arrays.asList(new Symbol("*"), new Symbol("r"), new Symbol("r"))));
+        var t = (List<Object>) (parse("(begin (define r 10) (* pi (* r r)))"));
         assertTrue(Utils.treeListEqual(expected, t));
     }
 
@@ -56,7 +57,8 @@ public class JispyTest {
     @Test
     public void caseTest6() {
         assertEquals(3, runScheme("(begin " +
-                "(define count (lambda (item L) (if (null? L) 0 (+ (if (equal? item (car L)) 1 0) (count item (cdr L)))))) " +
+                "(define count (lambda (item L) (if (null? L) 0 (+ (if (equal? item (car L)) 1 0) (count item (cdr L)" +
+                "))))) " +
                 "(count 0 (list 0 1 2 3 0 0)))"));
     }
 
@@ -81,11 +83,26 @@ public class JispyTest {
     }
 
     @Test
-    public void caseTest9(){
+    public void caseTest9() {
         var expected = new SListBuilder();
         expected.append(1).append(2).append(3).append(4).append(5).append(6);
         var res = runScheme("(append (list 1 2) (list 3 4) (list 5 6))");
         assertTrue(expected.toSchemeList().contentEqual(res));
-
     }
+
+    @Test
+    public void tailRecursionTest() {
+        assertEquals(50005000, runScheme("(begin " +
+                "(define (sum2 n acc)" +
+                "  (if (= n 0)" +
+                "      acc" +
+                "      (sum2 (- n 1) (+ n acc)))) " +
+                "(sum2 10000 0) )"));
+    }
+
+    @Test
+    public void castTest10() {
+        assertEquals(1000, runScheme("(begin (define (cube x) (* x x x)) (cube 10))"));
+    }
+
 }

@@ -68,8 +68,9 @@ public class Jispy {
 
         while (true) {
             try {
-                if (prompt != null) {
-                    System.err.println(prompt);
+                if (prompt != null && out != null) {
+                    out.write(prompt);
+                    out.flush();
                 }
                 var x = parse(inPort);
                 if (x.equals(eof)) { return; }
