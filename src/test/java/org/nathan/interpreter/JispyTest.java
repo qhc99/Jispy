@@ -2,7 +2,6 @@ package org.nathan.interpreter;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,25 +10,6 @@ import static org.nathan.interpreter.Jispy.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JispyTest {
-    static boolean listTreeEqual(List<Object> l1, List<Object> l2) {
-        var i1 = l1.iterator();
-        var i2 = l2.iterator();
-        while (i1.hasNext() && i2.hasNext()) {
-            var item1 = i1.next();
-            var item2 = i2.next();
-            if (!item1.getClass().equals(ArrayList.class)) {
-                if (!item1.equals(item2)) {
-                    return false;
-                }
-            }
-            else {
-                if (!listTreeEqual((List<Object>) (item1), (List<Object>) (item2))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
     @Test
     public void parseTest() {
@@ -38,7 +18,7 @@ public class JispyTest {
                 Arrays.asList(new Symbol("*"), new Symbol("pi"),
                         Arrays.asList(new Symbol("*"),new Symbol("r"),new Symbol("r"))));
         var t= (List<Object>) (parse("(begin (define r 10) (* pi (* r r)))"));
-        assertTrue(listTreeEqual(expected, t));
+        assertTrue(Utils.treeListEqual(expected, t));
     }
 
     @Test

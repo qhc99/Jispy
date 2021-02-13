@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.nathan.interpreter.Symbol.*;
+import static org.nathan.interpreter.Utils.treeList;
 
 @SuppressWarnings("unused")
 public class Jispy {
@@ -50,7 +51,7 @@ public class Jispy {
     }
 
 
-    static final List<Object> Nil = Collections.emptyList();
+    static final List<Object> Nil = new ArrayList<>();
 
     private static final Env GlobalEnv = Env.NewStandardEnv();
 
@@ -58,7 +59,7 @@ public class Jispy {
         repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)));
     }
 
-    static void repl(@NotNull String prompt,@NotNull Object inPort, @NotNull Writer out) {
+    static void repl(@NotNull String prompt, @NotNull Object inPort, @NotNull Writer out) {
         try {
             System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -70,18 +71,19 @@ public class Jispy {
                 out.write(prompt);
                 out.flush();
                 var x = parse(inPort);
-                if (x.equals(eof)) return;
+                if (x.equals(eof)) continue;
                 var val = eval(x);
                 if (val != null) {
                     out.write(toString(val));
+                    out.write("\n");
                     out.flush();
                 }
             } catch (Exception e) {
-                if(e instanceof IOException){
+                if (e instanceof IOException) {
                     e.printStackTrace(System.err);
                     break;
                 }
-                else{
+                else {
                     e.printStackTrace(new PrintWriter(out));
                 }
             }
@@ -105,9 +107,9 @@ public class Jispy {
         while (true) {
             if (x instanceof Symbol) return env.find(x).get(x);
             else if (!(x instanceof List)) return x;
-            List<Object> l = (ArrayList<Object>) x;
+            List<Object> l = (List<Object>) x;
             var op = l.get(0);
-            if (op.equals(_quote)) return l.subList(1, l.size());
+            if (op.equals(_quote)) return l.get(1);
             else if (op.equals(_if)) {
                 var test = l.get(1);
                 var conseq = l.get(2);
@@ -234,7 +236,7 @@ public class Jispy {
             }
         }
         else if (token.equals(")")) throw new SyntaxException("unexpected )");
-        else if (quotes.containsKey(token)) return Arrays.asList(quotes.get(token), read(inPort));
+        else if (quotes.containsKey(token)) return treeList(quotes.get(token), read(inPort));
         else if (token.equals(eof)) throw new SyntaxException("unexpected EOF in list");
         else return toAtom((String) token);
     }
@@ -246,7 +248,7 @@ public class Jispy {
         else if (x instanceof String) return ((String) x).substring(1, ((String) x).length() - 1);
         else if (x instanceof List) {
             var s = new StringBuilder("(");
-            for (var i : (ArrayList<Object>) x) {
+            for (var i : (List<Object>) x) {
                 s.append(toString(i));
                 s.append(" ");
             }
@@ -266,11 +268,11 @@ public class Jispy {
     private static Object expand(@NotNull Object x, boolean topLevel) {
         require(x, x != Nil);
         if (!(x instanceof List)) return x;
-        List<Object> l = (ArrayList<Object>) x;
+        List<Object> l = (List<Object>) x;
         var op = l.get(0);
         if (op.equals(_quote)) {
             require(x, l.size() == 2);
-            return l;
+            return x;
         }
         else if (op.equals(_if)) {
             if (l.size() == 3) l.add(null);
@@ -281,17 +283,19 @@ public class Jispy {
             require(x, l.size() == 3);
             var v = l.get(1);
             require(x, v instanceof Symbol, "can set! only a symbol");
-            return new ArrayList<>(Arrays.asList(_set, v, expand(l.get(2))));
+            return treeList(_set, v, expand(l.get(2)));
         }
         else if (op.equals(_define) || op.equals(_define_macro)) {
             require(x, l.size() >= 3);
             var v = l.get(1);
             var body = l.subList(2, l.size());
-            if (v instanceof List && !((ArrayList<?>) v).isEmpty()) {
-                List<Object> lv = (ArrayList<Object>) v;
+            if (v instanceof List && !((List<?>) v).isEmpty()) {
+                List<Object> lv = (List<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
-                return expand(new ArrayList<>(Arrays.asList(op, f, Arrays.asList(_lambda, args, body))));
+                var t =treeList(_lambda, args);
+                t.addAll(body);
+                return expand(treeList(op, f, t));
             }
             else {
                 require(x, l.size() == 3);
@@ -304,7 +308,7 @@ public class Jispy {
                     macro_table.put((Symbol) v, (Lambda) proc);
                     return null;
                 }
-                return new ArrayList<>(Arrays.asList(_define, v, exp));
+                return treeList(_define, v, exp);
             }
         }
         else if (op.equals(_begin)) {
@@ -316,7 +320,7 @@ public class Jispy {
             var vars = l.get(1);
             var body = l.subList(2, l.size());
             require(x, (vars instanceof List &&
-                    ((ArrayList<Object>) vars).stream().allMatch(v -> v instanceof Symbol)));
+                    ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)));
             Object exp;
             if (body.size() == 1) exp = body.get(0);
             else {
@@ -325,7 +329,7 @@ public class Jispy {
                 t.add(_begin);
                 t.addAll(body);
             }
-            return new ArrayList<>(Arrays.asList(_lambda, vars, expand(exp)));
+            return treeList(_lambda, vars, expand(exp));
         }
         else if (op.equals(_quasi_quote)) {
             require(x, l.size() == 2);
@@ -339,25 +343,25 @@ public class Jispy {
 
     private static @NotNull Object expandQuasiQuote(Object x) {
         if (!isPair(x)) {
-            return new ArrayList<>(Arrays.asList(_quote, x));
+            return treeList(_quote, x);
         }
-        List<Object> l = (ArrayList<Object>) x;
+        List<Object> l = (List<Object>) x;
         require(x, !l.get(0).equals(_unquote_splicing), "can't splice here");
         if (l.get(0).equals(_unquote)) {
             require(x, l.size() == 2);
             return l.get(1);
         }
-        else if (isPair(l.get(0)) && ((ArrayList<?>) l.get(0)).get(0).equals(_unquote_splicing)) {
-            require(l.get(0), ((ArrayList<?>) l.get(0)).size() == 2);
-            return new ArrayList<>(Arrays.asList(_append, ((ArrayList<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size()))));
+        else if (isPair(l.get(0)) && ((List<?>) l.get(0)).get(0).equals(_unquote_splicing)) {
+            require(l.get(0), ((List<?>) l.get(0)).size() == 2);
+            return treeList(_append, ((List<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size())));
         }
         else
-            return new ArrayList<>(Arrays.asList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size()))));
+            return treeList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size())));
     }
 
     private static boolean isPair(@NotNull Object x) {
         if (x instanceof List) {
-            return !((ArrayList<?>) x).isEmpty();
+            return !((List<?>) x).isEmpty();
         }
         return false;
     }
@@ -366,7 +370,7 @@ public class Jispy {
         require(x, predicate, "wrong length");
     }
 
-    private static void require(@NotNull Object x, boolean predicate, @NotNull  String m) {
+    private static void require(@NotNull Object x, boolean predicate, @NotNull String m) {
         if (!predicate) {
             throw new SyntaxException(x.toString() + m);
         }
@@ -374,35 +378,30 @@ public class Jispy {
 
     static @NotNull Object let(@NotNull Object... arguments) {
         var args = Arrays.stream(arguments).collect(Collectors.toList());
-        List<Object> x = new ArrayList<>(Arrays.asList(_let));
+        List<Object> x = treeList(_let);
         x.add(args);
-        if (x.size() <= 1) throw new SyntaxException(x.toString() + "wrong length");
-        var bindings = args.get(0);
+        require(x, x.size() > 1);
+        List<Object> bindings = (List<Object>) args.get(0);
         var body = args.subList(1, args.size());
-        for (var b : (Iterable<Object>) bindings) {
-            if (!(b instanceof List) ||
-                    ((ArrayList<?>) b).size() != 2 ||
-                    !(((ArrayList<?>) b).get(0) instanceof Symbol)) {
-                throw new SyntaxException(toString(x) + "illegal binding list");
-            }
-        }
-        var bd = (ArrayList<Object>) bindings;
-        var vars = bd.get(0);
-        var vals = bd.get(1);
-        var listVars = new ArrayList<>(Arrays.asList(vars));
-        listVars.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
-        List<Object> res = new ArrayList<>(Arrays.asList(Arrays.asList(_lambda, listVars)));
-        res.addAll(((ArrayList<Object>) vals).stream().map(Jispy::expand).collect(Collectors.toList()));
-        return res;
+        require(x, bindings.stream().allMatch(b -> b instanceof List &&
+                ((List<?>) b).size() == 2 &&
+                ((List<?>) b).get(0) instanceof Symbol));
+        var vars = bindings.get(0);
+        List<Object> vals = (List<Object>) bindings.get(1);
+        var t = treeList(_lambda, treeList(vars));
+        t.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
+        var r = treeList(t);
+        r.addAll(vals.stream().map(Jispy::expand).collect(Collectors.toList()));
+        return r;
     }
 
-    private static @NotNull  Object callcc(@NotNull Lambda proc) {
+    private static @NotNull Object callcc(@NotNull Lambda proc) {
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try {
-            return proc.apply(new ArrayList<>(Arrays.asList((Lambda) objects -> {
+            return proc.apply(treeList((Lambda) objects -> {
                 raise(objects, ball);
                 return null;
-            })));
+            }));
         } catch (RuntimeWarning w) {
             if (w.equals(ball)) {
                 return ball.returnValue;

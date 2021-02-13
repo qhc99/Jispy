@@ -90,8 +90,8 @@ public class Env extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("*"), (Lambda) args ->
                 {
-                    if (args.size() != 2) throw new Jispy.ArgumentsCountException();
-                    return multiply(args.get(0), args.get(1));
+                    if (args.size() < 2) throw new Jispy.ArgumentsCountException();
+                    return args.stream().reduce(NumericOperators::multiply).get();
                 }),
                 Map.entry(new Symbol("/"), (Lambda) (args ->
                 {
