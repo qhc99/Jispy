@@ -1,5 +1,7 @@
 package org.nathan.interpreter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -7,7 +9,7 @@ import java.util.Objects;
 public class Symbol {
     final String str;
 
-    public Symbol(String s) {
+    public Symbol(@NotNull String s) {
         this.str = s;
     }
 

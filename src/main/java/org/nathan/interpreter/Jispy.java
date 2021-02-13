@@ -3,6 +3,7 @@ package org.nathan.interpreter;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,10 +38,13 @@ public class Jispy {
         }
     }
 
-    private static class RuntimeWarning extends RuntimeException{
+    private static class RuntimeWarning extends RuntimeException {
         Object returnValue;
-        RuntimeWarning(){}
-        RuntimeWarning(String m){
+
+        RuntimeWarning() {
+        }
+
+        RuntimeWarning(String m) {
             super(m);
         }
     }
@@ -48,13 +52,13 @@ public class Jispy {
 
     static final List<Object> Nil = Collections.emptyList();
 
-    static final Env GlobalEnv = Env.NewStandardEnv();
+    private static final Env GlobalEnv = Env.NewStandardEnv();
 
     public static void repl() {
-        repl("Jis.py>", System.in, new BufferedWriter(new OutputStreamWriter(System.out)));
+        repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)));
     }
 
-    static void repl(String prompt, Object inPort, Writer out) {
+    static void repl(@NotNull String prompt,@NotNull Object inPort, @NotNull Writer out) {
         try {
             System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -63,34 +67,33 @@ public class Jispy {
 
         while (true) {
             try {
-                if (prompt != null) {
-                    try {
-                        System.err.write(prompt.getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                }
+                out.write(prompt);
+                out.flush();
                 var x = parse(inPort);
                 if (x.equals(eof)) return;
                 var val = eval(x);
-                if (val != null && out != null) {
+                if (val != null) {
                     out.write(toString(val));
+                    out.flush();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                if(e instanceof IOException){
+                    e.printStackTrace(System.err);
+                    break;
+                }
+                else{
+                    e.printStackTrace(new PrintWriter(out));
+                }
             }
         }
     }
 
-    public static Object runScheme(String program) {
+    public static Object runScheme(@NotNull String program) {
         return eval(parse(program));
     }
 
-    static Object parse(Object in) {
+    static Object parse(@NotNull Object in) {
         if (in instanceof String) in = new InPort((String) in);
-        else if(in instanceof InputStream) in = new InPort((InputStream) in);
-        else throw new RuntimeException();
         return expand(read((InPort) in), true);
     }
 
@@ -98,79 +101,65 @@ public class Jispy {
         return eval(x, GlobalEnv);
     }
 
-    static Object eval(Object x, Env env) {
-        while (true){
-            if(x instanceof Symbol) return env.find(x).get(x);
-            else if(!(x instanceof List)) return x;
-            List<Object> l = (ArrayList<Object>)x;
+    static Object eval(Object x, @NotNull Env env) {
+        while (true) {
+            if (x instanceof Symbol) return env.find(x).get(x);
+            else if (!(x instanceof List)) return x;
+            List<Object> l = (ArrayList<Object>) x;
             var op = l.get(0);
-            if(op.equals(_quote)) return l.subList(1,l.size());
-            else if(op.equals(_if)) {
+            if (op.equals(_quote)) return l.subList(1, l.size());
+            else if (op.equals(_if)) {
                 var test = l.get(1);
                 var conseq = l.get(2);
                 var alt = l.get(3);
-                Boolean t = (Boolean)eval(test,env);
-                if(t == null) throw new SyntaxException("null is not boolean");
-                if(t) x = conseq;
+                Boolean t = (Boolean) eval(test, env);
+                if (t == null) throw new SyntaxException("null is not boolean");
+                if (t) x = conseq;
                 else x = alt;
             }
-            else if(op.equals(_set)){
+            else if (op.equals(_set)) {
                 var v = l.get(1);
                 var exp = l.get(2);
-                env.find(v).put(v, eval(exp,env));
+                env.find(v).put(v, eval(exp, env));
                 return null;
             }
-            else if(op.equals(_define)){
+            else if (op.equals(_define)) {
                 var v = l.get(1);
                 var exp = l.get(2);
-                env.put(v, eval(exp,env));
+                env.put(v, eval(exp, env));
                 return null;
             }
-            else if(op.equals(_lambda)){
+            else if (op.equals(_lambda)) {
                 var vars = l.get(1);
                 var exp = l.get(2);
-                return Procedure.newProcedure((Iterable<Object>) vars,exp,env);
+                return Procedure.newProcedure((Iterable<Object>) vars, exp, env);
             }
-            else if(op.equals(_begin)){
-                for(var exp : l.subList(1,l.size()-1)) eval(exp, env);
-                x = l.get(l.size()-1);
+            else if (op.equals(_begin)) {
+                for (var exp : l.subList(1, l.size() - 1)) eval(exp, env);
+                x = l.get(l.size() - 1);
             }
-            else{
+            else {
                 Env finalEnv = env;
-                var exps = l.stream().map(exp->eval(exp, finalEnv)).collect(Collectors.toList());
+                var exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
                 var proc = exps.get(0);
-                exps = exps.subList(1,exps.size());
-                if(proc instanceof Procedure){
+                exps = exps.subList(1, exps.size());
+                if (proc instanceof Procedure) {
                     Procedure p = (Procedure) proc;
                     x = p.expression();
                     env = new Env(p.parameters(), exps, p.environment());
                 }
-                else return ((Lambda)proc).apply(exps);
+                else return ((Lambda) proc).apply(exps);
             }
         }
     }
 
-    private static Object readFromTokens(Queue<String> tokens) {
-        if (tokens.size() == 0) throw new SyntaxException("unexpected EOF");
-        var token = tokens.poll();
-        if (token.equals("(")) {
-            var l = new ArrayList<>();
-            //noinspection ConstantConditions
-            while (!tokens.peek().equals(")")) l.add(readFromTokens(tokens));
-            tokens.poll();
-            return l;
-        }
-        else if (token.equals(")")) throw new SyntaxException("unexpected ')'");
-        else return toAtom(token);
-    }
-
-    private static Queue<String> tokenize(String program) {
+    private static Queue<String> tokenize(@NotNull String program) {
         var t = Arrays.stream(program.replace("(", " ( ").replace(")", " ) ").split(" ")).collect(Collectors.toList());
         t.removeIf(s -> s.equals(""));
         return new LinkedList<>(t);
     }
 
-    private static Object toAtom(String x) {
+    private static @NotNull Object toAtom(@NotNull String x) {
         if (x.equals("#t")) return true;
         else if (x.equals("#f")) return false;
         else if (x.startsWith("\\")) return x.substring(1, x.length() - 1);
@@ -206,7 +195,7 @@ public class Jispy {
         }
     }
 
-    private static Object readChar(InPort inPort) {
+    private static @NotNull Object readChar(@NotNull InPort inPort) {
         if (!inPort.line.equals("")) {
             var c = inPort.line.charAt(0);
             inPort.line = inPort.line.substring(1);
@@ -223,7 +212,7 @@ public class Jispy {
         }
     }
 
-    private static Object read(InPort inPort) {
+    private static @NotNull Object read(@NotNull InPort inPort) {
         var token = inPort.nextToken();
         if (token.equals(eof)) return eof;
         else return readAhead(token, inPort);
@@ -231,7 +220,7 @@ public class Jispy {
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private static Object readAhead(Object token, InPort inPort) {
+    private static @NotNull Object readAhead(@NotNull Object token, @NotNull InPort inPort) {
         if (token.equals("(")) {
             List<Object> l = new ArrayList<>();
             while (true) {
@@ -250,7 +239,7 @@ public class Jispy {
         else return toAtom((String) token);
     }
 
-    private static String toString(Object x) {
+    private static @NotNull String toString(@NotNull Object x) {
         if (x.equals(true)) return "#t";
         else if (x.equals(false)) return "#f";
         else if (x instanceof Symbol) return x.toString();
@@ -269,12 +258,12 @@ public class Jispy {
         else return x.toString();
     }
 
-    private static Object expand(Object x) {
+    private static Object expand(@NotNull Object x) {
         return expand(x, false);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private static Object expand(Object x, boolean topLevel) {
+    private static Object expand(@NotNull Object x, boolean topLevel) {
         require(x, x != Nil);
         if (!(x instanceof List)) return x;
         List<Object> l = (ArrayList<Object>) x;
@@ -315,7 +304,7 @@ public class Jispy {
                     macro_table.put((Symbol) v, (Lambda) proc);
                     return null;
                 }
-                return new ArrayList<>(Arrays.asList(_define,v,exp));
+                return new ArrayList<>(Arrays.asList(_define, v, exp));
             }
         }
         else if (op.equals(_begin)) {
@@ -342,47 +331,48 @@ public class Jispy {
             require(x, l.size() == 2);
             return expandQuasiQuote(l.get(1));
         }
-        else if(op instanceof Symbol && macro_table.containsKey(l.get(0))){
-            return expand(macro_table.get(l.get(0)).apply(l.subList(1,l.size())),topLevel);
+        else if (op instanceof Symbol && macro_table.containsKey(l.get(0))) {
+            return expand(macro_table.get(l.get(0)).apply(l.subList(1, l.size())), topLevel);
         }
         else return l.stream().map(Jispy::expand).collect(Collectors.toList());
     }
 
-    private static Object expandQuasiQuote(Object x){
-        if(!isPair(x)){
-            return new ArrayList<>(Arrays.asList(_quote,x));
+    private static @NotNull Object expandQuasiQuote(Object x) {
+        if (!isPair(x)) {
+            return new ArrayList<>(Arrays.asList(_quote, x));
         }
-        List<Object> l = (ArrayList<Object>)x;
+        List<Object> l = (ArrayList<Object>) x;
         require(x, !l.get(0).equals(_unquote_splicing), "can't splice here");
-        if(l.get(0).equals(_unquote)){
+        if (l.get(0).equals(_unquote)) {
             require(x, l.size() == 2);
             return l.get(1);
         }
-        else if(isPair(l.get(0)) && ((ArrayList<?>)l.get(0)).get(0).equals(_unquote_splicing)){
-            require(l.get(0),((ArrayList<?>) l.get(0)).size() == 2);
-            return new ArrayList<>(Arrays.asList(_append,((ArrayList<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size()))));
+        else if (isPair(l.get(0)) && ((ArrayList<?>) l.get(0)).get(0).equals(_unquote_splicing)) {
+            require(l.get(0), ((ArrayList<?>) l.get(0)).size() == 2);
+            return new ArrayList<>(Arrays.asList(_append, ((ArrayList<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size()))));
         }
-        else return new ArrayList<>(Arrays.asList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1,l.size()))));
+        else
+            return new ArrayList<>(Arrays.asList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size()))));
     }
 
-    private static boolean isPair(Object x){
-        if(x instanceof List){
+    private static boolean isPair(@NotNull Object x) {
+        if (x instanceof List) {
             return !((ArrayList<?>) x).isEmpty();
         }
         return false;
     }
 
-    private static void require(Object x, boolean predicate) {
+    private static void require(@NotNull Object x, boolean predicate) {
         require(x, predicate, "wrong length");
     }
 
-    private static void require(Object x, boolean predicate, String m) {
+    private static void require(@NotNull Object x, boolean predicate, @NotNull  String m) {
         if (!predicate) {
-            throw new SecurityException(x.toString() + m);
+            throw new SyntaxException(x.toString() + m);
         }
     }
 
-    static Object let(Object... arguments) {
+    static @NotNull Object let(@NotNull Object... arguments) {
         var args = Arrays.stream(arguments).collect(Collectors.toList());
         List<Object> x = new ArrayList<>(Arrays.asList(_let));
         x.add(args);
@@ -406,26 +396,25 @@ public class Jispy {
         return res;
     }
 
-    private static Object callcc(Lambda proc){
+    private static @NotNull  Object callcc(@NotNull Lambda proc) {
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
-        try{
+        try {
             return proc.apply(new ArrayList<>(Arrays.asList((Lambda) objects -> {
-                raise(objects,ball);
+                raise(objects, ball);
                 return null;
             })));
-        }
-        catch (RuntimeWarning w){
-            if(w.equals(ball)){
+        } catch (RuntimeWarning w) {
+            if (w.equals(ball)) {
                 return ball.returnValue;
             }
-            else{
+            else {
                 throw w;
             }
         }
 
     }
 
-    private static void raise(Object r, RuntimeWarning ball){
+    private static void raise(@NotNull Object r, @NotNull RuntimeWarning ball) {
         ball.returnValue = r;
         throw ball;
     }

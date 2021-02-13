@@ -1,8 +1,8 @@
 package org.nathan.interpreter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.regex.Pattern;
 
 public class InPort {
@@ -10,12 +10,20 @@ public class InPort {
     String line = "";
     String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
 
-    public InPort(InputStream in) {
+    public InPort(@NotNull InputStream in) {
         file = new BufferedReader(new InputStreamReader(in));
     }
 
-    public InPort(String in){
+    public InPort(@NotNull String in){
         file = new BufferedReader(new StringReader(in));
+    }
+
+    public InPort(@NotNull File file){
+        try {
+            this.file = new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Object nextToken() {

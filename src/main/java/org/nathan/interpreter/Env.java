@@ -1,5 +1,7 @@
 package org.nathan.interpreter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.function.Function;
 
@@ -11,7 +13,7 @@ public class Env extends HashMap<Object, Object> {
     private Env outer;
 
 
-    Env(Iterable<Object> keys, Iterable<Object> vals, Env outer) {
+    Env(@NotNull Iterable<Object> keys, @NotNull Iterable<Object> vals, Env outer) {
         this.outer = outer;
         var keyIter = keys.iterator();
         var valIter = vals.iterator();
@@ -23,14 +25,14 @@ public class Env extends HashMap<Object, Object> {
         }
     }
 
-    Env(Iterable<Entry<Object, Object>> entries) {
+    Env(@NotNull Iterable<Entry<Object, Object>> entries) {
         for (var e : entries) {
             this.put(e.getKey(), e.getValue());
         }
     }
 
 
-    Env find(Object o) {
+    Env find(@NotNull Object o) {
         // System.out.printf("find %s%n",o);
         if (containsKey(o)) {
             return this;
