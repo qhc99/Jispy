@@ -51,40 +51,12 @@ public class Jispy {
     static final Env GlobalEnv = Env.NewStandardEnv();
 
     public static void repl() {
-        var prompt = "Jis.py>";
-        var reader = new BufferedReader(new InputStreamReader(System.in));
-        //noinspection InfiniteLoopStatement
-        while (true) {
-            String s;
-            System.out.print(prompt);
-            try {
-                s = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
-            }
-            if (s.equals("")) {
-                continue;
-            }
-            Object val = null;
-            try {
-                long t1, t2;
-                if (TIMER_ON) t1 = System.nanoTime();
-                val = runScheme(s);
-                if (TIMER_ON) {
-                    t2 = System.nanoTime();
-                    System.out.println((t2 - t1) / Math.pow(10, 6));
-                }
-            } catch (Exception e) {
-                e.printStackTrace(System.out);
-            }
-            if (val != null) System.out.println(val);
-        }
+        repl("Jis.py>", System.in, new BufferedWriter(new OutputStreamWriter(System.out)));
     }
 
-    private static void repl(String prompt, Reader inPort, Writer out) {
+    static void repl(String prompt, Object inPort, Writer out) {
         try {
-            System.err.write("Jispy version 2.0\\n".getBytes(StandardCharsets.UTF_8));
+            System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -115,12 +87,10 @@ public class Jispy {
         return eval(parse(program));
     }
 
-    static Object parse(String program) {
-        return readFromTokens(tokenize(program));
-    }
-
-    private static Object parse(Object in) {
+    static Object parse(Object in) {
         if (in instanceof String) in = new InPort((String) in);
+        else if(in instanceof InputStream) in = new InPort((InputStream) in);
+        else throw new RuntimeException();
         return expand(read((InPort) in), true);
     }
 
@@ -322,7 +292,7 @@ public class Jispy {
             require(x, l.size() == 3);
             var v = l.get(1);
             require(x, v instanceof Symbol, "can set! only a symbol");
-            return Arrays.asList(_set, v, expand(l.get(2)));
+            return new ArrayList<>(Arrays.asList(_set, v, expand(l.get(2))));
         }
         else if (op.equals(_define) || op.equals(_define_macro)) {
             require(x, l.size() >= 3);
@@ -332,7 +302,7 @@ public class Jispy {
                 List<Object> lv = (ArrayList<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
-                return expand(Arrays.asList(op, f, Arrays.asList(_lambda, args, body)));
+                return expand(new ArrayList<>(Arrays.asList(op, f, Arrays.asList(_lambda, args, body))));
             }
             else {
                 require(x, l.size() == 3);
@@ -345,7 +315,7 @@ public class Jispy {
                     macro_table.put((Symbol) v, (Lambda) proc);
                     return null;
                 }
-                return Arrays.asList(_define,v,exp);
+                return new ArrayList<>(Arrays.asList(_define,v,exp));
             }
         }
         else if (op.equals(_begin)) {
@@ -366,7 +336,7 @@ public class Jispy {
                 t.add(_begin);
                 t.addAll(body);
             }
-            return Arrays.asList(_lambda, vars, expand(exp));
+            return new ArrayList<>(Arrays.asList(_lambda, vars, expand(exp)));
         }
         else if (op.equals(_quasi_quote)) {
             require(x, l.size() == 2);
@@ -380,7 +350,7 @@ public class Jispy {
 
     private static Object expandQuasiQuote(Object x){
         if(!isPair(x)){
-            return Arrays.asList(_quote,x);
+            return new ArrayList<>(Arrays.asList(_quote,x));
         }
         List<Object> l = (ArrayList<Object>)x;
         require(x, !l.get(0).equals(_unquote_splicing), "can't splice here");
@@ -390,9 +360,9 @@ public class Jispy {
         }
         else if(isPair(l.get(0)) && ((ArrayList<?>)l.get(0)).get(0).equals(_unquote_splicing)){
             require(l.get(0),((ArrayList<?>) l.get(0)).size() == 2);
-            return Arrays.asList(_append,((ArrayList<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size())));
+            return new ArrayList<>(Arrays.asList(_append,((ArrayList<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size()))));
         }
-        else return Arrays.asList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1,l.size())));
+        else return new ArrayList<>(Arrays.asList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1,l.size()))));
     }
 
     private static boolean isPair(Object x){
@@ -414,7 +384,7 @@ public class Jispy {
 
     static Object let(Object... arguments) {
         var args = Arrays.stream(arguments).collect(Collectors.toList());
-        List<Object> x = Arrays.asList(_let);
+        List<Object> x = new ArrayList<>(Arrays.asList(_let));
         x.add(args);
         if (x.size() <= 1) throw new SyntaxException(x.toString() + "wrong length");
         var bindings = args.get(0);
@@ -429,9 +399,9 @@ public class Jispy {
         var bd = (ArrayList<Object>) bindings;
         var vars = bd.get(0);
         var vals = bd.get(1);
-        var listVars = Arrays.asList(vars);
+        var listVars = new ArrayList<>(Arrays.asList(vars));
         listVars.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
-        List<Object> res = Arrays.asList(Arrays.asList(_lambda, listVars));
+        List<Object> res = new ArrayList<>(Arrays.asList(Arrays.asList(_lambda, listVars)));
         res.addAll(((ArrayList<Object>) vals).stream().map(Jispy::expand).collect(Collectors.toList()));
         return res;
     }
@@ -439,10 +409,10 @@ public class Jispy {
     private static Object callcc(Lambda proc){
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try{
-            return proc.apply(Arrays.asList((Lambda) objects -> {
+            return proc.apply(new ArrayList<>(Arrays.asList((Lambda) objects -> {
                 raise(objects,ball);
                 return null;
-            }));
+            })));
         }
         catch (RuntimeWarning w){
             if(w.equals(ball)){

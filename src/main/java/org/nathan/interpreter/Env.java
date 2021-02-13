@@ -31,6 +31,7 @@ public class Env extends HashMap<Object, Object> {
 
 
     Env find(Object o) {
+        // System.out.printf("find %s%n",o);
         if (containsKey(o)) {
             return this;
         }
@@ -146,7 +147,7 @@ public class Env extends HashMap<Object, Object> {
                     return ((Lambda) proc).apply(args.subList(1, args.size()));
                 })),
                 Map.entry(new Symbol("begin"), (Lambda) (args -> args.get(args.size() - 1))),
-                Map.entry("car", (Lambda) (args ->
+                Map.entry(new Symbol("car"), (Lambda) (args ->
                 {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return ((SList) args.get(0)).Car;
@@ -269,7 +270,8 @@ public class Env extends HashMap<Object, Object> {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return args.get(0) instanceof Symbol;
                 })),
-                Map.entry(new Symbol("pi"), Math.PI), Map.entry("nil", Jispy.Nil),
+                Map.entry(new Symbol("pi"), Math.PI),
+                Map.entry(new Symbol("nil"), Jispy.Nil),
                 Map.entry(new Symbol("boolean?"), (Lambda) args -> {
                     if (args.size() != 1) throw new Jispy.ArgumentsCountException();
                     return args.get(0) instanceof Boolean;
