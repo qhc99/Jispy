@@ -10,7 +10,7 @@ import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
 
 
-public class Env extends HashMap<Object, Object> {
+class Env extends HashMap<Object, Object> {
 
     private Env outer;
 

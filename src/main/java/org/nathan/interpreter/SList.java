@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 
-public class SList implements Iterable<Object> {
+class SList implements Iterable<Object> {
     Object Car;
     Object Cdr;
 

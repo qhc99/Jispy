@@ -1,6 +1,6 @@
 package org.nathan.interpreter;
 
-public class NumericOperators {
+class NumericOperators {
 
     static boolean lessThan(Object a, Object b) {
         return value(a) < value(b);

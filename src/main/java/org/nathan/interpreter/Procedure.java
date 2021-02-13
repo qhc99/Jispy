@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface Procedure extends Lambda {
+interface Procedure extends Lambda {
 
     static Procedure newProcedure(@NotNull Iterable<Object> params, @NotNull Object exp, Env env) {
         return new Procedure() {

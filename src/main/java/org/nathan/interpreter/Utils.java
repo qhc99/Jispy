@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Utils {
+class Utils {
     public static boolean treeListEqual(List<Object> l1, List<Object> l2) {
         var i1 = l1.iterator();
         var i2 = l2.iterator();

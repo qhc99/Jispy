@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.util.regex.Pattern;
 
-public class InPort implements Closeable {
+class InPort implements Closeable {
     BufferedReader file;
     String line = "";
     String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
