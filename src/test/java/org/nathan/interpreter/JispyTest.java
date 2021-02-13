@@ -105,4 +105,9 @@ public class JispyTest {
         assertEquals(1000, runScheme("(begin (define (cube x) (* x x x)) (cube 10))"));
     }
 
+    @Test
+    public void caseTest11(){
+        assertThrows(SyntaxException.class, ()->runScheme("(if 1 2 3 4 5)"));
+    }
+
 }
