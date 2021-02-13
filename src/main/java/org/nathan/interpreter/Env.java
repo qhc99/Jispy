@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
+import static org.nathan.interpreter.Utils.isNil;
 
 
 class Env extends HashMap<Object, Object> {
@@ -132,10 +133,9 @@ class Env extends HashMap<Object, Object> {
                 Map.entry(new Symbol("append"), (Lambda) (args ->
                 {
                     if (args.size() < 2) { throw new Jispy.ArgumentsCountException(); }
-                    var res = args.get(0);
-                    var ptr = res;
+                    List<Object> res = (List<Object>) args.get(0);
                     for (int i = 1; i < args.size(); i++) {
-                        ptr = ((SList) ptr).chainAppend(args.get(i));
+                        res.addAll((List<Object>) args.get(i));
                     }
                     return res;
                 })),
@@ -148,17 +148,21 @@ class Env extends HashMap<Object, Object> {
                 Map.entry(new Symbol("car"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    return ((SList) args.get(0)).Car;
+                    return ((List<Object>) args.get(0)).get(0);
                 })),
                 Map.entry(new Symbol("cdr"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    return ((SList) (args.get(0))).Cdr;
+                    var t = (List<Object>) (args.get(0));
+                    return t.subList(1, t.size());
                 })),
                 Map.entry(new Symbol("cons"), (Lambda) (args ->
                 {
                     if (args.size() != 2) { throw new Jispy.ArgumentsCountException(); }
-                    return new SList(args.get(0), args.get(1));
+                    List<Object> t = new ArrayList<>();
+                    t.add(args.get(0));
+                    t.add(args.get(1));
+                    return t;
                 })),
                 Map.entry(new Symbol("eq?"), (Lambda) (args ->
                 {
@@ -178,45 +182,45 @@ class Env extends HashMap<Object, Object> {
                 Map.entry(new Symbol("length"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    return ((SList) args.get(0)).length();
+                    return ((List<Object>) args.get(0)).size();
                 })),
                 Map.entry(new Symbol("list"), (Lambda) (args ->
                 {
                     if (args.size() < 1) { throw new Jispy.ArgumentsCountException(); }
-                    var res = new SList(args.get(0));
-                    var p = res;
+                    var res = new ArrayList<>();
+                    res.add(args.get(0));
                     for (int i = 1; i < args.size(); i++) {
-                        p = p.chainAdd(args.get(i));
+                        res.add(args.get(i));
                     }
                     return res;
                 })),
                 Map.entry(new Symbol("list?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    return args.get(0).getClass().equals(SList.class);
+                    return args.get(0) instanceof List;
                 })),
                 Map.entry(new Symbol("map"), (Lambda) (args -> {
                     if (args.size() < 1) { throw new Jispy.ArgumentsCountException(); }
                     Lambda proc = (Lambda) (args.get(0));
                     var lists = args.subList(1, args.size());
-                    var res = new SListBuilder();
+                    var res = new ArrayList<>();
                     while (true) {
                         List<Object> vals = new ArrayList<>();
                         for (int i = 0; i < lists.size(); i++) {
-                            if (lists.get(i) != Jispy.Nil) {
-                                SList list = (SList) (lists.get(i));
-                                vals.add(list.Car);
-                                lists.set(i, list.Cdr);
+                            if (!isNil(lists.get(i))) {
+                                var list = (List<Object>) (lists.get(i));
+                                vals.add(list.get(0));
+                                lists.set(i, list.subList(1, list.size()));
                             }
                         }
                         if (vals.size() == lists.size()) {
-                            res.append(proc.apply(vals));
+                            res.add(proc.apply(vals));
                         }
                         else {
                             break;
                         }
                     }
-                    return res.toSchemeList();
+                    return res;
 
                 })),
                 Map.entry(new Symbol("max"), (Lambda) (args -> args.stream().max((o1, o2) -> {
@@ -239,7 +243,7 @@ class Env extends HashMap<Object, Object> {
                 Map.entry(new Symbol("null?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    return args.get(0) == Jispy.Nil;
+                    return isNil(args.get(0));
                 })),
                 Map.entry(new Symbol("number?"), (Lambda) (args ->
                 {
@@ -287,7 +291,7 @@ class Env extends HashMap<Object, Object> {
                     load((String) args.get(0));
                     return null;
                 }),
-                Map.entry(new Symbol("call/cc"),(Lambda) args -> {
+                Map.entry(new Symbol("call/cc"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
                     return callcc((Lambda) args.get(0));
                 }));

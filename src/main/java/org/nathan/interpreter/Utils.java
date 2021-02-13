@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 class Utils {
-    public static boolean treeListEqual(List<Object> l1, List<Object> l2) {
+    static boolean treeListEqual(List<Object> l1, List<Object> l2) {
         var i1 = l1.iterator();
         var i2 = l2.iterator();
         while (i1.hasNext() && i2.hasNext()) {
@@ -25,7 +25,16 @@ class Utils {
         return true;
     }
 
-    public static List<Object> treeList(Object... o) {
+    static List<Object> treeList(Object... o) {
         return new ArrayList<>(Arrays.asList(o));
+    }
+
+    static boolean isNil(Object o){
+        if(o instanceof List){
+            return ((List<?>) o).isEmpty();
+        }
+        else{
+            return false;
+        }
     }
 }

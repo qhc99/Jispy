@@ -3,6 +3,7 @@ package org.nathan.interpreter;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,9 +36,8 @@ public class JispyTest {
     @Test
     public void caseTest3() {
         var res = runScheme("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
-        var b = new SListBuilder();
-        b.append(2).append(4).append(6).append(8.0);
-        assertTrue(b.toSchemeList().contentEqual(res));
+        var b = new ArrayList<>(Arrays.asList(2, 4, 6, 8.0));
+        assertEquals(b, res);
     }
 
     @Test
@@ -56,27 +56,26 @@ public class JispyTest {
 
     @Test
     public void caseTest6() {
-        assertEquals(3, runScheme("(begin " +
+        var res = runScheme("(begin " +
                 "(define count (lambda (item L) (if (null? L) 0 (+ (if (equal? item (car L)) 1 0) (count item (cdr L)" +
                 "))))) " +
-                "(count 0 (list 0 1 2 3 0 0)))"));
+                "(count 0 (list 0 1 2 3 0 0)))");
+        assertEquals(3, res);
     }
 
     @Test
     public void caseTest7() {
-        var b = new SListBuilder();
-        b.append(1).append(4).append(9).append(16);
-        assertTrue(b.toSchemeList().contentEqual(runScheme("(begin " +
+        var b = new ArrayList<>(Arrays.asList(1, 4, 9, 16));
+        assertEquals(b, runScheme("(begin " +
                 "(define square (lambda (x) (* x x))) " +
                 "(define range (lambda (a b) (if (= a b) nil (cons a (range (+ a 1) b))))) " +
-                "(map square (range 1 5)))")));
+                "(map square (range 1 5)))"));
     }
 
     @Test
     public void caseTest8() {
-        var expected = new SListBuilder();
-        expected.append(4).append(6).append(8).append(10);
-        assertTrue(expected.toSchemeList().contentEqual(runScheme("(begin " +
+        List<Object> expected = new ArrayList<>(Arrays.asList(4, 6, 8, 10));
+        assertEquals(expected, (runScheme("(begin " +
                 "(define two (lambda (a b) (+ a b 2))) " +
                 "(define l (list 1 2 3 4)) " +
                 "(map two l l))")));
@@ -84,10 +83,9 @@ public class JispyTest {
 
     @Test
     public void caseTest9() {
-        var expected = new SListBuilder();
-        expected.append(1).append(2).append(3).append(4).append(5).append(6);
+        var expected = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
         var res = runScheme("(append (list 1 2) (list 3 4) (list 5 6))");
-        assertTrue(expected.toSchemeList().contentEqual(res));
+        assertEquals(expected, res);
     }
 
     @Test
@@ -106,8 +104,8 @@ public class JispyTest {
     }
 
     @Test
-    public void caseTest11(){
-        assertThrows(SyntaxException.class, ()->runScheme("(if 1 2 3 4 5)"));
+    public void caseTest11() {
+        assertThrows(SyntaxException.class, () -> runScheme("(if 1 2 3 4 5)"));
     }
 
 }

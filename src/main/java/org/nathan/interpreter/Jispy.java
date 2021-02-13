@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.nathan.interpreter.Symbol.*;
+import static org.nathan.interpreter.Utils.isNil;
 import static org.nathan.interpreter.Utils.treeList;
 
 @SuppressWarnings("unused")
@@ -51,7 +52,7 @@ public class Jispy {
     }
 
 
-    static final List<Object> Nil = new ArrayList<>();
+    static final List<Object> Nil = Collections.emptyList();
 
     private static final Env GlobalEnv = Env.NewStandardEnv();
 
@@ -277,7 +278,7 @@ public class Jispy {
 
     @SuppressWarnings("SuspiciousMethodCalls")
     private static Object expand(@NotNull Object x, boolean topLevel) {
-        require(x, x != Nil);
+        require(x, !isNil(x));
         if (!(x instanceof List)) { return x; }
         List<Object> l = (List<Object>) x;
         var op = l.get(0);
