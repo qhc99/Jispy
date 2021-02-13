@@ -161,7 +161,7 @@ class Env extends HashMap<Object, Object> {
                     if (args.size() != 2) { throw new Jispy.ArgumentsCountException(); }
                     List<Object> t = new ArrayList<>();
                     t.add(args.get(0));
-                    t.add(args.get(1));
+                    t.addAll((Collection<?>) args.get(1));
                     return t;
                 })),
                 Map.entry(new Symbol("eq?"), (Lambda) (args ->

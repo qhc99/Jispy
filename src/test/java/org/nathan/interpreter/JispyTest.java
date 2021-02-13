@@ -24,38 +24,38 @@ public class JispyTest {
     }
 
     @Test
-    public void caseTest1() {
+    public void beginTest() {
         assertEquals(314.1592653589793, runScheme("(begin (define r 10) (* pi (* r r)))"));
     }
 
     @Test
-    public void caseTest2() {
+    public void ifTest() {
         assertEquals(42, runScheme("(if (> (* 11 11) 120) (* 7 6) oops)"));
     }
 
     @Test
-    public void caseTest3() {
+    public void listTest() {
         var res = runScheme("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
         var b = new ArrayList<>(Arrays.asList(2, 4, 6, 8.0));
         assertEquals(b, res);
     }
 
     @Test
-    public void caseTest4() {
+    public void lambdaTest1() {
         assertEquals(120, runScheme("(begin " +
                 "(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1)))))) " +
                 "(fact 5))"));
     }
 
     @Test
-    public void caseTest5() {
+    public void lambdaTest2() {
         assertEquals(13, runScheme("(begin " +
                 "(define fib (lambda (n) (if (< n 2) 1 (+ (fib (- n 1)) (fib (- n 2)))))) " +
                 "(fib 6))"));
     }
 
     @Test
-    public void caseTest6() {
+    public void lambdaTest3() {
         var res = runScheme("(begin " +
                 "(define count (lambda (item L) (if (null? L) 0 (+ (if (equal? item (car L)) 1 0) (count item (cdr L)" +
                 "))))) " +
@@ -64,7 +64,7 @@ public class JispyTest {
     }
 
     @Test
-    public void caseTest7() {
+    public void consTest1() {
         var b = new ArrayList<>(Arrays.asList(1, 4, 9, 16));
         assertEquals(b, runScheme("(begin " +
                 "(define square (lambda (x) (* x x))) " +
@@ -73,7 +73,7 @@ public class JispyTest {
     }
 
     @Test
-    public void caseTest8() {
+    public void mapTest() {
         List<Object> expected = new ArrayList<>(Arrays.asList(4, 6, 8, 10));
         assertEquals(expected, (runScheme("(begin " +
                 "(define two (lambda (a b) (+ a b 2))) " +
@@ -82,7 +82,7 @@ public class JispyTest {
     }
 
     @Test
-    public void caseTest9() {
+    public void appendTest() {
         var expected = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
         var res = runScheme("(append (list 1 2) (list 3 4) (list 5 6))");
         assertEquals(expected, res);
@@ -99,12 +99,12 @@ public class JispyTest {
     }
 
     @Test
-    public void castTest10() {
+    public void expandTest() {
         assertEquals(1000, runScheme("(begin (define (cube x) (* x x x)) (cube 10))"));
     }
 
     @Test
-    public void caseTest11() {
+    public void exceptionTest() {
         assertThrows(SyntaxException.class, () -> runScheme("(if 1 2 3 4 5)"));
     }
 
