@@ -24,7 +24,6 @@ public class Jispy {
         }
     }
 
-
     static class SyntaxException extends RuntimeException {
 
         public SyntaxException(String s) {
@@ -43,13 +42,22 @@ public class Jispy {
 
     static final List<Object> Nil = Collections.emptyList();
 
-    private static final Env GlobalEnv = Env.NewStandardEnv();
+    static final Env GlobalEnv = Env.NewStandardEnv();
 
+    /**
+     * command line
+     */
     public static void repl() {
-        repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)));
+        repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)), GlobalEnv);
     }
 
-    static void repl(String prompt, @NotNull Object inPort, Writer out) {
+    /**
+     * load
+     * @param prompt null or String
+     * @param inPort String or InPort
+     * @param out null or Writer
+     */
+    static void repl(String prompt, @NotNull Object inPort, Writer out, Env env) {
         try {
             if (prompt != null) {
                 System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
@@ -94,12 +102,17 @@ public class Jispy {
         }
     }
 
-    static void load(String fileName) {
+    static void load(String fileName, Env env) {
         var file = new File(fileName);
-        repl(null, new InPort(file), null);
+        repl(null, new InPort(file), null, env);
     }
 
-    public static Object runScheme(@NotNull String program) {
+    /**
+     * eval one line
+     * @param program string
+     * @return result
+     */
+    public static Object repl(@NotNull String program) {
         return eval(parse(program));
     }
 

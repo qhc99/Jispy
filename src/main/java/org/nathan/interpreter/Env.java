@@ -292,7 +292,7 @@ class Env extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("load"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    load(args.get(0).toString());
+                    load(args.get(0).toString(), Jispy.GlobalEnv);
                     return null;
                 }),
                 Map.entry(new Symbol("call/cc"), (Lambda) args -> {
@@ -301,5 +301,6 @@ class Env extends HashMap<Object, Object> {
                 }));
         return new Env(m.entrySet());
     }
-    // TODO add more functions
+
+    // TODO more functions
 }
