@@ -80,14 +80,12 @@ public class JispyTest {
 
     @Test
     public void tailRecursionTest() {
-        assertEquals(500500, Jispy.repl("(begin " +
-
-                "(sum2 1000 0) )"));
+        assertEquals(500500, Jispy.repl("(sum2 1000 0)"));
     }
 
     @Test
     public void expandTest() {
-        assertEquals(1000, Jispy.repl("(begin (define (cube x) (* x x x)) (cube 10))"));
+        assertEquals(1000, Jispy.repl("(cube 10)"));
     }
 
     @Test
@@ -101,17 +99,6 @@ public class JispyTest {
                 "(call/cc (lambda (escape) (* 100 (escape 3))))))))"));
         assertEquals(3, Jispy.repl("(call/cc (lambda (throw) " +
                 "(+ 5 (* 10 (call/cc (lambda (escape) (* 100 (throw 3))))))))"));
-    }
-
-    @Test
-    public void loadTest() {
-        List<List<Integer>> expected = new ArrayList<>();
-        expected.add(Arrays.asList(1, 5));
-        expected.add(Arrays.asList(2, 6));
-        expected.add(Arrays.asList(3, 7));
-        expected.add(Arrays.asList(4, 8));
-        assertEquals(expected, Jispy.repl("(begin (load 'src/main/resources/functions.ss) " +
-                "(zip (list 1 2 3 4) (list 5 6 7 8)))"));
     }
 
     @Test

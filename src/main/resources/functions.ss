@@ -36,3 +36,4 @@
                   (if (= n 0)
                       acc
                       (sum2 (- n 1) (+ n acc))))
+(define (cube x) (* x x x))
