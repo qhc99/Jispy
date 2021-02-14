@@ -64,7 +64,7 @@ public class JispyTest {
     }
 
     @Test
-    public void consTest1() {
+    public void consTest() {
         var b = new ArrayList<>(Arrays.asList(1, 4, 9, 16));
         assertEquals(b, runScheme("(begin " +
                 "(define square (lambda (x) (* x x))) " +
@@ -90,12 +90,12 @@ public class JispyTest {
 
     @Test
     public void tailRecursionTest() {
-        assertEquals(50005000, runScheme("(begin " +
+        assertEquals(500500, runScheme("(begin " +
                 "(define (sum2 n acc)" +
                 "  (if (= n 0)" +
                 "      acc" +
                 "      (sum2 (- n 1) (+ n acc)))) " +
-                "(sum2 10000 0) )"));
+                "(sum2 1000 0) )"));
     }
 
     @Test
@@ -108,4 +108,29 @@ public class JispyTest {
         assertThrows(SyntaxException.class, () -> runScheme("(if 1 2 3 4 5)"));
     }
 
+    @Test
+    public void callccTest() {
+        assertEquals(35, runScheme("(call/cc (lambda (throw) (+ 5 (* 10 " +
+                "(call/cc (lambda (escape) (* 100 (escape 3))))))))"));
+        assertEquals(3, runScheme("(call/cc (lambda (throw) " +
+                "(+ 5 (* 10 (call/cc (lambda (escape) (* 100 (throw 3))))))))"));
+    }
+
+    @Test
+    public void loadTest() {
+        List<List<Integer>> expected = new ArrayList<>();
+        expected.add(Arrays.asList(1, 5));
+        expected.add(Arrays.asList(2, 6));
+        expected.add(Arrays.asList(3, 7));
+        expected.add(Arrays.asList(4, 8));
+        assertEquals(expected, runScheme("(begin (load 'src/main/resources/functions.ss) " +
+                "(zip (list 1 2 3 4) (list 5 6 7 8)))"));
+    }
+
+    @Test
+    public void setTest(){
+        assertEquals(3, runScheme("(begin (define x 1) (set! x (+ x 1)) (+ x 1))"));
+    }
+
+    // TODO test all functions
 }

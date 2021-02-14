@@ -14,7 +14,6 @@ import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.Utils.isNil;
 import static org.nathan.interpreter.Utils.treeList;
 
-@SuppressWarnings("unused")
 public class Jispy {
 
     private static final boolean TIMER_ON = false;
@@ -62,7 +61,9 @@ public class Jispy {
 
     static void repl(String prompt, @NotNull Object inPort, Writer out) {
         try {
-            System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
+            if(prompt != null){
+                System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -150,11 +151,7 @@ public class Jispy {
             }
             else {
                 Env finalEnv = env;
-                List<Object> exps = new ArrayList<>();
-//                exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
-                for (var exp : l) {
-                    exps.add(eval(exp, env));
-                }
+                List<Object> exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
                 var proc = exps.get(0);
                 exps = exps.subList(1, exps.size());
                 if (proc instanceof Procedure) {
@@ -165,12 +162,6 @@ public class Jispy {
                 else { return ((Lambda) proc).apply(exps); }
             }
         }
-    }
-
-    private static Queue<String> tokenize(@NotNull String program) {
-        var t = Arrays.stream(program.replace("(", " ( ").replace(")", " ) ").split(" ")).collect(Collectors.toList());
-        t.removeIf(s -> s.equals(""));
-        return new LinkedList<>(t);
     }
 
     private static @NotNull Object toAtom(@NotNull String x) {
@@ -332,7 +323,8 @@ public class Jispy {
             var vars = l.get(1);
             var body = l.subList(2, l.size());
             require(x, (vars instanceof List &&
-                    ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)));
+                    ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)) ||
+                    vars instanceof Symbol);
             Object exp;
             if (body.size() == 1) { exp = body.get(0); }
             else {
@@ -371,10 +363,7 @@ public class Jispy {
     }
 
     private static boolean isPair(@NotNull Object x) {
-        if (x instanceof List) {
-            return !((List<?>) x).isEmpty();
-        }
-        return false;
+        return !isNil(x) && x instanceof List;
     }
 
     private static void require(@NotNull Object x, boolean predicate) {
@@ -406,11 +395,12 @@ public class Jispy {
         return r;
     }
 
+    // TODO bug
     static @NotNull Object callcc(@NotNull Lambda proc) {
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try {
             return proc.apply(treeList((Lambda) objects -> {
-                raise(objects, ball);
+                raise(objects.get(0), ball);
                 return null;
             }));
         } catch (RuntimeWarning w) {

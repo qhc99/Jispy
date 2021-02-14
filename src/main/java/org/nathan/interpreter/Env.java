@@ -36,6 +36,7 @@ class Env extends HashMap<Object, Object> {
 
 
     Env find(@NotNull Object o) {
+//        System.out.println(String.format("find %s",o));
         if (containsKey(o)) { return this; }
         else if (outer == null) { throw new RuntimeException("look up error"); }
         else { return outer.find(o); }
@@ -288,7 +289,7 @@ class Env extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("load"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    load((String) args.get(0));
+                    load(args.get(0).toString());
                     return null;
                 }),
                 Map.entry(new Symbol("call/cc"), (Lambda) args -> {
@@ -297,4 +298,5 @@ class Env extends HashMap<Object, Object> {
                 }));
         return new Env(m.entrySet());
     }
+    // TODO add more functions
 }
