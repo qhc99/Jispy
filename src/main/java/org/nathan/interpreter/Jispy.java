@@ -6,6 +6,7 @@ import org.apache.commons.math3.exception.MathParseException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,82 +35,75 @@ public class Jispy {
     }
 
     /**
-     * command line or load
-     * @param prompt null or String
-     * @param inPort String or InPort
-     * @param out null or Writer
-     */
-    static void repl(String prompt, @NotNull Object inPort, Writer out, Env env) {
-        try {
-            if (prompt != null && out != null) {
-                out.write("Jispy version 2.0\n");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        while (true) {
-            try {
-                if (prompt != null && out != null) {
-                    out.write(prompt);
-                    out.flush();
-                }
-                var x = parse(inPort);
-                if (x.equals(eof)) { return; }
-                if(PARSE_DEBUG && out != null){
-                    out.write("parse result:<");
-                    out.write(x.toString());
-                    out.write(">\n");
-                }
-                long t1,t2;
-                if(TIMER_ON && out != null){
-                    t1 = System.nanoTime();
-                }
-                var val = eval(x, env);
-                if(TIMER_ON && out != null){
-                    t2 = System.nanoTime();
-                    out.write(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
-                }
-                if (val != null && out != null) {
-                    out.write(toString(val));
-                    out.write("\n");
-                }
-            } catch (Exception e) {
-                if (e instanceof IOException) {
-                    e.printStackTrace(System.err);
-                    break;
-                }
-                else {
-                    if(out != null){
-                        e.printStackTrace(new PrintWriter(out));
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * command line
      */
     public static void repl() {
-        repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)), GlobalEnv);
-    }
-
-    /**
-     * eval one line
-     * @param program string
-     * @return result
-     */
-    public static Object repl(@NotNull String program) {
-        return eval(parse(program), GlobalEnv);
+        String prompt = "Jis.py>";
+        InPort inPort = new InPort(System.in);
+        try {
+            System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        while (true) {
+            try {
+                System.out.println(prompt);
+                var x = parse(inPort);
+                if (x.equals(eof)) { return; }
+                if(PARSE_DEBUG){
+                    System.out.print(String.format("parse result:<%s>",x));
+                }
+                long t1,t2;
+                if(TIMER_ON){
+                    t1 = System.nanoTime();
+                }
+                var val = eval(x, GlobalEnv);
+                if(TIMER_ON){
+                    t2 = System.nanoTime();
+                    System.out.println(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
+                }
+                if (val != null) {
+                    System.out.println(val);
+                }
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
+            }
+        }
     }
 
     /**
      * run scripts
      * @param file file object
      */
-    public static void repl(File file){
-        repl(null, new InPort(file), new BufferedWriter(new OutputStreamWriter(System.out)), GlobalEnv);
+    public static void runFile(File file){
+        InPort inPort = new InPort(file);
+        while (true) {
+            try {
+                var x = parse(inPort);
+                if (x.equals(eof)) { return; }
+                if(PARSE_DEBUG){
+                    System.out.print(String.format("parse result:<%s>",x));
+                }
+                long t1,t2;
+                if(TIMER_ON){
+                    t1 = System.nanoTime();
+                }
+                var val = eval(x, GlobalEnv);
+                if(TIMER_ON){
+                    t2 = System.nanoTime();
+                    System.out.println(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
+                }
+                if (val != null) {
+                    System.out.println(val);
+                }
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
+            }
+        }
+    }
+
+    public static Object runScripts(@NotNull String program) {
+        return eval(parse(program), GlobalEnv);
     }
 
     /**
@@ -119,7 +113,16 @@ public class Jispy {
      */
     static void load(String fileName, Env env) {
         var file = new File(fileName);
-        repl(null, new InPort(file), null, env);
+        var inPort = new InPort(file);
+        while (true) {
+            try {
+                var x = parse(inPort);
+                if (x.equals(eof)) { return; }
+                eval(x, env);
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
+        }
     }
 
     static Object parse(@NotNull Object in) {
@@ -244,6 +247,7 @@ public class Jispy {
     private static @NotNull Object read(@NotNull InPort inPort) {
         var token = inPort.nextToken();
         if (token.equals(eof)) { return eof; }
+        else if(((String)token).startsWith(";")) {return eof;}
         else { return readAhead(token, inPort); }
 
     }

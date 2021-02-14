@@ -25,47 +25,47 @@ public class JispyTest {
 
     @Test
     public void beginTest() {
-        assertEquals(314.1592653589793, Jispy.repl("(begin (define r 10) (* pi (* r r)))"));
+        assertEquals(314.1592653589793, Jispy.runScripts("(begin (define r 10) (* pi (* r r)))"));
     }
 
     @Test
     public void ifTest() {
-        assertEquals(42, Jispy.repl("(if (> (* 11 11) 120) (* 7 6) oops)"));
+        assertEquals(42, Jispy.runScripts("(if (> (* 11 11) 120) (* 7 6) oops)"));
     }
 
     @Test
     public void listTest() {
-        var res = Jispy.repl("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
+        var res = Jispy.runScripts("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
         var b = new ArrayList<>(Arrays.asList(2, 4, 6, 8.0));
         assertEquals(b, res);
     }
 
     @Test
     public void lambdaTest1() {
-        assertEquals(120, Jispy.repl("(fact 5)"));
+        assertEquals(120, Jispy.runScripts("(fact 5)"));
     }
 
     @Test
     public void lambdaTest2() {
-        assertEquals(13, Jispy.repl("(fib 6)"));
+        assertEquals(13, Jispy.runScripts("(fib 6)"));
     }
 
     @Test
     public void lambdaTest3() {
-        var res = Jispy.repl("(count 0 (list 0 1 2 3 0 0))");
+        var res = Jispy.runScripts("(count 0 (list 0 1 2 3 0 0))");
         assertEquals(3, res);
     }
 
     @Test
     public void consTest() {
         var b = new ArrayList<>(Arrays.asList(1, 4, 9, 16));
-        assertEquals(b, Jispy.repl("(map square (range 1 5))"));
+        assertEquals(b, Jispy.runScripts("(map square (range 1 5))"));
     }
 
     @Test
     public void mapTest() {
         List<Object> expected = new ArrayList<>(Arrays.asList(4, 6, 8, 10));
-        assertEquals(expected, (Jispy.repl("(begin " +
+        assertEquals(expected, (Jispy.runScripts("(begin " +
                 "(define two (lambda (a b) (+ a b 2))) " +
                 "(define l (list 1 2 3 4)) " +
                 "(map two l l))")));
@@ -74,36 +74,36 @@ public class JispyTest {
     @Test
     public void appendTest() {
         var expected = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
-        var res = Jispy.repl("(append (list 1 2) (list 3 4) (list 5 6))");
+        var res = Jispy.runScripts("(append (list 1 2) (list 3 4) (list 5 6))");
         assertEquals(expected, res);
     }
 
     @Test
     public void tailRecursionTest() {
-        assertEquals(500500, Jispy.repl("(sum2 1000 0)"));
+        assertEquals(500500, Jispy.runScripts("(sum2 1000 0)"));
     }
 
     @Test
     public void expandTest() {
-        assertEquals(1000, Jispy.repl("(cube 10)"));
+        assertEquals(1000, Jispy.runScripts("(cube 10)"));
     }
 
     @Test
     public void exceptionTest() {
-        assertThrows(SyntaxException.class, () -> Jispy.repl("(if 1 2 3 4 5)"));
+        assertThrows(SyntaxException.class, () -> Jispy.runScripts("(if 1 2 3 4 5)"));
     }
 
     @Test
     public void callccTest() {
-        assertEquals(35, Jispy.repl("(call/cc (lambda (throw) (+ 5 (* 10 " +
+        assertEquals(35, Jispy.runScripts("(call/cc (lambda (throw) (+ 5 (* 10 " +
                 "(call/cc (lambda (escape) (* 100 (escape 3))))))))"));
-        assertEquals(3, Jispy.repl("(call/cc (lambda (throw) " +
+        assertEquals(3, Jispy.runScripts("(call/cc (lambda (throw) " +
                 "(+ 5 (* 10 (call/cc (lambda (escape) (* 100 (throw 3))))))))"));
     }
 
     @Test
     public void setTest(){
-        assertEquals(3, Jispy.repl("(begin (define x 1) (set! x (+ x 1)) (+ x 1))"));
+        assertEquals(3, Jispy.runScripts("(begin (define x 1) (set! x (+ x 1)) (+ x 1))"));
     }
 
     // TODO test all functions

@@ -10,15 +10,15 @@ class InPort implements Closeable {
     String line = "";
     String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
 
-    public InPort(@NotNull InputStream in) {
+    InPort(@NotNull InputStream in) {
         file = new BufferedReader(new InputStreamReader(in));
     }
 
-    public InPort(@NotNull String in) {
+    InPort(@NotNull String in) {
         file = new BufferedReader(new StringReader(in));
     }
 
-    public InPort(@NotNull File file) {
+    InPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
@@ -26,7 +26,11 @@ class InPort implements Closeable {
         }
     }
 
-    public Object nextToken() {
+    /**
+     *
+     * @return string or Symbol eof
+     */
+    Object nextToken() {
         while (true) {
             if (line.equals("")) {
                 try {
