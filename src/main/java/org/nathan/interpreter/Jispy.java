@@ -29,14 +29,12 @@ public class Jispy {
     static final Env GlobalEnv = Env.NewStandardEnv();
 
     static {
-        if(LOAD_LIB){
-            load(LIB_FILE,GlobalEnv);
+        if (LOAD_LIB) {
+            loadFile(LIB_FILE, GlobalEnv);
         }
     }
 
-    /**
-     * command line
-     */
+    @SuppressWarnings("InfiniteLoopStatement")
     public static void repl() {
         String prompt = "Jis.py>";
         InPort inPort = new InPort(System.in);
@@ -49,56 +47,43 @@ public class Jispy {
             try {
                 System.out.println(prompt);
                 var x = parse(inPort);
-                if (x.equals(eof)) { return; }
-                if(PARSE_DEBUG){
-                    System.out.print(String.format("parse result:<%s>",x));
-                }
-                long t1,t2;
-                if(TIMER_ON){
-                    t1 = System.nanoTime();
-                }
-                var val = eval(x, GlobalEnv);
-                if(TIMER_ON){
-                    t2 = System.nanoTime();
-                    System.out.println(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
-                }
-                if (val != null) {
-                    System.out.println(val);
-                }
+                if (x.equals(eof) || x.equals(comment)) { continue; }
+                evalAndPrint(x);
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
         }
     }
 
-    /**
-     * run scripts
-     * @param file file object
-     */
-    public static void runFile(File file){
+    public static void runFile(File file) {
         InPort inPort = new InPort(file);
         while (true) {
             try {
                 var x = parse(inPort);
-                if (x.equals(eof)) { return; }
-                if(PARSE_DEBUG){
-                    System.out.print(String.format("parse result:<%s>",x));
-                }
-                long t1,t2;
-                if(TIMER_ON){
-                    t1 = System.nanoTime();
-                }
-                var val = eval(x, GlobalEnv);
-                if(TIMER_ON){
-                    t2 = System.nanoTime();
-                    System.out.println(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
-                }
-                if (val != null) {
-                    System.out.println(val);
-                }
+                if(x.equals(comment)) {continue;}
+                else if (x.equals(eof)) { return; }
+                evalAndPrint(x);
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                System.out.println(e.toString());
             }
+        }
+    }
+
+    private static void evalAndPrint(Object x) {
+        if (PARSE_DEBUG) {
+            System.out.print(String.format("parse result:<%s>", x));
+        }
+        long t1, t2;
+        if (TIMER_ON) {
+            t1 = System.nanoTime();
+        }
+        var val = eval(x, GlobalEnv);
+        if (TIMER_ON) {
+            t2 = System.nanoTime();
+            System.out.println(String.format("%fms\n", (t1 - t2) / Math.pow(10, 6)));
+        }
+        if (val != null) {
+            System.out.println(evalToString(val));
         }
     }
 
@@ -106,18 +91,14 @@ public class Jispy {
         return eval(parse(program), GlobalEnv);
     }
 
-    /**
-     * load file to env
-     * @param fileName string file name
-     * @param env env
-     */
-    static void load(String fileName, Env env) {
+    static void loadFile(String fileName, Env env) {
         var file = new File(fileName);
         var inPort = new InPort(file);
         while (true) {
             try {
                 var x = parse(inPort);
-                if (x.equals(eof)) { return; }
+                if (x.equals(comment)) {continue;}
+                else if (x.equals(eof)) { return; }
                 eval(x, env);
             } catch (Exception e) {
                 e.printStackTrace(System.err);
@@ -126,13 +107,13 @@ public class Jispy {
     }
 
     static Object parse(@NotNull Object in) {
-        if(in instanceof String) {
+        if (in instanceof String) {
             return expand(read(new InPort((String) in)), true);
         }
-        else if(in instanceof InPort){
+        else if (in instanceof InPort) {
             return expand(read((InPort) in), true);
         }
-        else throw new RuntimeException();
+        else { throw new RuntimeException(); }
     }
 
     static Object eval(Object x, @NotNull Env env) {
@@ -167,7 +148,7 @@ public class Jispy {
                 var vars = l.get(1);
                 var exp = l.get(2);
                 // different from lis.py
-                if(!(vars instanceof Iterable)){
+                if (!(vars instanceof Iterable)) {
                     vars = treeList(vars);
                 }
                 return Procedure.newProcedure((Iterable<Object>) vars, exp, env);
@@ -247,7 +228,7 @@ public class Jispy {
     private static @NotNull Object read(@NotNull InPort inPort) {
         var token = inPort.nextToken();
         if (token.equals(eof)) { return eof; }
-        else if(((String)token).startsWith(";")) {return eof;}
+        else if (((String) token).startsWith(";")) {return comment;}
         else { return readAhead(token, inPort); }
 
     }
@@ -269,10 +250,11 @@ public class Jispy {
         else if (token.equals(")")) { throw new SyntaxException("unexpected )"); }
         else if (quotes.containsKey(token)) { return treeList(quotes.get(token), read(inPort)); }
         else if (token.equals(eof)) { throw new SyntaxException("unexpected EOF in list"); }
+        else if (token.equals(comment)) { throw new SyntaxException("unexpected ; in list"); }
         else { return toAtom((String) token); }
     }
 
-    private static @NotNull String toString(@NotNull Object x) {
+    static @NotNull String evalToString(@NotNull Object x) {
         if (x.equals(true)) { return "#t"; }
         else if (x.equals(false)) { return "#f"; }
         else if (x instanceof Symbol) { return x.toString(); }
@@ -280,10 +262,12 @@ public class Jispy {
         else if (x instanceof List) {
             var s = new StringBuilder("(");
             for (var i : (List<Object>) x) {
-                s.append(toString(i));
+                s.append(evalToString(i));
                 s.append(" ");
             }
-            s.delete(s.length() - 1, s.length());
+            if(((List<?>) x).size() >= 1){
+                s.delete(s.length() - 1, s.length());
+            }
             s.append(")");
             return s.toString();
         }
@@ -334,7 +318,7 @@ public class Jispy {
                 var exp = expand(l.get(2));
                 if (op.equals(_define_macro)) {
                     require(x, topLevel, "define-macro only allowed at top level");
-                    var proc = eval(exp,GlobalEnv);
+                    var proc = eval(exp, GlobalEnv);
                     require(x, proc instanceof Lambda, "macro must be a procedure");
                     macro_table.put((Symbol) v, (Lambda) proc);
                     return null;
@@ -395,12 +379,12 @@ public class Jispy {
     }
 
     private static void require(@NotNull Object x, boolean predicate) {
-        require(x, predicate, "wrong length");
+        require(x, predicate, " wrong length");
     }
 
     private static void require(@NotNull Object x, boolean predicate, @NotNull String m) {
         if (!predicate) {
-            throw new SyntaxException(x.toString() + m);
+            throw new SyntaxException(evalToString(x) + m);
         }
     }
 

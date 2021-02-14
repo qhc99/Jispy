@@ -1,5 +1,6 @@
 package org.nathan.interpreter;
 
+import org.apache.commons.math3.complex.Complex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -292,12 +293,29 @@ class Env extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("load"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    load(args.get(0).toString(), Jispy.GlobalEnv);
+                    loadFile(args.get(0).toString(), Jispy.GlobalEnv);
                     return null;
                 }),
                 Map.entry(new Symbol("call/cc"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
                     return callcc((Lambda) args.get(0));
+                }),
+                Map.entry(new Symbol("sqrt"), (Lambda) args->{
+                    if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
+                    var t = args.get(0);
+                    if(t instanceof Integer){
+                        Integer i = (Integer) t;
+                        return Math.sqrt(i);
+                    }
+                    else if(t instanceof Double){
+                        Double d = (Double) t;
+                        return Math.sqrt(d);
+                    }
+                    else if(t instanceof Complex){
+                        Complex c = (Complex) t;
+                        return c.sqrt();
+                    }
+                    else throw new SyntaxException(evalToString(t) + " is not number");
                 }));
         return new Env(m.entrySet());
     }

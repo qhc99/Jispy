@@ -36,24 +36,25 @@ class Symbol {
         return str;
     }
 
-    public static final Symbol _quote = new Symbol("quote");
-    public static final Symbol _if = new Symbol("if");
-    public static final Symbol _set = new Symbol("set!");
-    public static final Symbol _define = new Symbol("define");
-    public static final Symbol _lambda = new Symbol("lambda");
-    public static final Symbol _begin = new Symbol("begin");
-    public static final Symbol _define_macro = new Symbol("define-macro");
-    public static final Symbol _quasi_quote = new Symbol("quasi-quote");
-    public static final Symbol _unquote = new Symbol("unquote");
-    public static final Symbol _unquote_splicing = new Symbol("unquote-splicing");
-    public static final Symbol eof = new Symbol("#<symbol-eof>");
-    public static final Map<String, Symbol> quotes = Map.of(
+    static final Symbol _quote = new Symbol("quote");
+    static final Symbol _if = new Symbol("if");
+    static final Symbol _set = new Symbol("set!");
+    static final Symbol _define = new Symbol("define");
+    static final Symbol _lambda = new Symbol("lambda");
+    static final Symbol _begin = new Symbol("begin");
+    static final Symbol _define_macro = new Symbol("define-macro");
+    static final Symbol _quasi_quote = new Symbol("quasi-quote");
+    static final Symbol _unquote = new Symbol("unquote");
+    static final Symbol _unquote_splicing = new Symbol("unquote-splicing");
+    static final Symbol eof = new Symbol("#<symbol-eof>");
+    static final Symbol comment = new Symbol(";");
+    static final Map<String, Symbol> quotes = Map.of(
             "'", _quote,
             "`", _quasi_quote,
             ",", _unquote,
             ",@", _unquote_splicing);
-    public static final Symbol _append = new Symbol("append");
-    public static final Symbol _cons = new Symbol("cons");
-    public static final Symbol _let = new Symbol("let");
-    public static final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, Jispy::let));
+    static final Symbol _append = new Symbol("append");
+    static final Symbol _cons = new Symbol("cons");
+    static final Symbol _let = new Symbol("let");
+    static final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, Jispy::let));
 }
