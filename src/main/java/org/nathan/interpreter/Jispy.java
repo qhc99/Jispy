@@ -16,24 +16,16 @@ import static org.nathan.interpreter.Utils.isNil;
 import static org.nathan.interpreter.Utils.treeList;
 
 public class Jispy {
-
     private static final boolean TIMER_ON = false;
 
     static class ArgumentsCountException extends RuntimeException {
         public ArgumentsCountException() {
             super();
         }
-
-        public ArgumentsCountException(String s) {
-            super(s);
-        }
     }
 
 
     static class SyntaxException extends RuntimeException {
-        public SyntaxException() {
-            super();
-        }
 
         public SyntaxException(String s) {
             super(s);
@@ -42,9 +34,6 @@ public class Jispy {
 
     private static class RuntimeWarning extends RuntimeException {
         Object returnValue;
-
-        RuntimeWarning() {
-        }
 
         RuntimeWarning(String m) {
             super(m);
@@ -77,11 +66,21 @@ public class Jispy {
                 }
                 var x = parse(inPort);
                 if (x.equals(eof)) { return; }
+                // System.out.println(x);
+                long t1,t2;
+                if(TIMER_ON){
+                    t1 = System.nanoTime();
+                }
                 var val = eval(x);
+                if(TIMER_ON){
+                    t2 = System.nanoTime();
+                    if(out != null){
+                        out.write(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
+                    }
+                }
                 if (val != null && out != null) {
                     out.write(toString(val));
                     out.write("\n");
-                    out.flush();
                 }
             } catch (Exception e) {
                 if (e instanceof IOException) {
@@ -144,6 +143,10 @@ public class Jispy {
             else if (op.equals(_lambda)) {
                 var vars = l.get(1);
                 var exp = l.get(2);
+                // different from lis.py
+                if(!(vars instanceof Iterable)){
+                    vars = treeList(vars);
+                }
                 return Procedure.newProcedure((Iterable<Object>) vars, exp, env);
             }
             else if (op.equals(_begin)) {
