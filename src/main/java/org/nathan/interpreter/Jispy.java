@@ -430,25 +430,4 @@ public class Jispy {
         throw ball;
     }
 
-    static class ArgumentsCountException extends RuntimeException {
-        public ArgumentsCountException() {
-            super();
-        }
-    }
-
-    static class SyntaxException extends RuntimeException {
-
-        public SyntaxException(String s) {
-            super(s);
-        }
-    }
-
-    static class RuntimeWarning extends RuntimeException {
-        Object returnValue;
-
-        RuntimeWarning(String m) {
-            super(m);
-        }
-    }
-
 }

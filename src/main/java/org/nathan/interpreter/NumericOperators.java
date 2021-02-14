@@ -1,7 +1,6 @@
 package org.nathan.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
-import org.nathan.interpreter.Jispy.SyntaxException;
 
 class NumericOperators {
 
