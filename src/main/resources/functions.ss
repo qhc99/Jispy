@@ -22,6 +22,17 @@
 (define (square-root a)
     (newton 1 (lambda (x) (- (* x x) a)) (lambda (x) (* 2 x)) 1e-8))
 (define (sum-squares-range start end)
-         (define (sumsq-acc start end acc)
+        (define (sumsq-acc start end acc)
             (if (> start end) acc (sumsq-acc (+ start 1) end (+ (* start start) acc))))
          (sumsq-acc start end 0))
+(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))
+(define fib (lambda (n) (if (< n 2) 1 (+ (fib (- n 1)) (fib (- n 2))))))
+(define count
+        (lambda (item L)
+            (if (null? L) 0 (+ (if (equal? item (car L)) 1 0) (count item (cdr L))))))
+(define square (lambda (x) (* x x)))
+(define range (lambda (a b) (if (= a b) nil (cons a (range (+ a 1) b)))))
+              (define (sum2 n acc)
+                  (if (= n 0)
+                      acc
+                      (sum2 (- n 1) (+ n acc))))

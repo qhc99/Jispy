@@ -288,7 +288,7 @@ class Env extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("eval"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
-                    return eval(expand(args.get(0)));
+                    return eval(expand(args.get(0)), GlobalEnv);
                 }),
                 Map.entry(new Symbol("load"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
@@ -299,6 +299,7 @@ class Env extends HashMap<Object, Object> {
                     if (args.size() != 1) { throw new Jispy.ArgumentsCountException(); }
                     return callcc((Lambda) args.get(0));
                 }));
+//        load("src/main/resources/functions.ss",GlobalEnv);
         return new Env(m.entrySet());
     }
 

@@ -18,31 +18,19 @@ import static org.nathan.interpreter.Utils.treeList;
 public class Jispy {
     private static final boolean TIMER_ON = false;
 
-    static class ArgumentsCountException extends RuntimeException {
-        public ArgumentsCountException() {
-            super();
-        }
-    }
+    private static final boolean LOAD_LIB = true;
 
-    static class SyntaxException extends RuntimeException {
-
-        public SyntaxException(String s) {
-            super(s);
-        }
-    }
-
-    private static class RuntimeWarning extends RuntimeException {
-        Object returnValue;
-
-        RuntimeWarning(String m) {
-            super(m);
-        }
-    }
-
+    private static final String LIB_FILE = "src/main/resources/functions.ss";
 
     static final List<Object> Nil = Collections.emptyList();
 
     static final Env GlobalEnv = Env.NewStandardEnv();
+
+    static {
+        if(LOAD_LIB){
+            load(LIB_FILE,GlobalEnv);
+        }
+    }
 
     /**
      * command line
@@ -52,7 +40,7 @@ public class Jispy {
     }
 
     /**
-     * load
+     * load or command line
      * @param prompt null or String
      * @param inPort String or InPort
      * @param out null or Writer
@@ -79,7 +67,7 @@ public class Jispy {
                 if(TIMER_ON){
                     t1 = System.nanoTime();
                 }
-                var val = eval(x);
+                var val = eval(x, env);
                 if(TIMER_ON){
                     t2 = System.nanoTime();
                     if(out != null){
@@ -113,16 +101,12 @@ public class Jispy {
      * @return result
      */
     public static Object repl(@NotNull String program) {
-        return eval(parse(program));
+        return eval(parse(program), GlobalEnv);
     }
 
     static Object parse(@NotNull Object in) {
         if (in instanceof String) { in = new InPort((String) in); }
         return expand(read((InPort) in), true);
-    }
-
-    static Object eval(Object x) {
-        return eval(x, GlobalEnv);
     }
 
     static Object eval(Object x, @NotNull Env env) {
@@ -323,7 +307,7 @@ public class Jispy {
                 var exp = expand(l.get(2));
                 if (op.equals(_define_macro)) {
                     require(x, topLevel, "define-macro only allowed at top level");
-                    var proc = eval(exp);
+                    var proc = eval(exp,GlobalEnv);
                     require(x, proc instanceof Lambda, "macro must be a procedure");
                     macro_table.put((Symbol) v, (Lambda) proc);
                     return null;
@@ -433,6 +417,27 @@ public class Jispy {
     private static void raise(@NotNull Object r, @NotNull RuntimeWarning ball) {
         ball.returnValue = r;
         throw ball;
+    }
+
+    static class ArgumentsCountException extends RuntimeException {
+        public ArgumentsCountException() {
+            super();
+        }
+    }
+
+    static class SyntaxException extends RuntimeException {
+
+        public SyntaxException(String s) {
+            super(s);
+        }
+    }
+
+    static class RuntimeWarning extends RuntimeException {
+        Object returnValue;
+
+        RuntimeWarning(String m) {
+            super(m);
+        }
     }
 
 }
