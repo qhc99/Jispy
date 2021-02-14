@@ -15,6 +15,7 @@ class Env extends HashMap<Object, Object> {
 
     private Env outer;
 
+    private static final boolean DEBUG = false;
 
     Env(@NotNull Iterable<Object> keys, @NotNull Iterable<Object> vals, Env outer) {
         this.outer = outer;
@@ -36,7 +37,9 @@ class Env extends HashMap<Object, Object> {
 
 
     Env find(@NotNull Object o) {
-//        System.out.println(String.format("find %s",o));
+        if(DEBUG){
+            System.out.println(String.format("find %s",o));
+        }
         if (containsKey(o)) { return this; }
         else if (outer == null) { throw new RuntimeException("look up error"); }
         else { return outer.find(o); }

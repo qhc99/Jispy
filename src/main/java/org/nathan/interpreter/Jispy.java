@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.nathan.interpreter.NumericOperators.MathExpToParsable;
 import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.Utils.isNil;
 import static org.nathan.interpreter.Utils.treeList;
@@ -61,7 +62,7 @@ public class Jispy {
 
     static void repl(String prompt, @NotNull Object inPort, Writer out) {
         try {
-            if(prompt != null){
+            if (prompt != null) {
                 System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException e) {
@@ -187,8 +188,8 @@ public class Jispy {
                 }
                 if (!isDouble) {
                     try {
-                        return ComplexFormat.getInstance().parse(x);
-                    } catch (MathParseException ignore) {
+                        return ComplexFormat.getInstance().parse(MathExpToParsable(x));
+                    } catch (MathParseException | NumberFormatException ignore) {
                         return new Symbol(x);
                     }
                 }
@@ -395,7 +396,6 @@ public class Jispy {
         return r;
     }
 
-    // TODO bug
     static @NotNull Object callcc(@NotNull Lambda proc) {
         var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try {

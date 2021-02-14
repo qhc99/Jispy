@@ -1,6 +1,9 @@
 package org.nathan.interpreter;
+
+import org.apache.commons.math3.complex.Complex;
 import org.nathan.interpreter.Jispy.SyntaxException;
 
+// TODO support complex
 class NumericOperators {
 
     static boolean lessThan(Object a, Object b) {
@@ -12,12 +15,18 @@ class NumericOperators {
     }
 
     static boolean equal(Object a, Object b) {
-        return value(a) == value(b);
+        if ((!(a instanceof Complex)) && (!(b instanceof Complex))) {
+            return value(a) == value(b);
+        }
+        else {
+            return a.equals(b);
+        }
     }
 
     static Object negative(Object a) {
         if (a instanceof Integer) { return -(Integer) a; }
         else if (a instanceof Double) { return -(Double) a; }
+        else if (a instanceof Complex) { return ((Complex) a).negate(); }
         else { throw new SyntaxException("not number"); }
 
     }
@@ -34,6 +43,10 @@ class NumericOperators {
                 Double d = (Double) (b);
                 return c + d;
             }
+            else if (b instanceof Complex) {
+                Integer c = (Integer) (a);
+                return ((Complex) b).add(c);
+            }
             else { throw new SyntaxException("not number"); }
 
         }
@@ -48,8 +61,29 @@ class NumericOperators {
                 Double d = (Double) (b);
                 return c + d;
             }
+            else if (b instanceof Complex) {
+                Double c = (Double) a;
+                return ((Complex) b).add(c);
+            }
             else { throw new SyntaxException("not number"); }
 
+        }
+        else if (a instanceof Complex) {
+            if (b instanceof Integer) {
+                Complex c = (Complex) (a);
+                Integer d = (Integer) (b);
+                return c.add(d);
+            }
+            else if (b instanceof Double) {
+                Complex c = (Complex) (a);
+                Double d = (Double) (b);
+                return c.add(d);
+            }
+            else if (b instanceof Complex) {
+                Complex c = (Complex) (a);
+                return ((Complex) b).add(c);
+            }
+            else { throw new SyntaxException("not number"); }
         }
         else { throw new SyntaxException("not number"); }
     }
@@ -67,6 +101,11 @@ class NumericOperators {
                 Double d = (Double) (b);
                 return c - d;
             }
+            else if (b instanceof Complex) {
+                Integer c = (Integer) (a);
+                Complex d = (Complex) b;
+                return d.negate().add(c);
+            }
             else { throw new SyntaxException("not number"); }
         }
         else if (a instanceof Double) {
@@ -79,6 +118,29 @@ class NumericOperators {
                 Double c = (Double) (a);
                 Double d = (Double) (b);
                 return c - d;
+            }
+            else if (b instanceof Complex) {
+                Double c = (Double) (a);
+                Complex d = (Complex) b;
+                return d.negate().add(c);
+            }
+            else { throw new SyntaxException("not number"); }
+        }
+        else if (a instanceof Complex) {
+            if (b instanceof Integer) {
+                Complex c = (Complex) (a);
+                Integer d = (Integer) (b);
+                return c.negate().add(d).negate();
+            }
+            else if (b instanceof Double) {
+                Complex c = (Complex) (a);
+                Double d = (Double) (b);
+                return c.negate().add(d).negate();
+            }
+            else if (b instanceof Complex) {
+                Complex c = (Complex) (a);
+                Complex d = (Complex) b;
+                return c.negate().add(d).negate();
             }
             else { throw new SyntaxException("not number"); }
         }
@@ -97,6 +159,11 @@ class NumericOperators {
                 Double d = (Double) (b);
                 return c / d;
             }
+            else if (b instanceof Complex) {
+                Integer c = (Integer) (a);
+                Complex d = (Complex) (b);
+                return new Complex(1).divide(d.divide(c));
+            }
             else { throw new SyntaxException("not number"); }
         }
         else if (a instanceof Double) {
@@ -109,6 +176,29 @@ class NumericOperators {
                 Double c = (Double) (a);
                 Double d = (Double) (b);
                 return c / d;
+            }
+            else if (b instanceof Complex) {
+                Double c = (Double) (a);
+                Complex d = (Complex) (b);
+                return new Complex(1).divide(d.divide(c));
+            }
+            else { throw new SyntaxException("not number"); }
+        }
+        else if (a instanceof Complex) {
+            if (b instanceof Integer) {
+                Complex c = (Complex) (a);
+                Integer d = (Integer) (b);
+                return c.divide(d);
+            }
+            else if (b instanceof Double) {
+                Complex c = (Complex) (a);
+                Double d = (Double) (b);
+                return c.divide(d);
+            }
+            else if (b instanceof Complex) {
+                Complex c = (Complex) (a);
+                Complex d = (Complex) (b);
+                return c.divide(d);
             }
             else { throw new SyntaxException("not number"); }
         }
@@ -127,6 +217,11 @@ class NumericOperators {
                 Double d = (Double) (b);
                 return c * d;
             }
+            else if (b instanceof Complex) {
+                Integer c = (Integer) (a);
+                Complex d = (Complex) (b);
+                return d.multiply(c);
+            }
             else { throw new SyntaxException("not number"); }
         }
         else if (a instanceof Double) {
@@ -140,6 +235,29 @@ class NumericOperators {
                 Double d = (Double) (b);
                 return c * d;
             }
+            else if (b instanceof Complex) {
+                Double c = (Double) (a);
+                Complex d = (Complex) (b);
+                return d.multiply(c);
+            }
+            else { throw new SyntaxException("not number"); }
+        }
+        else if (a instanceof Complex) {
+            if (b instanceof Integer) {
+                Complex c = (Complex) (a);
+                Integer d = (Integer) (b);
+                return c.multiply(d);
+            }
+            else if (b instanceof Double) {
+                Complex c = (Complex) (a);
+                Double d = (Double) (b);
+                return c.multiply(d);
+            }
+            else if (b instanceof Complex) {
+                Complex c = (Complex) (a);
+                Complex d = (Complex) (b);
+                return d.multiply(c);
+            }
             else { throw new SyntaxException("not number"); }
         }
         else { throw new SyntaxException("not number"); }
@@ -149,5 +267,28 @@ class NumericOperators {
         if (o instanceof Double) { return (Double) o; }
         else if (o instanceof Integer) { return (Integer) o; }
         else { throw new SyntaxException("not number"); }
+    }
+
+    // TODO to parsable
+    static String MathExpToParsable(String tuple) {
+        String[] parts = tuple.split("\\+");
+        Double real = null, imaginary = null;
+        if(parts.length == 0){
+            throw new NumberFormatException();
+        }
+        for (var part : parts) {
+            try {
+                real = Double.parseDouble(part.trim());
+            } catch (NumberFormatException ignore) {
+                imaginary = Double.parseDouble(part.trim().replaceAll("i", ""));
+            }
+        }
+        if (real == null) {
+            return String.format("0 + %fi", imaginary);
+        }
+        else if (imaginary == null) {
+            return String.format("%f + 0", real);
+        }
+        else { return String.format("%f + %fi", real, imaginary); }
     }
 }
