@@ -3,7 +3,6 @@ package org.nathan.interpreter;
 import org.apache.commons.math3.complex.Complex;
 import org.nathan.interpreter.Jispy.SyntaxException;
 
-// TODO support complex
 class NumericOperators {
 
     static boolean lessThan(Object a, Object b) {
@@ -269,7 +268,6 @@ class NumericOperators {
         else { throw new SyntaxException("not number"); }
     }
 
-    // TODO to parsable
     static String MathExpToParsable(String tuple) {
         String[] parts = tuple.split("\\+");
         Double real = null, imaginary = null;
