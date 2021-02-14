@@ -10,16 +10,15 @@ import java.util.function.Function;
 import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.isNil;
-import static org.nathan.interpreter.Utils.isTrue;
 
 
-class Env extends HashMap<Object, Object> {
+class Environment extends HashMap<Object, Object> {
 
-    private Env outer;
+    private Environment outer;
 
     private static final boolean DEBUG = false;
 
-    Env(@NotNull Iterable<Object> keys, @NotNull Iterable<Object> vals, Env outer) {
+    Environment(@NotNull Iterable<Object> keys, @NotNull Iterable<Object> vals, Environment outer) {
         this.outer = outer;
         var keyIter = keys.iterator();
         var valIter = vals.iterator();
@@ -31,14 +30,14 @@ class Env extends HashMap<Object, Object> {
         }
     }
 
-    Env(@NotNull Iterable<Entry<Object, Object>> entries) {
+    Environment(@NotNull Iterable<Entry<Object, Object>> entries) {
         for (var e : entries) {
             this.put(e.getKey(), e.getValue());
         }
     }
 
 
-    Env find(@NotNull Object o) {
+    Environment find(@NotNull Object o) {
         if(DEBUG){
             System.out.println(String.format("find symbol: <%s> in %s",o, this.hashCode()));
         }
@@ -61,7 +60,7 @@ class Env extends HashMap<Object, Object> {
         return s.toString();
     }
 
-    static Env NewStandardEnv() {
+    static Environment NewStandardEnv() {
         Map<Object, Object> m = Map.ofEntries(
                 Map.entry(new Symbol("+"), (Lambda) args -> {
                     if (args.size() < 1) { throw new ArgumentsCountException(); }
@@ -336,7 +335,7 @@ class Env extends HashMap<Object, Object> {
                         return args.stream().allMatch(Utils::isTrue);
                     }
                 }));
-        return new Env(m.entrySet());
+        return new Environment(m.entrySet());
     }
 
     // TODO add display, debug define-macro, debug quote, fix and function

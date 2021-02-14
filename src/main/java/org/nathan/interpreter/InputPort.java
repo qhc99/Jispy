@@ -5,20 +5,20 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.util.regex.Pattern;
 
-class InPort implements Closeable {
+class InputPort implements Closeable {
     BufferedReader file;
     String line = "";
     String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
 
-    InPort(@NotNull InputStream in) {
+    InputPort(@NotNull InputStream in) {
         file = new BufferedReader(new InputStreamReader(in));
     }
 
-    InPort(@NotNull String in) {
+    InputPort(@NotNull String in) {
         file = new BufferedReader(new StringReader(in));
     }
 
-    InPort(@NotNull File file) {
+    InputPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {

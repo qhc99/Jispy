@@ -6,11 +6,11 @@ import java.util.List;
 
 interface Procedure extends Lambda {
 
-    static Procedure newProcedure(@NotNull Iterable<Object> params, @NotNull Object exp, Env env) {
+    static Procedure newProcedure(@NotNull Iterable<Object> params, @NotNull Object exp, Environment env) {
         return new Procedure() {
             @Override
             public Object apply(List<Object> args) {
-                return Jispy.eval(exp, new Env(params, args, env));
+                return Jispy.eval(exp, new Environment(params, args, env));
             }
 
             @Override
@@ -19,7 +19,7 @@ interface Procedure extends Lambda {
             }
 
             @Override
-            public Env environment() {
+            public Environment environment() {
                 return env;
             }
 
@@ -34,5 +34,5 @@ interface Procedure extends Lambda {
 
     @NotNull Iterable<Object> parameters();
 
-    Env environment();
+    Environment environment();
 }

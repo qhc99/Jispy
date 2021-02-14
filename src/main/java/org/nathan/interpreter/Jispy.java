@@ -25,7 +25,7 @@ public class Jispy {
 
     static final List<Object> Nil = Collections.emptyList();
 
-    static final Env GlobalEnv = Env.NewStandardEnv();
+    static final Environment GlobalEnv = Environment.NewStandardEnv();
 
     static {
         if (LOAD_LIB) {
@@ -36,7 +36,7 @@ public class Jispy {
     @SuppressWarnings("InfiniteLoopStatement")
     public static void repl() {
         String prompt = "Jis.py>";
-        InPort inPort = new InPort(System.in);
+        InputPort inPort = new InputPort(System.in);
         try {
             System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class Jispy {
 
     public static void runFile(File file) {
         // TODO release file
-        InPort inPort = new InPort(file);
+        InputPort inPort = new InputPort(file);
         while (true) {
             try {
                 var x = parse(inPort);
@@ -91,9 +91,9 @@ public class Jispy {
         return eval(parse(program), GlobalEnv);
     }
 
-    static void loadFile(String fileName, Env env) {
+    static void loadFile(String fileName, Environment env) {
         var file = new File(fileName);
-        var inPort = new InPort(file);
+        var inPort = new InputPort(file);
         while (true) {
             try {
                 var x = parse(inPort);
@@ -108,15 +108,15 @@ public class Jispy {
 
     static Object parse(@NotNull Object in) {
         if (in instanceof String) {
-            return expand(read(new InPort((String) in)), true);
+            return expand(read(new InputPort((String) in)), true);
         }
-        else if (in instanceof InPort) {
-            return expand(read((InPort) in), true);
+        else if (in instanceof InputPort) {
+            return expand(read((InputPort) in), true);
         }
         else { throw new RuntimeException(); }
     }
 
-    static Object eval(Object x, @NotNull Env env) {
+    static Object eval(Object x, @NotNull Environment env) {
         while (true) {
             if (x instanceof Symbol) { return env.find(x).get(x); }
             else if (!(x instanceof List)) { return x; }
@@ -157,14 +157,14 @@ public class Jispy {
                 x = l.get(l.size() - 1);
             }
             else {
-                Env finalEnv = env;
+                Environment finalEnv = env;
                 List<Object> exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
                 var proc = exps.get(0);
                 exps = exps.subList(1, exps.size());
                 if (proc instanceof Procedure) {
                     Procedure p = (Procedure) proc;
                     x = p.expression();
-                    env = new Env(p.parameters(), exps, p.environment());
+                    env = new Environment(p.parameters(), exps, p.environment());
                 }
                 else { return ((Lambda) proc).apply(exps); }
             }
@@ -207,7 +207,7 @@ public class Jispy {
         }
     }
 
-    private static @NotNull Object readChar(@NotNull InPort inPort) {
+    private static @NotNull Object readChar(@NotNull InputPort inPort) {
         if (!inPort.line.equals("")) {
             var c = inPort.line.charAt(0);
             inPort.line = inPort.line.substring(1);
@@ -224,7 +224,7 @@ public class Jispy {
         }
     }
 
-    private static @NotNull Object read(@NotNull InPort inPort) {
+    private static @NotNull Object read(@NotNull InputPort inPort) {
         var token = inPort.nextToken();
         if (token.equals(eof)) { return eof; }
         else if (((String) token).startsWith(";")) {return comment;}
@@ -233,7 +233,7 @@ public class Jispy {
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private static @NotNull Object readAhead(@NotNull Object token, @NotNull InPort inPort) {
+    private static @NotNull Object readAhead(@NotNull Object token, @NotNull InputPort inPort) {
         if (token.equals("(")) {
             List<Object> l = new ArrayList<>();
             while (true) {
