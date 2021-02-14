@@ -6,7 +6,6 @@ import org.apache.commons.math3.exception.MathParseException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,6 +16,8 @@ import static org.nathan.interpreter.Utils.treeList;
 
 public class Jispy {
     private static final boolean TIMER_ON = false;
+
+    private static final boolean PARSE_DEBUG = false;
 
     private static final boolean LOAD_LIB = true;
 
@@ -33,22 +34,15 @@ public class Jispy {
     }
 
     /**
-     * command line
-     */
-    public static void repl() {
-        repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)), GlobalEnv);
-    }
-
-    /**
-     * load or command line
+     * command line or load
      * @param prompt null or String
      * @param inPort String or InPort
      * @param out null or Writer
      */
     static void repl(String prompt, @NotNull Object inPort, Writer out, Env env) {
         try {
-            if (prompt != null) {
-                System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
+            if (prompt != null && out != null) {
+                out.write("Jispy version 2.0\n");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -62,17 +56,19 @@ public class Jispy {
                 }
                 var x = parse(inPort);
                 if (x.equals(eof)) { return; }
-                // System.out.println(x);
+                if(PARSE_DEBUG && out != null){
+                    out.write("parse result:<");
+                    out.write(x.toString());
+                    out.write(">\n");
+                }
                 long t1,t2;
-                if(TIMER_ON){
+                if(TIMER_ON && out != null){
                     t1 = System.nanoTime();
                 }
                 var val = eval(x, env);
-                if(TIMER_ON){
+                if(TIMER_ON && out != null){
                     t2 = System.nanoTime();
-                    if(out != null){
-                        out.write(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
-                    }
+                    out.write(String.format("%fms\n",(t1-t2)/Math.pow(10,6)));
                 }
                 if (val != null && out != null) {
                     out.write(toString(val));
@@ -84,15 +80,19 @@ public class Jispy {
                     break;
                 }
                 else {
-                    e.printStackTrace(System.out);
+                    if(out != null){
+                        e.printStackTrace(new PrintWriter(out));
+                    }
                 }
             }
         }
     }
 
-    static void load(String fileName, Env env) {
-        var file = new File(fileName);
-        repl(null, new InPort(file), null, env);
+    /**
+     * command line
+     */
+    public static void repl() {
+        repl("Jis.py>", new InPort(System.in), new BufferedWriter(new OutputStreamWriter(System.out)), GlobalEnv);
     }
 
     /**
@@ -104,9 +104,32 @@ public class Jispy {
         return eval(parse(program), GlobalEnv);
     }
 
+    /**
+     * run scripts
+     * @param file file object
+     */
+    public static void repl(File file){
+        repl(null, new InPort(file), new BufferedWriter(new OutputStreamWriter(System.out)), GlobalEnv);
+    }
+
+    /**
+     * load file to env
+     * @param fileName string file name
+     * @param env env
+     */
+    static void load(String fileName, Env env) {
+        var file = new File(fileName);
+        repl(null, new InPort(file), null, env);
+    }
+
     static Object parse(@NotNull Object in) {
-        if (in instanceof String) { in = new InPort((String) in); }
-        return expand(read((InPort) in), true);
+        if(in instanceof String) {
+            return expand(read(new InPort((String) in)), true);
+        }
+        else if(in instanceof InPort){
+            return expand(read((InPort) in), true);
+        }
+        else throw new RuntimeException();
     }
 
     static Object eval(Object x, @NotNull Env env) {

@@ -33,8 +33,8 @@ class InPort implements Closeable {
                     line = file.readLine();
                     if (line == null) { line = ""; }
                 } catch (IOException e) {
-                    e.printStackTrace(System.out);
-                    continue;
+                    e.printStackTrace(System.err);
+                    throw new RuntimeException(e);
                 }
             }
             if (line.equals("")) {
