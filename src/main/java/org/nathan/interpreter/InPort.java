@@ -41,6 +41,7 @@ class InPort implements Closeable {
                     throw new RuntimeException(e);
                 }
             }
+            // TODO file next line is not eof
             if (line.equals("")) {
                 return Symbol.eof;
             }

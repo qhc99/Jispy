@@ -12,8 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.nathan.interpreter.NumericOperators.MathExpToParsable;
 import static org.nathan.interpreter.Symbol.*;
-import static org.nathan.interpreter.Utils.isNil;
-import static org.nathan.interpreter.Utils.treeList;
+import static org.nathan.interpreter.Utils.*;
 
 public class Jispy {
     private static final boolean TIMER_ON = false;
@@ -45,7 +44,7 @@ public class Jispy {
         }
         while (true) {
             try {
-                System.out.println(prompt);
+                System.out.print(prompt);
                 var x = parse(inPort);
                 if (x.equals(eof) || x.equals(comment)) { continue; }
                 evalAndPrint(x);
@@ -56,6 +55,7 @@ public class Jispy {
     }
 
     public static void runFile(File file) {
+        // TODO release file
         InPort inPort = new InPort(file);
         while (true) {
             try {
@@ -64,7 +64,7 @@ public class Jispy {
                 else if (x.equals(eof)) { return; }
                 evalAndPrint(x);
             } catch (Exception e) {
-                System.out.println(e.toString());
+                System.out.println(String.format("%s:\n<%s>",e.toString(), e.getStackTrace()[0].toString()));
             }
         }
     }
@@ -127,9 +127,8 @@ public class Jispy {
                 var test = l.get(1);
                 var conseq = l.get(2);
                 var alt = l.get(3);
-                Boolean t = (Boolean) eval(test, env);
-                if (t == null) { throw new SyntaxException("null is not boolean"); }
-                if (t) { x = conseq; }
+                boolean testBool = isTrue(eval(test,env));
+                if (testBool) { x = conseq; }
                 else { x = alt; }
             }
             else if (op.equals(_set)) {
@@ -254,8 +253,9 @@ public class Jispy {
         else { return toAtom((String) token); }
     }
 
-    static @NotNull String evalToString(@NotNull Object x) {
-        if (x.equals(true)) { return "#t"; }
+    static String evalToString(Object x) {
+        if(x == null) return null;
+        else if (x.equals(true)) { return "#t"; }
         else if (x.equals(false)) { return "#f"; }
         else if (x instanceof Symbol) { return x.toString(); }
         else if (x instanceof String) { return ((String) x).substring(1, ((String) x).length() - 1); }
@@ -275,12 +275,12 @@ public class Jispy {
         else { return x.toString(); }
     }
 
-    static Object expand(@NotNull Object x) {
+    static Object expand(Object x) {
         return expand(x, false);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private static Object expand(@NotNull Object x, boolean topLevel) {
+    private static Object expand(Object x, boolean topLevel) {
         require(x, !isNil(x));
         if (!(x instanceof List)) { return x; }
         List<Object> l = (List<Object>) x;
@@ -336,7 +336,7 @@ public class Jispy {
             var body = l.subList(2, l.size());
             require(x, (vars instanceof List &&
                     ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)) ||
-                    vars instanceof Symbol);
+                    vars instanceof Symbol, "illegal lambda argument list");
             Object exp;
             if (body.size() == 1) { exp = body.get(0); }
             else {
@@ -378,29 +378,34 @@ public class Jispy {
         return !isNil(x) && x instanceof List;
     }
 
-    private static void require(@NotNull Object x, boolean predicate) {
+    private static void require(Object x, boolean predicate) {
         require(x, predicate, " wrong length");
     }
 
-    private static void require(@NotNull Object x, boolean predicate, @NotNull String m) {
+    private static void require(Object x, boolean predicate, @NotNull String m) {
         if (!predicate) {
             throw new SyntaxException(evalToString(x) + m);
         }
     }
 
-    static @NotNull Object let(@NotNull Object... arguments) {
-        var args = Arrays.stream(arguments).collect(Collectors.toList());
+    static @NotNull Object let(@NotNull List<Object> args) {
         List<Object> x = treeList(_let);
         x.add(args);
         require(x, x.size() > 1);
-        List<Object> bindings = (List<Object>) args.get(0);
-        var body = args.subList(1, args.size());
-        require(x, bindings.stream().allMatch(b -> b instanceof List &&
-                ((List<?>) b).size() == 2 &&
-                ((List<?>) b).get(0) instanceof Symbol));
-        var vars = bindings.get(0);
-        List<Object> vals = (List<Object>) bindings.get(1);
-        var t = treeList(_lambda, treeList(vars));
+        List<List<Object>> bindings;
+        try{
+            bindings = (List<List<Object>>) args.get(0);
+        }
+        catch (ClassCastException e){
+            throw new ClassCastException("illegal binding list");
+        }
+        List<Object> body = args.subList(1, args.size());
+        require(x, bindings.stream().allMatch(b -> b != null &&
+                b.size() == 2 &&
+                b.get(0) instanceof Symbol), "illegal binding list");
+        List<Object> vars = bindings.stream().map(l->l.get(0)).collect(Collectors.toList());
+        List<Object> vals = bindings.stream().map(l->l.get(1)).collect(Collectors.toList());
+        var t = treeList(_lambda, vars);
         t.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
         var r = treeList(t);
         r.addAll(vals.stream().map(Jispy::expand).collect(Collectors.toList()));

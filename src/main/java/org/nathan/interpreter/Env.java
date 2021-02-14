@@ -10,6 +10,7 @@ import java.util.function.Function;
 import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.isNil;
+import static org.nathan.interpreter.Utils.isTrue;
 
 
 class Env extends HashMap<Object, Object> {
@@ -304,21 +305,40 @@ class Env extends HashMap<Object, Object> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     var t = args.get(0);
                     if(t instanceof Integer){
-                        Integer i = (Integer) t;
-                        return Math.sqrt(i);
+                        int i = (Integer) t;
+                        if(i >= 0){
+                            return Math.sqrt(i);
+                        }
+                        else{
+                            Complex c = new Complex(i);
+                            return c.sqrt();
+                        }
                     }
                     else if(t instanceof Double){
-                        Double d = (Double) t;
-                        return Math.sqrt(d);
+                        double d = (Double) t;
+                        if(d >= 0){
+                            return Math.sqrt(d);
+                        }
+                        else{
+                            Complex c = new Complex(d);
+                            return c.sqrt();
+                        }
                     }
                     else if(t instanceof Complex){
                         Complex c = (Complex) t;
                         return c.sqrt();
                     }
                     else throw new SyntaxException(evalToString(t) + " is not number");
+                }),
+                Map.entry(new Symbol("and"), (Lambda) args->{
+                    if(args.size() < 1) { return true; }
+                    else{
+                        return args.stream().allMatch(Utils::isTrue);
+                    }
                 }));
         return new Env(m.entrySet());
     }
 
+    // TODO add display, debug define-macro, debug quote, fix and function
     // TODO more functions
 }

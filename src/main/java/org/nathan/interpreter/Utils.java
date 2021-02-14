@@ -1,5 +1,8 @@
 package org.nathan.interpreter;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexFormat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +32,20 @@ class Utils {
         return new ArrayList<>(Arrays.asList(o));
     }
 
-    static boolean isNil(Object o){
-        if(o instanceof List){
+    static boolean isNil(Object o) {
+        if (o instanceof List) {
             return ((List<?>) o).isEmpty();
         }
-        else{
+        else {
             return false;
         }
     }
+
+    static boolean isTrue(Object o) {
+        if (o instanceof Boolean) {return (Boolean) o;}
+        else if (o instanceof Integer || o instanceof Double) { return !o.equals(0); }
+        else if (o == null) { return false; }
+        else { throw new SyntaxException("not bool"); }
+    }
+
 }
