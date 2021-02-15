@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-class Symbol {
+public class Symbol {
     final String str;
 
     public Symbol(@NotNull String s) {
@@ -46,7 +46,7 @@ class Symbol {
     static final Symbol _quasi_quote = new Symbol("quasi-quote");
     static final Symbol _unquote = new Symbol("unquote");
     static final Symbol _unquote_splicing = new Symbol("unquote-splicing");
-    static final Symbol eof = new Symbol("#<symbol-eof>");
+    public static final Symbol eof = new Symbol("#<symbol-eof>");
     static final Symbol comment = new Symbol(";");
     static final Symbol new_line = new Symbol("\\n");
     static final Map<String, Symbol> quotes = Map.of(
