@@ -55,8 +55,8 @@ x ; => 3
 (sqrt -1) ; => 1i ;
 (let ((a 1) (b 2)) (+ a b)) ; => 3
 (let ((a 1) (b 2 3)) (+ a b)) ; =raises=> SyntaxError (let ((a 1) (b 2 3)) (+ a b)): illegal binding list
-;removed test: (and 1 2 3) ; => 3
-;removed test: (and (> 2 1) 2 3) ; => 3
+(and 1 2 3) ; => 3
+(and (> 2 1) 2 3) ; => 3
 (and) ; => #t
 (and (> 2 1) (> 2 3)) ; => #f
 (define-macro unless (lambda args `(if (not ,(car args)) (begin ,@(cdr args))))) ;  test ` ; => None

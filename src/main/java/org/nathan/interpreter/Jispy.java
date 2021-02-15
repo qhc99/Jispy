@@ -64,7 +64,10 @@ public class Jispy {
                 else if (x.equals(eof)) { return; }
                 evalAndPrint(x);
             } catch (Exception e) {
-                System.out.println(String.format("%s:\n<%s>",e.toString(), e.getStackTrace()[0].toString()));
+                System.out.println(String.format("%s:\n<%s>\n<%s>",
+                        e.toString(),
+                        e.getStackTrace()[0].toString(),
+                        e.getStackTrace()[1].toString()));
             }
         }
     }

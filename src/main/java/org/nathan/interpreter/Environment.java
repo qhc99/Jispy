@@ -10,6 +10,7 @@ import java.util.function.Function;
 import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.isNil;
+import static org.nathan.interpreter.Utils.isTrue;
 
 
 class Environment extends HashMap<Object, Object> {
@@ -38,8 +39,8 @@ class Environment extends HashMap<Object, Object> {
 
 
     Environment find(@NotNull Object o) {
-        if(DEBUG){
-            System.out.println(String.format("find symbol: <%s> in %s",o, this.hashCode()));
+        if (DEBUG) {
+            System.out.println(String.format("find symbol: <%s> in %s", o, this.hashCode()));
         }
         if (containsKey(o)) { return this; }
         else if (outer == null) { throw new RuntimeException("look up error"); }
@@ -300,44 +301,56 @@ class Environment extends HashMap<Object, Object> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     return callcc((Lambda) args.get(0));
                 }),
-                Map.entry(new Symbol("sqrt"), (Lambda) args->{
+                Map.entry(new Symbol("sqrt"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     var t = args.get(0);
-                    if(t instanceof Integer){
+                    if (t instanceof Integer) {
                         int i = (Integer) t;
-                        if(i >= 0){
+                        if (i >= 0) {
                             return Math.sqrt(i);
                         }
-                        else{
+                        else {
                             Complex c = new Complex(i);
                             return c.sqrt();
                         }
                     }
-                    else if(t instanceof Double){
+                    else if (t instanceof Double) {
                         double d = (Double) t;
-                        if(d >= 0){
+                        if (d >= 0) {
                             return Math.sqrt(d);
                         }
-                        else{
+                        else {
                             Complex c = new Complex(d);
                             return c.sqrt();
                         }
                     }
-                    else if(t instanceof Complex){
+                    else if (t instanceof Complex) {
                         Complex c = (Complex) t;
                         return c.sqrt();
                     }
-                    else throw new SyntaxException(evalToString(t) + " is not number");
+                    else { throw new SyntaxException(evalToString(t) + " is not number"); }
                 }),
-                Map.entry(new Symbol("and"), (Lambda) args->{
-                    if(args.size() < 1) { return true; }
-                    else{
-                        return args.stream().allMatch(Utils::isTrue);
+                Map.entry(new Symbol("and"), (Lambda) args -> {
+                    if (args.size() < 1) { return true; }
+                    else if (args.size() == 1) {
+                        return args.get(0);
+                    }
+                    else {
+                        var t = eval(expand(args.get(0)), GlobalEnv);
+                        if (isTrue(t)) {
+                            List<Object> newExp = new ArrayList<>();
+                            newExp.add(new Symbol("and"));
+                            newExp.addAll(args.subList(1,args.size()));
+                            return eval(expand(newExp), GlobalEnv);
+                        }
+                        else {
+                            return false;
+                        }
                     }
                 }));
         return new Environment(m.entrySet());
     }
 
-    // TODO add display, debug define-macro, debug quote, fix and function
+    // TODO add display, debug define-macro, debug quote
     // TODO more functions
 }
