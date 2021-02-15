@@ -46,7 +46,7 @@ public class Jispy {
             try {
                 System.out.print(prompt);
                 var x = parse(inPort);
-                if (x.equals(eof) || x.equals(comment)) { continue; }
+                if (x.equals(eof) || x.equals(comment) || x.equals(new_line)) { continue; }
                 evalAndPrint(x);
             } catch (Exception e) {
                 e.printStackTrace(System.out);
@@ -60,7 +60,7 @@ public class Jispy {
         while (true) {
             try {
                 var x = parse(inPort);
-                if(x.equals(comment)) {continue;}
+                if (x.equals(comment) || x.equals(new_line)) {continue;}
                 else if (x.equals(eof)) { return; }
                 evalAndPrint(x);
             } catch (Exception e) {
@@ -70,6 +70,10 @@ public class Jispy {
                         e.getStackTrace()[1].toString()));
             }
         }
+    }
+
+    public static Object runScripts(@NotNull String program) {
+        return eval(parse(program), GlobalEnv);
     }
 
     private static void evalAndPrint(Object x) {
@@ -90,17 +94,13 @@ public class Jispy {
         }
     }
 
-    public static Object runScripts(@NotNull String program) {
-        return eval(parse(program), GlobalEnv);
-    }
-
     static void loadFile(String fileName, Environment env) {
         var file = new File(fileName);
         var inPort = new InputPort(file);
         while (true) {
             try {
                 var x = parse(inPort);
-                if (x.equals(comment)) {continue;}
+                if (x.equals(comment) || x.equals(new_line)) {continue;}
                 else if (x.equals(eof)) { return; }
                 eval(x, env);
             } catch (Exception e) {
@@ -130,7 +130,7 @@ public class Jispy {
                 var test = l.get(1);
                 var conseq = l.get(2);
                 var alt = l.get(3);
-                boolean testBool = isTrue(eval(test,env));
+                boolean testBool = isTrue(eval(test, env));
                 if (testBool) { x = conseq; }
                 else { x = alt; }
             }
@@ -230,6 +230,7 @@ public class Jispy {
     private static @NotNull Object read(@NotNull InputPort inPort) {
         var token = inPort.nextToken();
         if (token.equals(eof)) { return eof; }
+        else if (token.equals(new_line)) {return new_line;}
         else if (((String) token).startsWith(";")) {return comment;}
         else { return readAhead(token, inPort); }
 
@@ -245,6 +246,9 @@ public class Jispy {
                     return l;
                 }
                 else {
+                    if(token instanceof String && ((String) token).startsWith(";")){
+                        continue;
+                    }
                     l.add(readAhead(token, inPort));
                 }
             }
@@ -252,12 +256,11 @@ public class Jispy {
         else if (token.equals(")")) { throw new SyntaxException("unexpected )"); }
         else if (quotes.containsKey(token)) { return treeList(quotes.get(token), read(inPort)); }
         else if (token.equals(eof)) { throw new SyntaxException("unexpected EOF in list"); }
-        else if (token.equals(comment)) { throw new SyntaxException("unexpected ; in list"); }
         else { return toAtom((String) token); }
     }
 
     static String evalToString(Object x) {
-        if(x == null) return null;
+        if (x == null) { return null; }
         else if (x.equals(true)) { return "#t"; }
         else if (x.equals(false)) { return "#f"; }
         else if (x instanceof Symbol) { return x.toString(); }
@@ -268,7 +271,7 @@ public class Jispy {
                 s.append(evalToString(i));
                 s.append(" ");
             }
-            if(((List<?>) x).size() >= 1){
+            if (((List<?>) x).size() >= 1) {
                 s.delete(s.length() - 1, s.length());
             }
             s.append(")");
@@ -396,18 +399,17 @@ public class Jispy {
         x.add(args);
         require(x, x.size() > 1);
         List<List<Object>> bindings;
-        try{
+        try {
             bindings = (List<List<Object>>) args.get(0);
-        }
-        catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException("illegal binding list");
         }
         List<Object> body = args.subList(1, args.size());
         require(x, bindings.stream().allMatch(b -> b != null &&
                 b.size() == 2 &&
                 b.get(0) instanceof Symbol), "illegal binding list");
-        List<Object> vars = bindings.stream().map(l->l.get(0)).collect(Collectors.toList());
-        List<Object> vals = bindings.stream().map(l->l.get(1)).collect(Collectors.toList());
+        List<Object> vars = bindings.stream().map(l -> l.get(0)).collect(Collectors.toList());
+        List<Object> vals = bindings.stream().map(l -> l.get(1)).collect(Collectors.toList());
         var t = treeList(_lambda, vars);
         t.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
         var r = treeList(t);

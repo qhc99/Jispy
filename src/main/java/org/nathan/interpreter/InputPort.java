@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.util.regex.Pattern;
 
+import static org.nathan.interpreter.Symbol.*;
+
 class InputPort implements Closeable {
     BufferedReader file;
     String line = "";
@@ -27,7 +29,6 @@ class InputPort implements Closeable {
     }
 
     /**
-     *
      * @return string or Symbol eof
      */
     Object nextToken() {
@@ -35,15 +36,14 @@ class InputPort implements Closeable {
             if (line.equals("")) {
                 try {
                     line = file.readLine();
-                    if (line == null) { line = ""; }
+                    if (line == null) { return eof; }
                 } catch (IOException e) {
                     e.printStackTrace(System.err);
                     throw new RuntimeException(e);
                 }
             }
-            // TODO file next line is not eof
             if (line.equals("")) {
-                return Symbol.eof;
+                return new_line;
             }
             var pattern = Pattern.compile(tokenizer);
             var matcher = pattern.matcher(line);

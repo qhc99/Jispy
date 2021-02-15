@@ -351,6 +351,6 @@ class Environment extends HashMap<Object, Object> {
         return new Environment(m.entrySet());
     }
 
-    // TODO add display, debug define-macro, debug quote
+    // TODO add display, debug define-macro
     // TODO more functions
 }
