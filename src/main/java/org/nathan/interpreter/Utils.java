@@ -1,8 +1,5 @@
 package org.nathan.interpreter;
 
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexFormat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

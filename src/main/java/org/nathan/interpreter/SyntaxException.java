@@ -7,16 +7,3 @@ class SyntaxException extends RuntimeException {
     }
 }
 
-class RuntimeWarning extends RuntimeException {
-    Object returnValue;
-
-    RuntimeWarning(String m) {
-        super(m);
-    }
-}
-
-class ArgumentsCountException extends RuntimeException {
-    public ArgumentsCountException() {
-        super();
-    }
-}
