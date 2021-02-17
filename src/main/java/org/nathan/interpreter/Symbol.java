@@ -16,10 +16,10 @@ public class Symbol {
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (o == null || (getClass() != o.getClass() && !o.getClass().equals(String.class))) {
+        if (o == null || (getClass() != o.getClass() && !(o instanceof String))) {
             return false;
         }
-        if (o.getClass().equals(String.class)) {
+        if (o instanceof String) {
             return str.equals(o);
         }
         Symbol symbol = (Symbol) o;

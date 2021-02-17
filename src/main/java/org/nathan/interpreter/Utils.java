@@ -11,7 +11,7 @@ class Utils {
         while (i1.hasNext() && i2.hasNext()) {
             var item1 = i1.next();
             var item2 = i2.next();
-            if (!item1.getClass().equals(ArrayList.class)) {
+            if (!(item1 instanceof List)) {
                 if (!item1.equals(item2)) {
                     return false;
                 }

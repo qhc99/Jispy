@@ -264,8 +264,7 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("number?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    Object type = args.get(0).getClass();
-                    return type.equals(Integer.class) || type.equals(Double.class);
+                    return args.get(0) instanceof Integer || args.get(0) instanceof Double;
                 })),
                 Map.entry(new Symbol("print"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
@@ -275,8 +274,7 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("procedure?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    Object type = args.get(0).getClass();
-                    return type.equals(Function.class);
+                    return args.get(0) instanceof Procedure;
                 })),
                 Map.entry(new Symbol("round"), (Lambda) (args ->
                 {
