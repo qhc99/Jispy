@@ -30,8 +30,6 @@ x ; => 3
 
 (fact 10) ; => 3628800
 
-(define abs (lambda (n) ((if (> n 0) + -) 0 n)))
-
 (list (abs -3) (abs 0) (abs 3)) ; => (3 0 3)
 
 (zip (list 1 2 3 4) (list 5 6 7 8)) ; => ((1 5) (2 6) (3 7) (4 8))
@@ -87,7 +85,7 @@ x ; => 3
 
 (sum-squares-range 1 300) ; => 9045050
 
-(call/cc (lambda (throw) (+ 5 (* 10 (throw 1))))) ;; throw ; => 1
+(call/cc (lambda (throw) (+ 5 (* 10 (throw 1))))) ; throw ; => 1
 
 
 (call/cc (lambda (throw) (+ 5 (* 10 1)))) ;; do not throw ; => 15
@@ -116,8 +114,6 @@ x ; => 3
 (and) ; => #t
 
 (and (> 2 1) (> 2 3)) ; => #f
-
-(define-macro unless (lambda args `(if (not ,(car args)) (begin ,@(cdr args))))) ;  test ` ; => None
 
 (unless (= 2 (+ 1 1)) (display 2) 3 4) ; => None
 

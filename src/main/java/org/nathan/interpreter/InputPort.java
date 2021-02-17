@@ -43,15 +43,14 @@ public class InputPort implements Closeable {
             if (line.equals("")) {
                 try {
                     line = file.readLine();
-                    if (line == null) { return eof; }
+
                 } catch (IOException e) {
                     e.printStackTrace(System.err);
                     throw new RuntimeException(e);
                 }
             }
-            if (line.equals("")) {
-                return new_line;
-            }
+            if (line == null) { return eof; }
+            else if (line.equals("")) { continue; }
             var matcher = pattern.matcher(line);
             int idx = 0;
             while (matcher.find(idx)) {
@@ -60,7 +59,9 @@ public class InputPort implements Closeable {
                 if (s == e) {break;}
                 var token = line.substring(s, e);
                 idx = e;
-                queue.add(token);
+                if (!token.startsWith(";")) {
+                    queue.add(token);
+                }
             }
             line = "";
         }

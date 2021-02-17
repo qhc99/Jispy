@@ -19,19 +19,29 @@ class Environment extends HashMap<Object, Object> {
 
     private static final boolean DEBUG = false;
 
-    Environment(@NotNull Iterable<Object> keys, @NotNull Iterable<Object> vals, Environment outer) {
+    Environment(@NotNull Object params, @NotNull List<Object> args, Environment outer) {
         this.outer = outer;
-        var keyIter = keys.iterator();
-        var valIter = vals.iterator();
-        while (keyIter.hasNext() && valIter.hasNext()) {
-            put(keyIter.next(), valIter.next());
+        if (params instanceof Symbol) {
+            put(params, args);
         }
-        if (keyIter.hasNext() || valIter.hasNext()) {
-            throw new RuntimeException("env build error");
+        else {
+            List<Object> p = (List<Object>) params;
+            if (p.size() == args.size()) {
+                var pi = p.iterator();
+                var ai = args.iterator();
+                while (pi.hasNext()){
+                    put(pi.next(), ai.next());
+                }
+            }
+            else {
+                throw new TypeException(String.format("'expected %s, given %s",
+                    evalToString(params),
+                    evalToString(args)));
+            }
         }
     }
 
-    Environment(@NotNull Iterable<Entry<Object, Object>> entries) {
+    Environment(@NotNull List<Map.Entry<Object, Object>> entries) {
         for (var e : entries) {
             this.put(e.getKey(), e.getValue());
         }
@@ -43,7 +53,7 @@ class Environment extends HashMap<Object, Object> {
             System.out.println(String.format("find symbol: <%s> in %s", o, this.hashCode()));
         }
         if (containsKey(o)) { return this; }
-        else if (outer == null) { throw new RuntimeException("look up error"); }
+        else if (outer == null) { throw new LookUpException(o.toString()); }
         else { return outer.find(o); }
 
     }
@@ -62,7 +72,7 @@ class Environment extends HashMap<Object, Object> {
     }
 
     static Environment NewStandardEnv() {
-        Map<Object, Object> m = Map.ofEntries(
+        List<Map.Entry<Object, Object>> m = Arrays.asList(
                 Map.entry(new Symbol("+"), (Lambda) args -> {
                     if (args.size() < 1) { throw new ArgumentsCountException(); }
                     if (args.size() == 1) {
@@ -340,17 +350,34 @@ class Environment extends HashMap<Object, Object> {
                         if (isTrue(t)) {
                             List<Object> newExp = new ArrayList<>();
                             newExp.add(new Symbol("and"));
-                            newExp.addAll(args.subList(1,args.size()));
+                            newExp.addAll(args.subList(1, args.size()));
                             return eval(expand(newExp), GlobalEnv);
                         }
                         else {
                             return false;
                         }
                     }
+                }),
+                Map.entry(new Symbol("display"), (Lambda) args -> {
+                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.get(0) instanceof String) {
+                        System.out.println(args.get(0));
+                    }
+                    else {
+                        System.out.println(evalToString(args.get(0)));
+                    }
+                    return null;
+                }),
+                Map.entry(new Symbol("port?"), (Lambda) args -> {
+                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.get(0) instanceof String) {
+                        return new File((String) args.get(0)).exists();
+                    }
+                    else if (args.get(0) instanceof Symbol) {
+                        return new File(((Symbol) args.get(0)).str).exists();
+                    }
+                    else { throw new RuntimeException(); }
                 }));
-        return new Environment(m.entrySet());
+        return new Environment(m);
     }
-
-    // TODO add display, debug define-macro
-    // TODO more functions
 }

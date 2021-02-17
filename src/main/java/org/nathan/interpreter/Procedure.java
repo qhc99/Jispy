@@ -6,7 +6,7 @@ import java.util.List;
 
 interface Procedure extends Lambda {
 
-    static Procedure newProcedure(@NotNull Iterable<Object> params, @NotNull Object exp, Environment env) {
+    static Procedure newProcedure(Object params, @NotNull Object exp, Environment env) {
         return new Procedure() {
             @Override
             public Object apply(List<Object> args) {
@@ -24,7 +24,7 @@ interface Procedure extends Lambda {
             }
 
             @Override
-            public @NotNull Iterable<Object> parameters() {
+            public @NotNull Object parameters() {
                 return params;
             }
         };
@@ -32,7 +32,7 @@ interface Procedure extends Lambda {
 
     @NotNull Object expression();
 
-    @NotNull Iterable<Object> parameters();
+    @NotNull Object parameters();
 
     Environment environment();
 }

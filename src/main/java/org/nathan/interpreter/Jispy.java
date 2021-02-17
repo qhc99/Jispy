@@ -6,7 +6,6 @@ import org.apache.commons.math3.exception.MathParseException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,16 +36,13 @@ public class Jispy {
     public static void repl() {
         String prompt = "Jis.py>";
         InputPort inPort = new InputPort(System.in);
-        try {
-            System.err.write("Jispy version 2.0\n".getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println("Jispy version 2.0");
         while (true) {
             try {
                 System.out.print(prompt);
                 var x = parse(inPort);
-                if (x.equals(eof) || x.equals(comment) || x.equals(new_line)) { continue; }
+                if(x == null ) { continue; }
+                else if (x.equals(eof)) { continue; }
                 evalAndPrint(x);
             } catch (Exception e) {
                 e.printStackTrace(System.out);
@@ -55,25 +51,31 @@ public class Jispy {
     }
 
     public static void runFile(File file) {
-        // TODO release file
-        InputPort inPort = new InputPort(file);
-        while (true) {
-            try {
-                var x = parse(inPort);
-                if (x.equals(comment) || x.equals(new_line)) {continue;}
-                else if (x.equals(eof)) { return; }
-                evalAndPrint(x);
-            } catch (Exception e) {
-                System.out.println(String.format("%s:\n<%s>\n<%s>",
-                        e.toString(),
-                        e.getStackTrace()[0].toString(),
-                        e.getStackTrace()[1].toString()));
+        try(var inPort = new InputPort(file)){
+            while (true) {
+                try {
+                    var x = parse(inPort);
+                    if(x == null) { continue; }
+                    else if (x.equals(eof)) { return; }
+                    evalAndPrint(x);
+                } catch (Exception e) {
+                    System.out.println(String.format("%s:\n<%s>\n%s", e.toString(),
+                            e.getStackTrace()[0],
+                            e.getStackTrace()[1]));
+                }
             }
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static Object runScripts(@NotNull String program) {
-        return eval(parse(program), GlobalEnv);
+        return evalToString(eval(parse(program), GlobalEnv));
+    }
+
+    public static Object evalScripts(@NotNull String program){
+        return eval(parse(program),GlobalEnv);
     }
 
     private static void evalAndPrint(Object x) {
@@ -96,17 +98,22 @@ public class Jispy {
 
     static void loadFile(String fileName, Environment env) {
         var file = new File(fileName);
-        var inPort = new InputPort(file);
-        while (true) {
-            try {
-                var x = parse(inPort);
-                if (x.equals(comment) || x.equals(new_line)) {continue;}
-                else if (x.equals(eof)) { return; }
-                eval(x, env);
-            } catch (Exception e) {
-                e.printStackTrace(System.err);
+        try(var inPort = new InputPort(file)){
+            while (true) {
+                try {
+                    var x = parse(inPort);
+                    if(x == null) { continue; }
+                    else if (x.equals(eof)) { return; }
+                    eval(x, env);
+                } catch (Exception e) {
+                    e.printStackTrace(System.err);
+                }
             }
         }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     static Object parse(@NotNull Object in) {
@@ -150,10 +157,10 @@ public class Jispy {
                 var vars = l.get(1);
                 var exp = l.get(2);
                 // different from lis.py
-                if (!(vars instanceof Iterable)) {
-                    vars = treeList(vars);
-                }
-                return Procedure.newProcedure((Iterable<Object>) vars, exp, env);
+//                if (!(vars instanceof Iterable)) {
+//                    vars = treeList(vars);
+//                }
+                return Procedure.newProcedure(vars, exp, env);
             }
             else if (op.equals(_begin)) {
                 for (var exp : l.subList(1, l.size() - 1)) eval(exp, env);
@@ -210,28 +217,9 @@ public class Jispy {
         }
     }
 
-    private static @NotNull Object readChar(@NotNull InputPort inPort) {
-        if (!inPort.line.equals("")) {
-            var c = inPort.line.charAt(0);
-            inPort.line = inPort.line.substring(1);
-            return c;
-        }
-        else {
-            String c;
-            try {
-                c = Character.toString(inPort.file.read());
-            } catch (IOException ignore) {
-                return eof;
-            }
-            return c;
-        }
-    }
-
     private static @NotNull Object read(@NotNull InputPort inPort) {
         var token = inPort.nextToken();
         if (token.equals(eof)) { return eof; }
-        else if (token.equals(new_line)) {return new_line;}
-        else if (((String) token).startsWith(";")) {return comment;}
         else { return readAhead(token, inPort); }
 
     }
@@ -285,7 +273,6 @@ public class Jispy {
         return expand(x, false);
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     private static Object expand(Object x, boolean topLevel) {
         require(x, !isNil(x));
         if (!(x instanceof List)) { return x; }
@@ -357,8 +344,8 @@ public class Jispy {
             require(x, l.size() == 2);
             return expandQuasiQuote(l.get(1));
         }
-        else if (op instanceof Symbol && macro_table.containsKey(l.get(0))) {
-            return expand(macro_table.get(l.get(0)).apply(l.subList(1, l.size())), topLevel);
+        else if (op instanceof Symbol && macro_table.containsKey(op)) {
+            return expand(macro_table.get(op).apply(l.subList(1, l.size())), topLevel);
         }
         else { return l.stream().map(Jispy::expand).collect(Collectors.toList()); }
     }
@@ -439,5 +426,25 @@ public class Jispy {
         ball.returnValue = r;
         throw ball;
     }
+
+    /*
+    private static @NotNull Object readChar(@NotNull InputPort inPort) {
+        if (!inPort.line.equals("")) {
+            var c = inPort.line.charAt(0);
+            inPort.line = inPort.line.substring(1);
+            return c;
+        }
+        else {
+            String c;
+            try {
+                c = Character.toString(inPort.file.read());
+            } catch (IOException ignore) {
+                return eof;
+            }
+            return c;
+        }
+    }
+    */
+
 
 }

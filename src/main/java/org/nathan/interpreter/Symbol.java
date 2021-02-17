@@ -47,8 +47,6 @@ public class Symbol {
     static final Symbol _unquote = new Symbol("unquote");
     static final Symbol _unquote_splicing = new Symbol("unquote-splicing");
     public static final Symbol eof = new Symbol("#<symbol-eof>");
-    static final Symbol comment = new Symbol(";");
-    static final Symbol new_line = new Symbol("\\n");
     static final Map<String, Symbol> quotes = Map.of(
             "'", _quote,
             "`", _quasi_quote,
