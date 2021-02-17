@@ -1,14 +1,7 @@
-import org.apache.commons.math3.complex.ComplexFormat;
-import org.nathan.interpreter.InputPort;
+
 import org.nathan.interpreter.Jispy;
-import org.nathan.interpreter.Symbol;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
-
-import static org.nathan.interpreter.Jispy.toAtom;
 
 
 class Main {

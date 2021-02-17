@@ -3,9 +3,8 @@ package org.nathan.interpreter;
 
 public final class MagicUtils {
 
-    public static boolean tryParseIntToArray(String s, int radix, int[] res)
-    {
-        if(res.length < 1){
+    public static boolean tryParseIntToArray(String s, int radix, int[] res) {
+        if (res.length < 1) {
             throw new RuntimeException("res length < 1");
         }
 
@@ -31,7 +30,8 @@ public final class MagicUtils {
                 if (firstChar == '-') {
                     negative = true;
                     limit = Integer.MIN_VALUE;
-                } else if (firstChar != '+') {
+                }
+                else if (firstChar != '+') {
                     return false;
                 }
 
@@ -56,7 +56,8 @@ public final class MagicUtils {
             }
             res[0] = negative ? result : -result;
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }

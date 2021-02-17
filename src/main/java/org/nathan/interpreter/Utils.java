@@ -1,11 +1,5 @@
 package org.nathan.interpreter;
 
-
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexFormat;
-import org.apache.commons.math3.exception.MathParseException;
-
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

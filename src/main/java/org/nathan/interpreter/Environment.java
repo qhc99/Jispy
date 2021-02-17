@@ -265,7 +265,7 @@ class Environment extends HashMap<Object, Object> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     return args.get(0) instanceof Integer ||
                             args.get(0) instanceof Double ||
-                            args.get(0) instanceof  Complex;
+                            args.get(0) instanceof Complex;
                 })),
                 Map.entry(new Symbol("print"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }

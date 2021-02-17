@@ -15,11 +15,11 @@ public final class ComplexNumberParser extends ComplexFormat {
         }
         for (var part : parts) {
             var s = part.trim();
-            if(s.contains("i")){
-                s = s.replaceAll("i","");
+            if (s.contains("i")) {
+                s = s.replaceAll("i", "");
                 imaginary = Double.parseDouble(s);
             }
-            else{
+            else {
                 real = Double.parseDouble(s);
             }
         }
@@ -34,10 +34,10 @@ public final class ComplexNumberParser extends ComplexFormat {
 
 
     public boolean tryParseToArray(String source, Complex[] res) {
-        try{
+        try {
             source = tryMathExpToComplex(source);
         }
-        catch (NumberFormatException ignore){
+        catch (NumberFormatException ignore) {
             return false;
         }
         ParsePosition parsePosition = new ParsePosition(0);
@@ -46,7 +46,7 @@ public final class ComplexNumberParser extends ComplexFormat {
             throw new RuntimeException("res length should >= 1");
         }
         var isComplex = parsePosition.getIndex() != 0;
-        if(isComplex){
+        if (isComplex) {
             res[0] = result;
         }
         return isComplex;
