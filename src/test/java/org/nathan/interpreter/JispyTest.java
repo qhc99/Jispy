@@ -4,8 +4,6 @@ package org.nathan.interpreter;
 import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -33,12 +31,14 @@ public class JispyTest {
 
     @Test
     public void beginTest() {
-        assertEquals(314.1592653589793, Jispy.evalScripts("(begin (define r 10) (* pi (* r r)))"));
+        assertEquals(314.1592653589793,
+                Jispy.evalScripts("(begin (define r 10) (* pi (* r r)))"));
     }
 
     @Test
     public void ifTest() {
-        assertEquals(42, Jispy.evalScripts("(if (> (* 11 11) 120) (* 7 6) oops)"));
+        assertEquals(42,
+                Jispy.evalScripts("(if (> (* 11 11) 120) (* 7 6) oops)"));
     }
 
     @Test
@@ -50,7 +50,8 @@ public class JispyTest {
 
     @Test
     public void lambdaTest2() {
-        assertEquals(13, Jispy.evalScripts("(fib 6)"));
+        assertEquals(13,
+                Jispy.evalScripts("(fib 6)"));
     }
 
     @Test
@@ -98,7 +99,8 @@ public class JispyTest {
 
     @Test
     public void setTest() {
-        assertEquals(3, Jispy.evalScripts("(begin (define x 1) (set! x (+ x 1)) (+ x 1))"));
+        assertEquals(3,
+                Jispy.evalScripts("(begin (define x 1) (set! x (+ x 1)) (+ x 1))"));
     }
 
     @Test
@@ -118,13 +120,19 @@ public class JispyTest {
         assertEquals(80, evalScripts("((repeat (repeat twice)) 5)"));
         assertEquals(6, evalScripts("(fact 3)"));
         assertEquals(3628800, evalScripts("(fact 10)"));
-        assertEquals(treeList(3, 0, 3), evalScripts("(list (abs -3) (abs 0) (abs 3)) ; => (3 0 3)"));
-        assertEquals(treeList(treeList(1, 5), treeList(2, 6), treeList(3, 7), treeList(4, 8)), evalScripts("(zip " +
-                "(list 1 2 3 4) (list 5 6 7 8))"));
-        assertEquals(treeList(1, 5, 2, 6, 3, 7, 4, 8), evalScripts("(riff-shuffle (list 1 2 3 4 5 6 7 8))"));
-        assertEquals(treeList(1, 3, 5, 7, 2, 4, 6, 8), evalScripts("((repeat riff-shuffle) (list 1 2 3 4 5 6 7 8))"));
-        assertEquals(treeList(1, 2, 3, 4, 5, 6, 7, 8), evalScripts("(riff-shuffle (riff-shuffle (riff-shuffle (list 1" +
-                " 2 3 4 5 6 7 8))))"));
+        assertEquals(
+                treeList(3, 0, 3),
+                evalScripts("(list (abs -3) (abs 0) (abs 3)) ; => (3 0 3)"));
+        assertEquals(
+                treeList(
+                        treeList(1, 5), treeList(2, 6), treeList(3, 7), treeList(4, 8)),
+                evalScripts("(zip (list 1 2 3 4) (list 5 6 7 8))"));
+        assertEquals(treeList(1, 5, 2, 6, 3, 7, 4, 8),
+                evalScripts("(riff-shuffle (list 1 2 3 4 5 6 7 8))"));
+        assertEquals(treeList(1, 3, 5, 7, 2, 4, 6, 8),
+                evalScripts("((repeat riff-shuffle) (list 1 2 3 4 5 6 7 8))"));
+        assertEquals(treeList(1, 2, 3, 4, 5, 6, 7, 8),
+                evalScripts("(riff-shuffle (riff-shuffle (riff-shuffle (list 1 2 3 4 5 6 7 8))))"));
         assertThrows(SyntaxException.class, () -> evalScripts("()"));
         assertThrows(SyntaxException.class, () -> evalScripts("(set! x)"));
         assertThrows(SyntaxException.class, () -> evalScripts("(define 3 4)"));
@@ -132,8 +140,9 @@ public class JispyTest {
         assertThrows(SyntaxException.class, () -> evalScripts("(if 1 2 3 4)"));
         assertThrows(SyntaxException.class, () -> evalScripts("(lambda 3 3)"));
         assertThrows(SyntaxException.class, () -> evalScripts("(lambda (x))"));
-        assertThrows(SyntaxException.class, () -> evalScripts("(if (= 1 2) (define-macro a 'a) \n" +
-                "(define-macro a 'b))"));
+        assertThrows(SyntaxException.class,
+                () -> evalScripts("(if (= 1 2) (define-macro a 'a) \n" +
+                        "(define-macro a 'b))"));
         assertEquals(4, evalScripts("(twice 2)"));
         assertThrows(TypeException.class, () -> evalScripts("(twice 2 2)"));
         assertEquals(treeList(1, 2, 3, 4), evalScripts("(lyst 1 2 3 (+ 2 2))"));
@@ -146,8 +155,10 @@ public class JispyTest {
         assertTrue((Boolean) evalScripts("(< (square-root 200.) 14.14215)"));
         assertTrue((Boolean) evalScripts("(= (square-root 200.) (sqrt 200.))"));
         assertEquals(9045050, evalScripts("(sum-squares-range 1 300)"));
-        assertEquals(1, evalScripts("(call/cc (lambda (throw) (+ 5 (* 10 (throw 1)))))"));
-        assertEquals(15, evalScripts("(call/cc (lambda (throw) (+ 5 (* 10 1))))"));
+        assertEquals(1,
+                evalScripts("(call/cc (lambda (throw) (+ 5 (* 10 (throw 1)))))"));
+        assertEquals(15,
+                evalScripts("(call/cc (lambda (throw) (+ 5 (* 10 1))))"));
         assertEquals(35, evalScripts("(call/cc (lambda (throw) " +
                 "(+ 5 (* 10 (call/cc (lambda (escape) (* 100 (escape 3))))))))"));
         assertEquals(3, evalScripts("(call/cc (lambda (throw) " +
@@ -164,14 +175,21 @@ public class JispyTest {
         assertFalse((Boolean) evalScripts("(and (> 2 1) (> 2 3))"));
         assertNull(evalScripts("(unless (= 2 (+ 1 1)) (display 2) 3 4)"));
         assertEquals(2, evalScripts("2"));
-        assertEquals(4, evalScripts("(unless (= 4 (+ 1 1)) (display 2) (display 'n) 3 4)"));
-        assertEquals(new Symbol("x"), evalScripts("(quote x)"));
-        assertEquals(treeList(1, 2, new Symbol("three")), evalScripts("(quote (1 2 three))"));
+        assertEquals(4,
+                evalScripts("(unless (= 4 (+ 1 1)) (display 2) (display 'n) 3 4)"));
+        assertEquals(new Symbol("x"),
+                evalScripts("(quote x)"));
+        assertEquals(treeList(1, 2,
+                new Symbol("three")), evalScripts("(quote (1 2 three))"));
         assertEquals(new Symbol("x"), evalScripts("'x"));
         assertEquals(treeList(new Symbol("one"), 2, 3), evalScripts("'(one 2 3)"));
-        assertEquals(treeList(treeList(new Symbol("testing"), 1, 2, 3, new Symbol("testing")), treeList(new Symbol("testing"), treeList(1,2,3), new Symbol("testing"))),
-                evalScripts("(begin (define L (list 1 2 3)) (list `(testing ,@L testing) `(testing ,L testing) ) ) "));
-        assertThrows(SyntaxException.class, () -> evalScripts("(begin (define L (list 1 2 3)) `,@L)"));
+        assertEquals(
+                treeList(
+                        treeList(new Symbol("testing"), 1, 2, 3, new Symbol("testing")),
+                        treeList(new Symbol("testing"), treeList(1, 2, 3), new Symbol("testing"))),
+                evalScripts("(begin " +
+                        "(define L (list 1 2 3)) " +
+                        "(list `(testing ,@L testing) `(testing ,L testing) ) ) "));
         assertEquals(treeList(1, 2, 3), evalScripts("""
                 '(1 ; test comments '
                      ; skip this line
