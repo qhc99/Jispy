@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
-import java.util.function.Function;
 
 import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
@@ -264,7 +263,9 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("number?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    return args.get(0) instanceof Integer || args.get(0) instanceof Double;
+                    return args.get(0) instanceof Integer ||
+                            args.get(0) instanceof Double ||
+                            args.get(0) instanceof  Complex;
                 })),
                 Map.entry(new Symbol("print"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }

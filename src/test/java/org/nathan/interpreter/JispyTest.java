@@ -171,6 +171,4 @@ public class JispyTest {
                      2 ;  more ;  comments ;  ) )
                      3) ;  final comment  ; => (1 2 3)"""));
     }
-
-    // TODO test all functions
 }
