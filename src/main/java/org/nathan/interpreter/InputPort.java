@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import static org.nathan.interpreter.Symbol.*;
 
-public class InputPort implements Closeable {
+class InputPort implements Closeable {
     final BufferedReader file;
     String line = "";
     final Queue<String> queue = new LinkedList<>();
@@ -25,7 +25,7 @@ public class InputPort implements Closeable {
         file = new BufferedReader(new StringReader(in));
     }
 
-    public InputPort(@NotNull File file) {
+    InputPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
         }

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 
-class Utils {
-    static boolean treeListEqual(List<Object> l1, List<Object> l2) {
+public class Utils {
+    public static boolean treeListEqual(List<Object> l1, List<Object> l2) {
         var i1 = l1.iterator();
         var i2 = l2.iterator();
         while (i1.hasNext() && i2.hasNext()) {
@@ -26,11 +26,11 @@ class Utils {
         return true;
     }
 
-    static List<Object> treeList(Object... o) {
+    public static List<Object> treeList(Object... o) {
         return new ArrayList<>(Arrays.asList(o));
     }
 
-    static boolean isNil(Object o) {
+    public static boolean isNil(Object o) {
         if (o instanceof List) {
             return ((List<?>) o).isEmpty();
         }
@@ -39,7 +39,7 @@ class Utils {
         }
     }
 
-    static boolean stringContainsDigit(String s) {
+    public static boolean stringContainsDigit(String s) {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (Character.isDigit(c)) {
@@ -49,11 +49,10 @@ class Utils {
         return false;
     }
 
-    static boolean isTrue(Object o) {
+    public static boolean isTrue(Object o) {
         if (o instanceof Boolean) {return (Boolean) o;}
         else if (o == null) { return false; }
         else if (o instanceof Integer || o instanceof Double) { return !o.equals(0); }
         else { throw new SyntaxException("not bool"); }
     }
-
 }

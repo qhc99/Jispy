@@ -1,4 +1,3 @@
-
 import org.nathan.interpreter.Jispy;
 
 import java.io.*;
@@ -20,5 +19,6 @@ class Main {
             Jispy.repl();
         }
     }
+
 
 }

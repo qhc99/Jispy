@@ -180,7 +180,7 @@ public class Jispy {
         }
     }
 
-    public static @NotNull Object toAtom(@NotNull String x) {
+    static @NotNull Object toAtom(@NotNull String x) {
         if (x.equals("#t")) { return true; }
         else if (x.equals("#f")) { return false; }
         else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
