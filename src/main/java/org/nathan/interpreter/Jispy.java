@@ -14,7 +14,6 @@ import static org.nathan.interpreter.Utils.*;
 public class Jispy {
     static final List<Object> Nil = Collections.emptyList();
     static final Environment GlobalEnv = Environment.NewStandardEnv();
-    static final ComplexNumberParser complexParser = new ComplexNumberParser();
 
     @SuppressWarnings({"InfiniteLoopStatement", "unused"})
     public static void repl() {
@@ -191,14 +190,19 @@ public class Jispy {
                 return iRes[0];
             }
             else {
-                var dRes = new double[1];
-                boolean isDouble = tryParseDoubleToArray(x, dRes);
+                boolean isDouble = false;
+                double d = 0;
+                try{
+                    d = Double.parseDouble(x);
+                    isDouble = true;
+                }
+                catch (NumberFormatException ignore){}
                 if (isDouble) {
-                    return dRes[0];
+                    return d;
                 }
                 else {
                     var cRes = new Complex[1];
-                    var isComplex = complexParser.tryParseToArray(x, cRes);
+                    var isComplex = tryParseComplexToArray(x, cRes);
                     if (isComplex) {
                         return cRes[0];
                     }
@@ -210,7 +214,7 @@ public class Jispy {
         }
         else{
             var cRes = new Complex[1];
-            var isComplex = complexParser.tryParseToArray(x, cRes);
+            var isComplex = tryParseComplexToArray(x, cRes);
             if (isComplex) {
                 return cRes[0];
             }

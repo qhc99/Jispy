@@ -86,7 +86,6 @@ class NumericOperators {
         else { throw new SyntaxException("not number"); }
     }
 
-
     static Object minus(Object a, Object b) {
         if (a instanceof Integer) {
             if (b instanceof Integer) {
@@ -266,5 +265,4 @@ class NumericOperators {
         else if (o instanceof Integer) { return (Integer) o; }
         else { throw new SyntaxException("not number"); }
     }
-
 }
