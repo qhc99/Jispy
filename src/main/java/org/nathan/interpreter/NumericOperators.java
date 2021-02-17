@@ -267,26 +267,4 @@ class NumericOperators {
         else { throw new SyntaxException("not number"); }
     }
 
-    static String MathExpToParsable(String tuple) {
-        String[] parts = tuple.split("\\+");
-        Double real = null, imaginary = null;
-        if (parts.length == 0) {
-            throw new NumberFormatException();
-        }
-        for (var part : parts) {
-            try {
-                real = Double.parseDouble(part.trim());
-            }
-            catch (NumberFormatException ignore) {
-                imaginary = Double.parseDouble(part.trim().replaceAll("i", ""));
-            }
-        }
-        if (real == null) {
-            return String.format("0 + %fi", imaginary);
-        }
-        else if (imaginary == null) {
-            return String.format("%f + 0", real);
-        }
-        else { return String.format("%f + %fi", real, imaginary); }
-    }
 }

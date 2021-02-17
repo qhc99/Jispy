@@ -9,12 +9,13 @@ import java.util.regex.Pattern;
 
 import static org.nathan.interpreter.Symbol.*;
 
-class InputPort implements Closeable {
+public class InputPort implements Closeable {
     final BufferedReader file;
     String line = "";
     final Queue<String> queue = new LinkedList<>();
     static final String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
     static final Pattern pattern = Pattern.compile(tokenizer);
+
 
     InputPort(@NotNull InputStream in) {
         file = new BufferedReader(new InputStreamReader(in));
@@ -24,7 +25,7 @@ class InputPort implements Closeable {
         file = new BufferedReader(new StringReader(in));
     }
 
-    InputPort(@NotNull File file) {
+    public InputPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
         }
@@ -36,23 +37,26 @@ class InputPort implements Closeable {
     /**
      * @return string or Symbol
      */
-    Object nextToken() {
+    public Object nextToken() {
         while (true) {
             if (!queue.isEmpty()) {
                 return queue.poll();
             }
-            if (line.equals("")) {
+            else if (line.equals("")) {
                 try {
                     line = file.readLine();
-
                 }
                 catch (IOException e) {
                     e.printStackTrace(System.err);
                     throw new RuntimeException(e);
                 }
             }
-            if (line == null) { return eof; }
+
+            if (line == null) {
+                return eof;
+            }
             else if (line.equals("")) { continue; }
+
             var matcher = pattern.matcher(line);
             int idx = 0;
             while (matcher.find(idx)) {

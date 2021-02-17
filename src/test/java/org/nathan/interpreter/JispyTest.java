@@ -5,6 +5,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -17,11 +18,7 @@ public class JispyTest {
     private static final String LIB_FILE = "src/main/resources/functions.ss";
 
     static {
-        long t1,t2;
-        t1 = System.nanoTime();
         loadLib(LIB_FILE, GlobalEnv);
-        t2 = System.nanoTime();
-        System.out.printf("all: %sms\n",(t2-t1)/Math.pow(10,6));
     }
 
     @Test
@@ -47,7 +44,7 @@ public class JispyTest {
     @Test
     public void listTest() {
         var res = Jispy.evalScripts("(list (+ 1 1) (+ 2 2) (* 2 3) (expt 2 3))");
-        var b = new ArrayList<>(treeList(2, 4, 6, 8.0));
+        var b = treeList(2, 4, 6, 8.0);
         assertEquals(b, res);
     }
 
@@ -64,13 +61,13 @@ public class JispyTest {
 
     @Test
     public void consTest() {
-        var b = new ArrayList<>(treeList(1, 4, 9, 16));
+        var b = (treeList(1, 4, 9, 16));
         assertEquals(b, Jispy.evalScripts("(map square (range 1 5))"));
     }
 
     @Test
     public void mapTest() {
-        List<Object> expected = new ArrayList<>(treeList(4, 6, 8, 10));
+        List<Object> expected = (treeList(4, 6, 8, 10));
         assertEquals(expected, (Jispy.evalScripts("(begin " +
                 "(define two (lambda (a b) (+ a b 2))) " +
                 "(define l (list 1 2 3 4)) " +
@@ -79,7 +76,7 @@ public class JispyTest {
 
     @Test
     public void appendTest() {
-        var expected = new ArrayList<>(treeList(1, 2, 3, 4, 5, 6));
+        var expected = treeList(1, 2, 3, 4, 5, 6);
         var res = Jispy.evalScripts("(append (list 1 2) (list 3 4) (list 5 6))");
         assertEquals(expected, res);
     }
@@ -106,8 +103,8 @@ public class JispyTest {
 
     @Test
     public void lispyTest() {
-        assertEquals(treeList(new Symbol("testing"), 1, treeList(2.0), -3.14E159), evalScripts("(quote (testing 1 (2" +
-                ".0) -3.14e159))"));
+        var t = evalScripts("(quote (testing 1 (2.0) -3.14e159))");
+        assertEquals(treeList(new Symbol("testing"), 1, treeList(2.0), -3.14e159), t);
         assertEquals(4, evalScripts("(+ 2 2)"));
         assertEquals(210, evalScripts("(+ (* 2 100) (* 1 10))"));
         assertEquals(2, evalScripts("(if (> 6 5) (+ 1 1) (+ 2 2))"));
@@ -176,9 +173,10 @@ public class JispyTest {
                 evalScripts("(begin (define L (list 1 2 3)) (list `(testing ,@L testing) `(testing ,L testing) ) ) "));
         assertThrows(SyntaxException.class, () -> evalScripts("(begin (define L (list 1 2 3)) `,@L)"));
         assertEquals(treeList(1, 2, 3), evalScripts("""
-                '(1 ; test comments '\s
+                '(1 ; test comments '
                      ; skip this line
                      2 ;  more ;  comments ;  ) )
                      3) ;  final comment  ; => (1 2 3)"""));
     }
+
 }

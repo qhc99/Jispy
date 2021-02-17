@@ -2,22 +2,21 @@ package org.nathan.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
-import org.apache.commons.math3.exception.MathParseException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.nathan.interpreter.NumericOperators.MathExpToParsable;
 import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.Utils.*;
 
 public class Jispy {
     static final List<Object> Nil = Collections.emptyList();
     static final Environment GlobalEnv = Environment.NewStandardEnv();
+    static final ComplexNumberParser complexParser = new ComplexNumberParser();
 
-    @SuppressWarnings("InfiniteLoopStatement")
+    @SuppressWarnings({"InfiniteLoopStatement", "unused"})
     public static void repl() {
         String prompt = "Jis.py>";
         InputPort inPort = new InputPort(System.in);
@@ -36,6 +35,7 @@ public class Jispy {
         }
     }
 
+    @SuppressWarnings("unused")
     public static void runFile(File file) {
         try (var inPort = new InputPort(file)) {
             while (true) {
@@ -46,9 +46,7 @@ public class Jispy {
                     evalAndPrint(x);
                 }
                 catch (Exception e) {
-                    System.out.println(String.format("%s:\n<%s>\n%s", e.toString(),
-                            e.getStackTrace()[0],
-                            e.getStackTrace()[1]));
+                    System.out.println(String.format("%s", e.toString()));
                 }
             }
         }
@@ -71,24 +69,12 @@ public class Jispy {
     static void loadLib(String fileName, Environment env) {
         var file = new File(fileName);
         try (var inPort = new InputPort(file)) {
-            long t1,t2,t3,t4;
-            long res1 = 0, res2 = 0;
             while (true) {
                 try {
-                    t1 = System.nanoTime();
                     var x = parse(inPort);
-                    t2 = System.nanoTime();
-                    res1 += (t2-t1);
                     if (x == null) { continue; }
-                    else if (x.equals(eof)) {
-                        System.out.println(String.format("parse: %sms", res1/Math.pow(10,6)));
-                        System.out.println(String.format("eval: %sms", res2/Math.pow(10,6)));
-                        return;
-                    }
-                    t3 = System.nanoTime();
+                    else if (x.equals(eof)) { return; }
                     eval(x, env);
-                    t4 = System.nanoTime();
-                    res2 += (t4-t3);
                 }
                 catch (Exception e) {
                     e.printStackTrace(System.err);
@@ -100,16 +86,6 @@ public class Jispy {
             throw new RuntimeException(e);
         }
 
-    }
-
-    static Object parse(@NotNull Object in) {
-        if (in instanceof String) {
-            return expand(read(new InputPort((String) in)), true);
-        }
-        else if (in instanceof InputPort) {
-            return expand(read((InputPort) in), true);
-        }
-        else { throw new RuntimeException(); }
     }
 
     static Object eval(Object x, @NotNull Environment env) {
@@ -163,43 +139,16 @@ public class Jispy {
         }
     }
 
-    private static @NotNull Object toAtom(@NotNull String x) {
-        if (x.equals("#t")) { return true; }
-        else if (x.equals("#f")) { return false; }
-        else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
-        else {
-            boolean isInt = false;
-            int t = 0;
-            try {
-                t = Integer.parseInt(x);
-                isInt = true;
-            }
-            catch (NumberFormatException ignore) {
-
-            }
-            if (!isInt) {
-                boolean isDouble = false;
-                double t1 = 0;
-                try {
-                    t1 = Double.parseDouble(x);
-                    isDouble = true;
-                }
-                catch (NumberFormatException ignore) {
-                }
-                if (!isDouble) {
-                    try {
-                        return ComplexFormat.getInstance().parse(MathExpToParsable(x));
-                    }
-                    catch (MathParseException | NumberFormatException ignore) {
-                        return new Symbol(x);
-                    }
-                }
-                else { return t1; }
-
-            }
-            else { return t; }
-
+    static Object parse(@NotNull Object in) {
+        if (in instanceof String) {
+            var t = read(new InputPort((String) in));
+            return expand(t, true);
         }
+        else if (in instanceof InputPort) {
+            var t = read((InputPort) in);
+            return expand(t, true);
+        }
+        else { throw new RuntimeException(); }
     }
 
     private static @NotNull Object read(@NotNull InputPort inPort) {
@@ -226,7 +175,45 @@ public class Jispy {
         else if (token.equals(")")) { throw new SyntaxException("unexpected )"); }
         else if (quotes.containsKey(token)) { return treeList(quotes.get(token), read(inPort)); }
         else if (token.equals(eof)) { throw new SyntaxException("unexpected EOF in list"); }
-        else { return toAtom((String) token); }
+        else {
+            return toAtom((String) token);
+        }
+    }
+
+    public static @NotNull Object toAtom(@NotNull String x) {
+        if (x.equals("#t")) { return true; }
+        else if (x.equals("#f")) { return false; }
+        else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
+        else {
+            var iRes = new int[1];
+            boolean isInt = MagicUtils.tryParseIntToArray(x, 10, iRes);
+            if (isInt) {
+                return iRes[0];
+            }
+            else {
+                boolean isDouble = false;
+                double t1 = 0;
+                try {
+                    t1 = Double.parseDouble(x);
+                    isDouble = true;
+                }
+                catch (NumberFormatException ignore) {
+                }
+                if (isDouble) {
+                    return t1;
+                }
+                else {
+                    var cRes = new Complex[1];
+                    var isComplex = complexParser.tryParseToArray(x, cRes);
+                    if (isComplex) {
+                        return cRes[0];
+                    }
+                    else {
+                        return new Symbol(x);
+                    }
+                }
+            }
+        }
     }
 
     static String evalToString(Object x) {
