@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.nathan.interpreter.Symbol.*;
+import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
 
 public class Jispy {
@@ -183,28 +184,20 @@ public class Jispy {
         if (x.equals("#t")) { return true; }
         else if (x.equals("#f")) { return false; }
         else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
-        else if(stringContainsDigit(x)){
-            var iRes = new int[1];
-            boolean isInt = MagicUtils.tryParseIntToArray(x, 10, iRes);
-            if (isInt) {
-                return iRes[0];
+        else if (stringContainsDigit(x)) {
+            var isInt = MagicUtils.tryParseInt(x, 10);
+            if (isInt.isPresent()) {
+                return isInt.get();
             }
             else {
-                boolean isDouble = false;
-                double d = 0;
-                try{
-                    d = Double.parseDouble(x);
-                    isDouble = true;
-                }
-                catch (NumberFormatException ignore){}
-                if (isDouble) {
-                    return d;
+                var isDouble = tryParseDouble(x);
+                if (isDouble.isPresent()) {
+                    return isDouble.get();
                 }
                 else {
-                    var cRes = new Complex[1];
-                    var isComplex = tryParseComplexToArray(x, cRes);
-                    if (isComplex) {
-                        return cRes[0];
+                    var isComplex = NumericOperators.tryParseComplex(x);
+                    if (isComplex.isPresent()) {
+                        return isComplex.get();
                     }
                     else {
                         return new Symbol(x);
@@ -212,11 +205,10 @@ public class Jispy {
                 }
             }
         }
-        else{
-            var cRes = new Complex[1];
-            var isComplex = tryParseComplexToArray(x, cRes);
-            if (isComplex) {
-                return cRes[0];
+        else {
+            var isComplex = NumericOperators.tryParseComplex(x);
+            if (isComplex.isPresent()) {
+                return isComplex.get();
             }
             else {
                 return new Symbol(x);

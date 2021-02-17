@@ -1,10 +1,9 @@
 package org.nathan.interpreter;
 
-import org.apache.commons.math3.complex.Complex;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 class Utils {
     static boolean treeListEqual(List<Object> l1, List<Object> l2) {
@@ -40,10 +39,10 @@ class Utils {
         }
     }
 
-    static boolean stringContainsDigit(String s){
-        for(int i = 0; i < s.length(); i++){
+    static boolean stringContainsDigit(String s) {
+        for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if(Character.isDigit(c)){
+            if (Character.isDigit(c)) {
                 return true;
             }
         }
@@ -57,42 +56,4 @@ class Utils {
         else { throw new SyntaxException("not bool"); }
     }
 
-    public static boolean tryParseComplexToArray(String source, Complex[] res) {
-        String[] parts = source.split("\\+");
-        Double real = null, imaginary = null;
-        if (parts.length == 0) {
-            return false;
-        }
-        for (var part : parts) {
-            var s = part.trim();
-            if (s.contains("i")) {
-                s = s.replaceAll("i", "");
-                try{
-                    imaginary = Double.parseDouble(s);
-                }
-                catch (NumberFormatException ignore){}
-            }
-            else {
-                try{
-                    real = Double.parseDouble(s);
-                }
-                catch (NumberFormatException ignore){}
-            }
-        }
-        if(real == null && imaginary == null){
-            return false;
-        }
-        else if (real == null) {
-            res[0] = new Complex(0, imaginary);
-            return true;
-        }
-        else if (imaginary == null) {
-            res[0] = new Complex(real, 0);
-            return true;
-        }
-        else {
-            res[0] = new Complex(real, imaginary);
-            return true;
-        }
-    }
 }

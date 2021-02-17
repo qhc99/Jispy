@@ -1,23 +1,22 @@
 package org.nathan.interpreter;
 
 
+import java.util.Optional;
+
 public final class MagicUtils {
 
-    public static boolean tryParseIntToArray(String s, int radix, int[] res) {
-        if (res.length < 1) {
-            throw new RuntimeException("res length < 1");
-        }
+    public static Optional<Integer> tryParseInt(String s, int radix) {
 
         if (s == null) {
-            return false;
+            return Optional.empty();
         }
 
         if (radix < Character.MIN_RADIX) {
-            return false;
+            return Optional.empty();
         }
 
         if (radix > Character.MAX_RADIX) {
-            return false;
+            return Optional.empty();
         }
 
         boolean negative = false;
@@ -32,11 +31,11 @@ public final class MagicUtils {
                     limit = Integer.MIN_VALUE;
                 }
                 else if (firstChar != '+') {
-                    return false;
+                    return Optional.empty();
                 }
 
                 if (len == 1) { // Cannot have lone "+" or "-"
-                    return false;
+                    return Optional.empty();
                 }
                 i++;
             }
@@ -46,19 +45,18 @@ public final class MagicUtils {
                 // Accumulating negatively avoids surprises near MAX_VALUE
                 int digit = Character.digit(s.charAt(i++), radix);
                 if (digit < 0 || result < multmin) {
-                    return false;
+                    return Optional.empty();
                 }
                 result *= radix;
                 if (result < limit + digit) {
-                    return false;
+                    return Optional.empty();
                 }
                 result -= digit;
             }
-            res[0] = negative ? result : -result;
-            return true;
+            return Optional.of(negative ? result : -result);
         }
         else {
-            return false;
+            return Optional.empty();
         }
     }
 }
