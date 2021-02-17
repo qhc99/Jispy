@@ -1,7 +1,7 @@
 package org.nathan.interpreter;
 
 class ArgumentsCountException extends RuntimeException {
-    public ArgumentsCountException() {
+    ArgumentsCountException() {
         super();
     }
 }

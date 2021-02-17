@@ -1,9 +1,9 @@
 package org.nathan.interpreter;
 
 class RuntimeWarning extends RuntimeException {
-    public Object returnValue;
+    Object returnValue;
 
-    public RuntimeWarning(String m) {
+    RuntimeWarning(String m) {
         super(m);
     }
 }

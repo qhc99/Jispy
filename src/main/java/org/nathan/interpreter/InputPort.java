@@ -9,22 +9,22 @@ import java.util.regex.Pattern;
 
 import static org.nathan.interpreter.Symbol.*;
 
-public class InputPort implements Closeable {
+class InputPort implements Closeable {
     final BufferedReader file;
     String line = "";
     final Queue<String> queue = new LinkedList<>();
     static final String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
     static final Pattern pattern = Pattern.compile(tokenizer);
 
-    public InputPort(@NotNull InputStream in) {
+    InputPort(@NotNull InputStream in) {
         file = new BufferedReader(new InputStreamReader(in));
     }
 
-    public InputPort(@NotNull String in) {
+    InputPort(@NotNull String in) {
         file = new BufferedReader(new StringReader(in));
     }
 
-    public InputPort(@NotNull File file) {
+    InputPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
         }
@@ -36,7 +36,7 @@ public class InputPort implements Closeable {
     /**
      * @return string or Symbol
      */
-    public Object nextToken() {
+    Object nextToken() {
         while (true) {
             if (!queue.isEmpty()) {
                 return queue.poll();
