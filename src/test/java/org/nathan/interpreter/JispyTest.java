@@ -14,6 +14,16 @@ import static org.nathan.interpreter.Utils.*;
 
 public class JispyTest {
 
+    private static final String LIB_FILE = "src/main/resources/functions.ss";
+
+    static {
+        long t1,t2;
+        t1 = System.nanoTime();
+        loadLib(LIB_FILE, GlobalEnv);
+        t2 = System.nanoTime();
+        System.out.printf("all: %sms\n",(t2-t1)/Math.pow(10,6));
+    }
+
     @Test
     public void parseTest() {
         List<Object> expected = treeList(new Symbol("begin"),

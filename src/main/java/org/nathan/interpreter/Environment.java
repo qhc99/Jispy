@@ -303,7 +303,7 @@ class Environment extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("load"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    loadFile(args.get(0).toString(), Jispy.GlobalEnv);
+                    loadLib(args.get(0).toString(), Jispy.GlobalEnv);
                     return null;
                 }),
                 Map.entry(new Symbol("call/cc"), (Lambda) args -> {

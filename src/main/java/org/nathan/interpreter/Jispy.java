@@ -14,23 +14,8 @@ import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.Utils.*;
 
 public class Jispy {
-    private static final boolean TIMER_ON = false;
-
-    private static final boolean PARSE_DEBUG = false;
-
-    private static final boolean LOAD_LIB = true;
-
-    private static final String LIB_FILE = "src/main/resources/functions.ss";
-
     static final List<Object> Nil = Collections.emptyList();
-
     static final Environment GlobalEnv = Environment.NewStandardEnv();
-
-    static {
-        if (LOAD_LIB) {
-            loadFile(LIB_FILE, GlobalEnv);
-        }
-    }
 
     @SuppressWarnings("InfiniteLoopStatement")
     public static void repl() {
@@ -72,47 +57,44 @@ public class Jispy {
         }
     }
 
-    @SuppressWarnings("unused")
-    public static Object runScripts(@NotNull String program) {
-        return evalToString(eval(parse(program), GlobalEnv));
-    }
-
     public static Object evalScripts(@NotNull String program) {
         return eval(parse(program), GlobalEnv);
     }
 
     private static void evalAndPrint(Object x) {
-        if (PARSE_DEBUG) {
-            System.out.print(String.format("parse result:<%s>", x));
-        }
-        long t1, t2;
-        if (TIMER_ON) {
-            t1 = System.nanoTime();
-        }
         var val = eval(x, GlobalEnv);
-        if (TIMER_ON) {
-            t2 = System.nanoTime();
-            System.out.println(String.format("%fms\n", (t1 - t2) / Math.pow(10, 6)));
-        }
         if (val != null) {
             System.out.println(evalToString(val));
         }
     }
 
-    static void loadFile(String fileName, Environment env) {
+    static void loadLib(String fileName, Environment env) {
         var file = new File(fileName);
         try (var inPort = new InputPort(file)) {
+            long t1,t2,t3,t4;
+            long res1 = 0, res2 = 0;
             while (true) {
                 try {
+                    t1 = System.nanoTime();
                     var x = parse(inPort);
+                    t2 = System.nanoTime();
+                    res1 += (t2-t1);
                     if (x == null) { continue; }
-                    else if (x.equals(eof)) { return; }
+                    else if (x.equals(eof)) {
+                        System.out.println(String.format("parse: %sms", res1/Math.pow(10,6)));
+                        System.out.println(String.format("eval: %sms", res2/Math.pow(10,6)));
+                        return;
+                    }
+                    t3 = System.nanoTime();
                     eval(x, env);
+                    t4 = System.nanoTime();
+                    res2 += (t4-t3);
                 }
                 catch (Exception e) {
                     e.printStackTrace(System.err);
                 }
             }
+
         }
         catch (IOException e) {
             throw new RuntimeException(e);

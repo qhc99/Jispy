@@ -1,17 +1,17 @@
-import java.io.File;
+import org.nathan.interpreter.Jispy;
 
-import static org.nathan.interpreter.Jispy.*;
+import java.io.File;
 
 class Main {
     public static void main(String[] args) {
         if (args.length == 1) {
             var f = new File(args[0]);
             if (f.exists()) {
-                runFile(f);
+                Jispy.runFile(f);
             }
         }
         else {
-            repl();
+            Jispy.repl();
         }
     }
 }
