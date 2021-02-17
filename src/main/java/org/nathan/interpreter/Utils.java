@@ -38,6 +38,30 @@ class Utils {
         }
     }
 
+    static boolean stringContainsDigit(String s){
+        for(int i = 0; i < s.length(); i++){
+            char c = s.charAt(i);
+            if(Character.isDigit(c)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean tryParseDoubleToArray(String s, double[] res){
+        if(res.length < 1){
+            throw new RuntimeException("res length < 1");
+        }
+        try {
+            double t = Double.parseDouble(s);
+            res[0] = t;
+            return true;
+        }
+        catch (NumberFormatException ignore) {
+        }
+        return false;
+    }
+
     static boolean isTrue(Object o) {
 
         if (o instanceof Boolean) {return (Boolean) o;}

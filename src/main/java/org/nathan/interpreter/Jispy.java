@@ -184,23 +184,17 @@ public class Jispy {
         if (x.equals("#t")) { return true; }
         else if (x.equals("#f")) { return false; }
         else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
-        else {
+        else if(stringContainsDigit(x)){
             var iRes = new int[1];
             boolean isInt = MagicUtils.tryParseIntToArray(x, 10, iRes);
             if (isInt) {
                 return iRes[0];
             }
             else {
-                boolean isDouble = false;
-                double t1 = 0;
-                try {
-                    t1 = Double.parseDouble(x);
-                    isDouble = true;
-                }
-                catch (NumberFormatException ignore) {
-                }
+                var dRes = new double[1];
+                boolean isDouble = tryParseDoubleToArray(x, dRes);
                 if (isDouble) {
-                    return t1;
+                    return dRes[0];
                 }
                 else {
                     var cRes = new Complex[1];
@@ -212,6 +206,16 @@ public class Jispy {
                         return new Symbol(x);
                     }
                 }
+            }
+        }
+        else{
+            var cRes = new Complex[1];
+            var isComplex = complexParser.tryParseToArray(x, cRes);
+            if (isComplex) {
+                return cRes[0];
+            }
+            else {
+                return new Symbol(x);
             }
         }
     }
