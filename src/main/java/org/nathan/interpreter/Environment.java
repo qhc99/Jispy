@@ -29,14 +29,14 @@ class Environment extends HashMap<Object, Object> {
             if (p.size() == args.size()) {
                 var pi = p.iterator();
                 var ai = args.iterator();
-                while (pi.hasNext()){
+                while (pi.hasNext()) {
                     put(pi.next(), ai.next());
                 }
             }
             else {
                 throw new TypeException(String.format("'expected %s, given %s",
-                    evalToString(params),
-                    evalToString(args)));
+                        evalToString(params),
+                        evalToString(args)));
             }
         }
     }

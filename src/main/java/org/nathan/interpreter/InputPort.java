@@ -27,7 +27,8 @@ public class InputPort implements Closeable {
     public InputPort(@NotNull File file) {
         try {
             this.file = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -44,7 +45,8 @@ public class InputPort implements Closeable {
                 try {
                     line = file.readLine();
 
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace(System.err);
                     throw new RuntimeException(e);
                 }

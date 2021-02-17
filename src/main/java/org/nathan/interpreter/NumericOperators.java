@@ -270,13 +270,14 @@ class NumericOperators {
     static String MathExpToParsable(String tuple) {
         String[] parts = tuple.split("\\+");
         Double real = null, imaginary = null;
-        if(parts.length == 0){
+        if (parts.length == 0) {
             throw new NumberFormatException();
         }
         for (var part : parts) {
             try {
                 real = Double.parseDouble(part.trim());
-            } catch (NumberFormatException ignore) {
+            }
+            catch (NumberFormatException ignore) {
                 imaginary = Double.parseDouble(part.trim().replaceAll("i", ""));
             }
         }

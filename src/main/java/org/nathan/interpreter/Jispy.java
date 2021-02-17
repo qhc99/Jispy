@@ -41,24 +41,26 @@ public class Jispy {
             try {
                 System.out.print(prompt);
                 var x = parse(inPort);
-                if(x == null ) { continue; }
+                if (x == null) { continue; }
                 else if (x.equals(eof)) { continue; }
                 evalAndPrint(x);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace(System.out);
             }
         }
     }
 
     public static void runFile(File file) {
-        try(var inPort = new InputPort(file)){
+        try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
                     var x = parse(inPort);
-                    if(x == null) { continue; }
+                    if (x == null) { continue; }
                     else if (x.equals(eof)) { return; }
                     evalAndPrint(x);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     System.out.println(String.format("%s:\n<%s>\n%s", e.toString(),
                             e.getStackTrace()[0],
                             e.getStackTrace()[1]));
@@ -74,8 +76,8 @@ public class Jispy {
         return evalToString(eval(parse(program), GlobalEnv));
     }
 
-    public static Object evalScripts(@NotNull String program){
-        return eval(parse(program),GlobalEnv);
+    public static Object evalScripts(@NotNull String program) {
+        return eval(parse(program), GlobalEnv);
     }
 
     private static void evalAndPrint(Object x) {
@@ -98,14 +100,15 @@ public class Jispy {
 
     static void loadFile(String fileName, Environment env) {
         var file = new File(fileName);
-        try(var inPort = new InputPort(file)){
+        try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
                     var x = parse(inPort);
-                    if(x == null) { continue; }
+                    if (x == null) { continue; }
                     else if (x.equals(eof)) { return; }
                     eval(x, env);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     e.printStackTrace(System.err);
                 }
             }
@@ -156,10 +159,6 @@ public class Jispy {
             else if (op.equals(_lambda)) {
                 var vars = l.get(1);
                 var exp = l.get(2);
-                // different from lis.py
-//                if (!(vars instanceof Iterable)) {
-//                    vars = treeList(vars);
-//                }
                 return Procedure.newProcedure(vars, exp, env);
             }
             else if (op.equals(_begin)) {
@@ -191,7 +190,8 @@ public class Jispy {
             try {
                 t = Integer.parseInt(x);
                 isInt = true;
-            } catch (NumberFormatException ignore) {
+            }
+            catch (NumberFormatException ignore) {
 
             }
             if (!isInt) {
@@ -200,12 +200,14 @@ public class Jispy {
                 try {
                     t1 = Double.parseDouble(x);
                     isDouble = true;
-                } catch (NumberFormatException ignore) {
+                }
+                catch (NumberFormatException ignore) {
                 }
                 if (!isDouble) {
                     try {
                         return ComplexFormat.getInstance().parse(MathExpToParsable(x));
-                    } catch (MathParseException | NumberFormatException ignore) {
+                    }
+                    catch (MathParseException | NumberFormatException ignore) {
                         return new Symbol(x);
                     }
                 }
@@ -234,7 +236,7 @@ public class Jispy {
                     return l;
                 }
                 else {
-                    if(token instanceof String && ((String) token).startsWith(";")){
+                    if (token instanceof String && ((String) token).startsWith(";")) {
                         continue;
                     }
                     l.add(readAhead(token, inPort));
@@ -388,7 +390,8 @@ public class Jispy {
         List<List<Object>> bindings;
         try {
             bindings = (List<List<Object>>) args.get(0);
-        } catch (ClassCastException e) {
+        }
+        catch (ClassCastException e) {
             throw new ClassCastException("illegal binding list");
         }
         List<Object> body = args.subList(1, args.size());
@@ -411,7 +414,8 @@ public class Jispy {
                 raise(objects.get(0), ball);
                 return null;
             }));
-        } catch (RuntimeWarning w) {
+        }
+        catch (RuntimeWarning w) {
             if (w.equals(ball)) {
                 return ball.returnValue;
             }

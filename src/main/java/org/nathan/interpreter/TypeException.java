@@ -1,7 +1,7 @@
 package org.nathan.interpreter;
 
 class TypeException extends RuntimeException {
-    TypeException(String s){
+    TypeException(String s) {
         super(s);
     }
 }
