@@ -63,7 +63,6 @@ class Utils {
     }
 
     static boolean isTrue(Object o) {
-
         if (o instanceof Boolean) {return (Boolean) o;}
         else if (o == null) { return false; }
         else if (o instanceof Integer || o instanceof Double) { return !o.equals(0); }
