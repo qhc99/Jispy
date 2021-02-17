@@ -72,6 +72,7 @@ public class Jispy {
         }
     }
 
+    @SuppressWarnings("unused")
     public static Object runScripts(@NotNull String program) {
         return evalToString(eval(parse(program), GlobalEnv));
     }
