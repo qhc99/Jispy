@@ -162,9 +162,8 @@ public class JispyTest {
         assertEquals(treeList(1, 2, new Symbol("three")), evalScripts("(quote (1 2 three))"));
         assertEquals(new Symbol("x"), evalScripts("'x"));
         assertEquals(treeList(new Symbol("one"), 2, 3), evalScripts("'(one 2 3)"));
-        assertEquals(treeList(treeList(new Symbol("testing"), 1, 2, 3, new Symbol("testing")),
-                treeList(new Symbol("testing"), treeList(1, 2, 3), new Symbol("testing"))),
-                evalScripts("(begin (define L (list 1 2 3)) (list `(testing ,@L testing) `(testing ,L testing)))"));
+        assertEquals(treeList(treeList(new Symbol("testing"), 1, 2, 3, new Symbol("testing")), treeList(new Symbol("testing"), treeList(1,2,3), new Symbol("testing"))),
+                evalScripts("(begin (define L (list 1 2 3)) (list `(testing ,@L testing) `(testing ,L testing) ) ) "));
         assertThrows(SyntaxException.class, () -> evalScripts("(begin (define L (list 1 2 3)) `,@L)"));
         assertEquals(treeList(1, 2, 3), evalScripts("""
                 '(1 ; test comments '\s

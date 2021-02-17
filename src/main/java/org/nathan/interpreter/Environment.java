@@ -149,7 +149,7 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("append"), (Lambda) (args ->
                 {
                     if (args.size() < 2) { throw new ArgumentsCountException(); }
-                    List<Object> res = (List<Object>) args.get(0);
+                    List<Object> res = new ArrayList<>((List<Object>) args.get(0));
                     for (int i = 1; i < args.size(); i++) {
                         res.addAll((List<Object>) args.get(i));
                     }

@@ -236,9 +236,6 @@ public class Jispy {
                     return l;
                 }
                 else {
-                    if (token instanceof String && ((String) token).startsWith(";")) {
-                        continue;
-                    }
                     l.add(readAhead(token, inPort));
                 }
             }
