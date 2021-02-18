@@ -180,7 +180,7 @@ public class Jispy {
         }
     }
 
-    static @NotNull Object toAtom(@NotNull String x) {
+    private static @NotNull Object toAtom(@NotNull String x) {
         if (x.equals("#t")) { return true; }
         else if (x.equals("#f")) { return false; }
         else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
@@ -195,7 +195,7 @@ public class Jispy {
                     return isDouble.get();
                 }
                 else {
-                    var isComplex = NumericOperators.tryParseComplex(x);
+                    var isComplex = NumericOperators.tryParseImaginary(x);
                     if (isComplex.isPresent()) {
                         return isComplex.get();
                     }
@@ -206,7 +206,7 @@ public class Jispy {
             }
         }
         else {
-            var isComplex = NumericOperators.tryParseComplex(x);
+            var isComplex = NumericOperators.tryParseImaginary(x);
             if (isComplex.isPresent()) {
                 return isComplex.get();
             }

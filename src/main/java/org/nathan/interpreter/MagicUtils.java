@@ -3,8 +3,18 @@ package org.nathan.interpreter;
 
 import java.util.Optional;
 
+/**
+ * modified from open source library
+ */
 public final class MagicUtils {
 
+    /**
+     *
+     * @see java.lang.Integer#parseInt(String, int)
+     * @param s string
+     * @param radix base
+     * @return Optional Integer
+     */
     public static Optional<Integer> tryParseInt(String s, int radix) {
 
         if (s == null) {

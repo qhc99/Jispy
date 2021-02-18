@@ -270,39 +270,20 @@ class NumericOperators {
         else { throw new SyntaxException("not number"); }
     }
 
-    static Optional<Complex> tryParseComplex(@NotNull String source) {
-        String[] parts = source.split("\\+");
-        Double real = null, imaginary = null;
-        if (parts.length == 0) {
+    static Optional<Complex> tryParseImaginary(@NotNull String s) {
+        if(s.length() <= 1){
             return Optional.empty();
         }
-        for (var part : parts) {
-            var s = part.trim();
-            if (s.contains("i")) {
-                s = s.replaceAll("i", "");
-                try {
-                    imaginary = Double.parseDouble(s);
-                }
-                catch (NumberFormatException ignore) {}
-            }
-            else {
-                try {
-                    real = Double.parseDouble(s);
-                }
-                catch (NumberFormatException ignore) {}
-            }
-        }
-        if (real == null && imaginary == null) {
+        else if(!s.endsWith("i")){
             return Optional.empty();
         }
-        else if (real == null) {
-            return Optional.of(new Complex(0, imaginary));
+        else if(!Character.isDigit(s.charAt(s.length()-2))){
+            return Optional.empty();
         }
-        else if (imaginary == null) {
-            return Optional.of(new Complex(real, 0));
-        }
-        else {
-            return Optional.of(new Complex(real, imaginary));
+        else{
+            var img = s.substring(0,s.length()-1);
+            var d = tryParseDouble(img);
+            return d.map(aDouble -> new Complex(0, aDouble));
         }
     }
 
