@@ -1,8 +1,6 @@
 package org.nathan.interpreter;
 
-import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.complex.Complex;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.nathan.interpreter.magic.MagicUtils;
 
@@ -302,24 +300,24 @@ class NumericOperators {
 
 
     /**
-     * @see <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 language specification:</a>
-     * <br/>regex:
+     * @see <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 language specification 3.10.2. Floating-Point Literals</a>
+     * <br/>Regex:
      * <br/>Digits:(\d[\d_]+\d|\d)
      * <br/>ExponentPart: ([eE][+-]?(\d[\d_]+\d|\d))
      * <br/>FloatTypeSuffix: ([fFdD])
-     * <br/>type1:((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
-     * <br/>type2:(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
-     * <br/>type3:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)
-     * <br/>type4:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD]))
-     * <br/>all:(((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])))
+     * <br/>Double Type1:((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
+     * <br/>Double Type2:(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
+     * <br/>Double Type3:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)
+     * <br/>Double Type4:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD]))
+     * <br/>All Double:(((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])))
      *
      * @param s string
      * @return Double
      */
     static Optional<Double> tryParseDouble(@NotNull String s) {
         // TODO try parser
-        var m = isDouble.matcher(s);
-        if(m.find()){
+        var p = new DecimalFloatingPointLiteralParser(s);
+        if(p.parseSuccess()){
             return Optional.of(Double.parseDouble(s));
         }
         else{

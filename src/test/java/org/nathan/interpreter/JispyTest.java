@@ -106,7 +106,8 @@ public class JispyTest {
     @Test
     public void lispyTest() {
         var t = evalScripts("(quote (testing 1 (2.0) -3.14e159))");
-        assertEquals(treeList(new Symbol("testing"), 1, treeList(2.0), -3.14e159), t);
+        var tt = treeList(new Symbol("testing"), 1, treeList(2.0), -3.14e159);
+        assertEquals(tt, t);
         assertEquals(4, evalScripts("(+ 2 2)"));
         assertEquals(210, evalScripts("(+ (* 2 100) (* 1 10))"));
         assertEquals(2, evalScripts("(if (> 6 5) (+ 1 1) (+ 2 2))"));
