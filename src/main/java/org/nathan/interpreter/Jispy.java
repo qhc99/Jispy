@@ -3,6 +3,7 @@ package org.nathan.interpreter;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.jetbrains.annotations.NotNull;
+import org.nathan.interpreter.magic.MagicUtils;
 
 import java.io.*;
 import java.util.*;
@@ -185,7 +186,7 @@ public class Jispy {
         else if (x.equals("#f")) { return false; }
         else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
         else if (stringContainsDigit(x)) {
-            var isInt = MagicUtils.tryParseInt(x, 10);
+            var isInt = MagicUtils.tryParseInt(x);
             if (isInt.isPresent()) {
                 return isInt.get();
             }

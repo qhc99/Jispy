@@ -41,8 +41,12 @@
             <artifactId>guava</artifactId>
             <version>30.1-jre</version>
         </dependency>
-
-
+        <!-- https://mvnrepository.com/artifact/com.github.javaparser/javaparser-symbol-solver-core -->
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-symbol-solver-core</artifactId>
+            <version>3.19.0</version>
+        </dependency>
     </dependencies>
 
 </project>

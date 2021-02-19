@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package org.nathan.interpreter;
+package org.nathan.interpreter.magic;
 
 
 import java.util.Optional;
@@ -31,6 +31,11 @@ import java.util.Optional;
  * modified from open source library
  */
 public final class MagicUtils {
+
+    public static Optional<Integer> tryParseInt(String s){
+        return tryParseInt(s,10);
+    }
+
 
     /**
      *
@@ -93,6 +98,9 @@ public final class MagicUtils {
             return Optional.empty();
         }
     }
+
+
+
 }
 
 

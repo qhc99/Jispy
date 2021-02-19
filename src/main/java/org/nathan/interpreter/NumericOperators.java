@@ -2,11 +2,18 @@ package org.nathan.interpreter;
 
 import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.complex.Complex;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
+import org.nathan.interpreter.magic.MagicUtils;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 class NumericOperators {
+    private static final Pattern isDouble = Pattern.compile("(((\\d[\\d_]+\\d|\\d)\\.(\\d[\\d_]+\\d|\\d)?([eE][+-]?" +
+            "(\\d[\\d_]+\\d|\\d))?([fFdD])?)|(\\.(\\d[\\d_]+\\d|\\d)([eE][+-]?(\\d[\\d_]+\\d|\\d))?([fFdD])?)|(" +
+            "(\\d[\\d_]+\\d|\\d)([eE][+-]?(\\d[\\d_]+\\d|\\d))([fFdD])?)|((\\d[\\d_]+\\d|\\d)([eE][+-]?" +
+            "(\\d[\\d_]+\\d|\\d))?([fFdD])))");
 
     static boolean lessThan(@NotNull Object a, @NotNull Object b) {
         return value(a) < value(b);
@@ -282,18 +289,41 @@ class NumericOperators {
         }
         else{
             var img = s.substring(0,s.length()-1);
-            var d = tryParseDouble(img);
-            return d.map(aDouble -> new Complex(0, aDouble));
+            var i = MagicUtils.tryParseInt(img);
+            if(i.isPresent()){
+                return Optional.of(new Complex(0,i.get()));
+            }
+            else{
+                var d = tryParseDouble(img);
+                return d.map(aDouble -> new Complex(0, aDouble));
+            }
         }
     }
 
+
+    /**
+     * @see <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 language specification:</a>
+     * <br/>regex:
+     * <br/>Digits:(\d[\d_]+\d|\d)
+     * <br/>ExponentPart: ([eE][+-]?(\d[\d_]+\d|\d))
+     * <br/>FloatTypeSuffix: ([fFdD])
+     * <br/>type1:((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
+     * <br/>type2:(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
+     * <br/>type3:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)
+     * <br/>type4:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD]))
+     * <br/>all:(((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])))
+     *
+     * @param s string
+     * @return Double
+     */
     static Optional<Double> tryParseDouble(@NotNull String s) {
-        @SuppressWarnings("UnstableApiUsage") Double d = Doubles.tryParse(s);
-        if (d == null) {
-            return Optional.empty();
+        // TODO try parser
+        var m = isDouble.matcher(s);
+        if(m.find()){
+            return Optional.of(Double.parseDouble(s));
         }
-        else {
-            return Optional.of(d);
+        else{
+            return Optional.empty();
         }
     }
 }
