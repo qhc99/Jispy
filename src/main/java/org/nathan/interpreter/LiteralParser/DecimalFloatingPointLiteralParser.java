@@ -1,4 +1,4 @@
-package org.nathan.interpreter;
+package org.nathan.interpreter.LiteralParser;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -2,6 +2,7 @@ package org.nathan.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jetbrains.annotations.NotNull;
+import org.nathan.interpreter.LiteralParser.DecimalFloatingPointLiteralParser;
 import org.nathan.interpreter.magic.MagicUtils;
 
 import java.util.Optional;

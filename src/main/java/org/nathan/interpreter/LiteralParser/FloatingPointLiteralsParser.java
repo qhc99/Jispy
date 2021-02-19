@@ -1,4 +1,4 @@
-package org.nathan.interpreter;
+package org.nathan.interpreter.LiteralParser;
 
 public class FloatingPointLiteralsParser {
     private final String source;
