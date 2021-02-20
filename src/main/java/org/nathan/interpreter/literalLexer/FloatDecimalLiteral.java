@@ -1,8 +1,8 @@
-package org.nathan.interpreter.literalParser;
+package org.nathan.interpreter.literalLexer;
 
 import org.jetbrains.annotations.NotNull;
 
-public class FloatDecimalLiteral extends LiteralParser{
+public class FloatDecimalLiteral extends LiteralLexer{
 
     public FloatDecimalLiteral(@NotNull String source){
         super(source);
