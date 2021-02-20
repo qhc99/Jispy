@@ -11,7 +11,9 @@ public class HexadecimalFloatingPointLiteralParser {
     }
 
     public boolean parseSuccess() {
-        if (!s.startsWith("0x") || !s.startsWith("0X")) { return false; }
+        if(s.startsWith("+") || s.startsWith("-")) idx++;
+        if(end()) return false;
+        if (!s.startsWith("0x", idx) || !s.startsWith("0X", idx)) { return false; }
         idx += 2;
         if (end()) { return false; }
         if (s.charAt(idx) == '.') {
