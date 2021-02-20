@@ -9,11 +9,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 class NumericOperators {
-    private static final Pattern isDouble = Pattern.compile("(((\\d[\\d_]+\\d|\\d)\\.(\\d[\\d_]+\\d|\\d)?([eE][+-]?" +
-            "(\\d[\\d_]+\\d|\\d))?([fFdD])?)|(\\.(\\d[\\d_]+\\d|\\d)([eE][+-]?(\\d[\\d_]+\\d|\\d))?([fFdD])?)|(" +
-            "(\\d[\\d_]+\\d|\\d)([eE][+-]?(\\d[\\d_]+\\d|\\d))([fFdD])?)|((\\d[\\d_]+\\d|\\d)([eE][+-]?" +
-            "(\\d[\\d_]+\\d|\\d))?([fFdD])))");
-
     static boolean lessThan(@NotNull Object a, @NotNull Object b) {
         return value(a) < value(b);
     }
@@ -302,21 +297,13 @@ class NumericOperators {
 
     /**
      * @see <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 language specification 3.10.2. Floating-Point Literals</a>
-     * <br/>Regex:
-     * <br/>Digits:(\d[\d_]+\d|\d)
-     * <br/>ExponentPart: ([eE][+-]?(\d[\d_]+\d|\d))
-     * <br/>FloatTypeSuffix: ([fFdD])
-     * <br/>Double Type1:((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
-     * <br/>Double Type2:(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)
-     * <br/>Double Type3:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)
-     * <br/>Double Type4:((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD]))
-     * <br/>All Double:(((\d[\d_]+\d|\d)\.(\d[\d_]+\d|\d)?([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|(\.(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))([fFdD])?)|((\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])))
-     *
      * @param s string
      * @return Double
      */
     static Optional<Double> tryParseDouble(@NotNull String s) {
         // TODO try parser
+        var pp = Pattern.compile("([+-]?(\\d[\\d_]+\\d|\\d)\\.(\\d[\\d_]+\\d|\\d)?([eE][+-]?(\\d[\\d_]+\\d|\\d))?" +
+                "([fFdD])?)");
         var p = new DecimalFloatingPointLiteralParser(s);
         if(p.parseSuccess()){
             return Optional.of(Double.parseDouble(s));

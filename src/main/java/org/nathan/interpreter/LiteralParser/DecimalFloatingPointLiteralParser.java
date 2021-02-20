@@ -2,7 +2,6 @@ package org.nathan.interpreter.LiteralParser;
 
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("IfStatementWithIdenticalBranches")
 public class DecimalFloatingPointLiteralParser {
     private final String s;
     private int idx;
@@ -11,43 +10,33 @@ public class DecimalFloatingPointLiteralParser {
         s = source;
     }
 
+    // TODO check and add tests
     public boolean parseSuccess() {
         if (s.length() == 0) {
             return false;
         }
         var first = s.charAt(idx);
-        if(first == '+' || first == '-'){
-            idx++;
-        }
-        if(end()) return false;
+        if (first == '+' || first == '-') { idx++; }
+        if (end()) { return false; }
         var c = s.charAt(idx);
         if (c == '.') {
-            if (!isDigits()) {
-                return false;
-            }
+            idx++;
+            if (!isDigits()) { return false; }
             if (end()) { return true; }
             var c1 = s.charAt(idx);
             return ExponentPartOrFloatTypeSuffixOrBoth(c1);
         }
         else {
-            if (!isDigits()) {
-                return false;
-            }
-            if (end()) {
-                return false;
-            }
+            if (!isDigits()) { return false; }
+            if (end()) { return false; }
             var c3 = s.charAt(idx);
             switch (c3) {
                 case '.' -> {
                     idx++;
-                    if (end()) {
-                        return true;
-                    }
+                    if (end()) { return true; }
                     switch (s.charAt(idx)) {
                         case 'e', 'E' -> {
-                            if (!isExponentPart()) {
-                                return false;
-                            }
+                            if (!isExponentPart()) { return false; }
                             if (end()) { return true; }
                             else { return isFloatTypeSuffix(); }
                         }
@@ -55,9 +44,7 @@ public class DecimalFloatingPointLiteralParser {
                             return idx + 1 == s.length();
                         }
                         default -> {
-                            if (!isDigits()) {
-                                return false;
-                            }
+                            if (!isDigits()) { return false; }
                             if (end()) { return true; }
                             var c2 = s.charAt(idx);
                             return ExponentPartOrFloatTypeSuffixOrBoth(c2);
@@ -67,9 +54,7 @@ public class DecimalFloatingPointLiteralParser {
                 }
                 case 'e', 'E' -> {
                     if (isExponentPart()) {
-                        if (end()) {
-                            return true;
-                        }
+                        if (end()) { return true; }
                         return isFloatTypeSuffix();
                     }
                     else { return false; }
@@ -85,9 +70,7 @@ public class DecimalFloatingPointLiteralParser {
     private boolean ExponentPartOrFloatTypeSuffixOrBoth(char c1) {
         switch (c1) {
             case 'e', 'E' -> {
-                if (!isExponentPart()) {
-                    return false;
-                }
+                if (!isExponentPart()) { return false; }
                 if (end()) { return true; }
                 else { return isFloatTypeSuffix(); }
             }
@@ -99,9 +82,7 @@ public class DecimalFloatingPointLiteralParser {
     }
 
     private boolean isFloatTypeSuffix() {
-        if (end()) {
-            return false;
-        }
+        if (end()) { return false; }
         switch (s.charAt(idx)) {
             case 'f', 'F', 'd', 'D' -> {
                 return idx + 1 == s.length();
@@ -111,25 +92,19 @@ public class DecimalFloatingPointLiteralParser {
     }
 
     private boolean isExponentPart() {
-        if (end()) {
-            return false;
-        }
+        if (end()) { return false; }
         var c = s.charAt(idx);
         switch (c) {
             case 'e', 'E' -> {
                 idx++;
-                if (end()) {
-                    return false;
-                }
+                if (end()) { return false; }
                 var c1 = s.charAt(idx);
                 switch (c1) {
                     case '+':
                     case '-':
                         idx++;
                     default:
-                        if (end()) {
-                            return false;
-                        }
+                        if (end()) { return false; }
                         return isDigits();
                 }
             }
@@ -138,24 +113,14 @@ public class DecimalFloatingPointLiteralParser {
     }
 
     private boolean isDigits() {
-        if (end()) {
-            return false;
-        }
-        if (!Character.isDigit(s.charAt(idx))) {
-            return false;
-        }
+        if (end()) { return false; }
+        if (!Character.isDigit(s.charAt(idx))) { return false; }
         idx++;
-        if (end()) {
-            return true;
-        }
+        if (end()) { return true; }
         while (idx < s.length()) {
             char c = s.charAt(idx);
-            if (c == '_' || Character.isDigit(c)) {
-                idx++;
-            }
-            else {
-                break;
-            }
+            if (c == '_' || Character.isDigit(c)) { idx++; }
+            else { break; }
         }
         return Character.isDigit(s.charAt(idx - 1));
     }
