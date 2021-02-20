@@ -15,14 +15,14 @@ class FloatHexadecimalLiteralTest {
                 0x.1B0P-2_2D
         };
         assertNotNull(d);
-        assertTrue(new FloatHexadecimalLiteral("0xa_fp-2_2f").parseSuccess());
-        assertTrue(new FloatHexadecimalLiteral("0x0a_1.p+02_02").parseSuccess());
-        assertTrue(new FloatHexadecimalLiteral("0x10F.0__1fp-0f").parseSuccess());
-        assertTrue(new FloatHexadecimalLiteral("0x.1B0P-2_2D").parseSuccess());
+        assertTrue(new FloatHexadecimalLiteral("0xa_fp-2_2f").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("0x0a_1.p+02_02").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("0x10F.0__1fp-0f").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("0x.1B0P-2_2D").isTheLiteral());
 
-        assertFalse(new FloatHexadecimalLiteral("+").parseSuccess());
-        assertFalse(new FloatHexadecimalLiteral("0x.1B0").parseSuccess());
-        assertFalse(new FloatHexadecimalLiteral("0xAAG").parseSuccess());
-        assertFalse(new FloatHexadecimalLiteral("00").parseSuccess());
+        assertFalse(new FloatHexadecimalLiteral("+").isTheLiteral());
+        assertFalse(new FloatHexadecimalLiteral("0x.1B0").isTheLiteral());
+        assertFalse(new FloatHexadecimalLiteral("0xAAG").isTheLiteral());
+        assertFalse(new FloatHexadecimalLiteral("00").isTheLiteral());
     }
 }

@@ -300,7 +300,7 @@ class NumericOperators {
      * @return Double
      */
     static Optional<Double> tryParseDouble(@NotNull String s) {
-        if(FloatingPointLiterals.parseFloatingPointLiteralSuccess(s)){
+        if(FloatingPointLiterals.isFloatingPointLiteral(s)){
             return Optional.of(Double.parseDouble(s));
         }
         else{

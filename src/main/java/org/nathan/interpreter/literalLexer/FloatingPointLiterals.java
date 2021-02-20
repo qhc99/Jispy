@@ -16,23 +16,23 @@ import org.jetbrains.annotations.NotNull;
  * <br/>(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])))
  */
 public class FloatingPointLiterals {
-    public static boolean parseFloatingPointLiteralSuccess(@NotNull String source){
+    public static boolean isFloatingPointLiteral(@NotNull String source){
         if(source.length() <= 1) return false;
-        else if(source.length() == 2) return new FloatDecimalLiteral(source).parseSuccess();
+        else if(source.length() == 2) return new FloatDecimalLiteral(source).isTheLiteral();
         if(source.startsWith("+") || source.startsWith("-")){
             if(source.startsWith("0x", 1) || source.startsWith("0X", 1)){
-                return new FloatHexadecimalLiteral(source).parseSuccess();
+                return new FloatHexadecimalLiteral(source).isTheLiteral();
             }
             else{
-                return new FloatDecimalLiteral(source).parseSuccess();
+                return new FloatDecimalLiteral(source).isTheLiteral();
             }
         }
         else{
             if(source.startsWith("0x") || source.startsWith("0X")){
-                return new FloatHexadecimalLiteral(source).parseSuccess();
+                return new FloatHexadecimalLiteral(source).isTheLiteral();
             }
             else{
-                return new FloatDecimalLiteral(source).parseSuccess();
+                return new FloatDecimalLiteral(source).isTheLiteral();
             }
         }
     }

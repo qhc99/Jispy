@@ -8,7 +8,7 @@ public class FloatHexadecimalLiteral extends LiteralLexer{
         super(source);
     }
 
-    public boolean parseSuccess(){
+    public boolean isTheLiteral(){
         if(s.startsWith("+") || s.startsWith("-")){
             if(!hasNext()){ return false; }
         }

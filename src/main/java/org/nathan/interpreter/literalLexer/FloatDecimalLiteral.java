@@ -8,7 +8,7 @@ public class FloatDecimalLiteral extends LiteralLexer{
         super(source);
     }
 
-    public boolean parseSuccess(){
+    public boolean isTheLiteral(){
         if(s.length() == 0){
             return false;
         }
