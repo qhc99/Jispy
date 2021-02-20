@@ -17,11 +17,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public class FloatingPointLiteralsParser {
     public static boolean parseFloatingPointLiteralSuccess(@NotNull String source){
-        if(source.startsWith("0x") || source.startsWith("0X")){
-            return new HexadecimalFloatingPointLiteralParser(source).parseSuccess();
+        if(source.length() <= 1) return false;
+        else if(source.length() == 2) return new DecimalFloatingPointLiteralParser(source).parseSuccess();
+        if(source.startsWith("+") || source.startsWith("-")){
+            if(source.startsWith("0x", 1) || source.startsWith("0X", 1)){
+                return new HexadecimalFloatingPointLiteralParser(source).parseSuccess();
+            }
+            else{
+                return new DecimalFloatingPointLiteralParser(source).parseSuccess();
+            }
         }
         else{
-            return new DecimalFloatingPointLiteralParser(source).parseSuccess();
+            if(source.startsWith("0x") || source.startsWith("0X")){
+                return new HexadecimalFloatingPointLiteralParser(source).parseSuccess();
+            }
+            else{
+                return new DecimalFloatingPointLiteralParser(source).parseSuccess();
+            }
         }
     }
 }
