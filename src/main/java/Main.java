@@ -8,7 +8,6 @@ import java.io.*;
 class Main {
     public static void main(String[] args) {
 //        JispyApp(args);
-        System.out.println(Doubles.tryParse("00__00."));
         var t = +.0;
     }
 

@@ -6,7 +6,6 @@ import org.nathan.interpreter.LiteralParser.DecimalFloatingPointLiteralParser;
 import org.nathan.interpreter.magic.MagicUtils;
 
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 class NumericOperators {
     static boolean lessThan(@NotNull Object a, @NotNull Object b) {
@@ -301,9 +300,6 @@ class NumericOperators {
      * @return Double
      */
     static Optional<Double> tryParseDouble(@NotNull String s) {
-        // TODO try parser
-        var pp = Pattern.compile("([+-]?(\\d[\\d_]+\\d|\\d)\\.(\\d[\\d_]+\\d|\\d)?([eE][+-]?(\\d[\\d_]+\\d|\\d))?" +
-                "([fFdD])?)");
         var p = new DecimalFloatingPointLiteralParser(s);
         if(p.parseSuccess()){
             return Optional.of(Double.parseDouble(s));
