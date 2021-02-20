@@ -37,7 +37,7 @@ public class DecimalFloatingPointLiteralParser {
                         case 'e', 'E' -> {
                             next();
                             if(isEnd()) return false;
-                            if(!isSignedDigits()) return false;
+                            if(!isSignedInteger()) return false;
                             if (isEnd()) { return true; }
                             else { return isFloatTypeSuffix(); }
                         }
@@ -56,7 +56,7 @@ public class DecimalFloatingPointLiteralParser {
                 case 'e', 'E' -> {
                     next();
                     if(isEnd()) return false;
-                    if(isSignedDigits()){
+                    if(isSignedInteger()){
                         if (isEnd()) { return true; }
                         return isFloatTypeSuffix();
                     }
@@ -75,7 +75,7 @@ public class DecimalFloatingPointLiteralParser {
             case 'e', 'E' -> {
                 next();
                 if(isEnd()) return false;
-                if(!isSignedDigits()) return false;
+                if(!isSignedInteger()) return false;
                 if (isEnd()) { return true; }
                 else { return isFloatTypeSuffix(); }
             }
@@ -90,6 +90,7 @@ public class DecimalFloatingPointLiteralParser {
         idx++;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private boolean isFloatTypeSuffix() {
         if (isEnd()) { return false; }
         switch (s.charAt(idx)) {
@@ -100,7 +101,8 @@ public class DecimalFloatingPointLiteralParser {
         }
     }
 
-    private boolean isSignedDigits(){
+    @SuppressWarnings("DuplicatedCode")
+    private boolean isSignedInteger(){
         if(isEnd()) return false;
         switch (s.charAt(idx)) {
             case '+':
@@ -112,6 +114,7 @@ public class DecimalFloatingPointLiteralParser {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private boolean isDigits() {
         if (isEnd()) { return false; }
         if (!Character.isDigit(s.charAt(idx))) { return false; }
