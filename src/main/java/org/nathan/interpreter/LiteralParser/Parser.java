@@ -24,9 +24,8 @@ public abstract class Parser {
         switch (s.charAt(idx)) {
             case '+':
             case '-':
-                next();
+                if(!hasNext()) return false;
             default:
-                if (isEnd()) { return false; }
                 return isDigits();
         }
     }
@@ -34,18 +33,18 @@ public abstract class Parser {
     protected boolean isDigits() {
         if (isEnd()) { return false; }
         if (!Character.isDigit(s.charAt(idx))) { return false; }
-        next();
-        if (isEnd()) { return true; }
+        if(!hasNext()) return true;
         while (idx < s.length()) {
             char c = s.charAt(idx);
-            if (c == '_' || Character.isDigit(c)) { next(); }
+            if (c == '_' || Character.isDigit(c)) { idx++; }
             else { break; }
         }
         return Character.isDigit(s.charAt(idx - 1));
     }
 
-    protected void next(){
+    protected boolean hasNext(){
         idx++;
+        return idx < s.length();
     }
 
     protected boolean isEnd() {

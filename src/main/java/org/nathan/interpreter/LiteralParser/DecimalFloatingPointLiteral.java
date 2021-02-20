@@ -2,9 +2,9 @@ package org.nathan.interpreter.LiteralParser;
 
 import org.jetbrains.annotations.NotNull;
 
-public class DecimalFloatingPointLiteralParser extends Parser {
+public class DecimalFloatingPointLiteral extends Parser {
 
-    public DecimalFloatingPointLiteralParser(@NotNull String source) {
+    public DecimalFloatingPointLiteral(@NotNull String source) {
         super(source);
     }
 
@@ -13,15 +13,18 @@ public class DecimalFloatingPointLiteralParser extends Parser {
             return false;
         }
         var first = s.charAt(idx);
-        if (first == '+' || first == '-') { next(); }
-        if (isEnd()) { return false; }
+        if (first == '+' || first == '-') {
+            if(!hasNext()) return false;
+        }
         var c = s.charAt(idx);
         if (c == '.') {
-            next();
-            if (!isDigits()) { return false; }
+            if(!hasNext()) return false;
+            else if (!isDigits()) { return false; }
             if (isEnd()) { return true; }
-            var c1 = s.charAt(idx);
-            return ExponentPartOrFloatTypeSuffixOrBoth(c1);
+            else{
+                var c1 = s.charAt(idx);
+                return ExponentPartOrFloatTypeSuffixOrBoth(c1);
+            }
         }
         else {
             if (!isDigits()) { return false; }
@@ -29,12 +32,10 @@ public class DecimalFloatingPointLiteralParser extends Parser {
             var c3 = s.charAt(idx);
             switch (c3) {
                 case '.' -> {
-                    next();
-                    if (isEnd()) { return true; }
+                    if(!hasNext()) return true;
                     switch (s.charAt(idx)) {
                         case 'e', 'E' -> {
-                            next();
-                            if(isEnd()) return false;
+                            if(!hasNext()) return false;
                             if(!isSignedInteger()) return false;
                             if (isEnd()) { return true; }
                             else { return isFloatTypeSuffix(); }
@@ -52,8 +53,7 @@ public class DecimalFloatingPointLiteralParser extends Parser {
 
                 }
                 case 'e', 'E' -> {
-                    next();
-                    if(isEnd()) return false;
+                    if(!hasNext()) return false;
                     if(isSignedInteger()){
                         if (isEnd()) { return true; }
                         return isFloatTypeSuffix();
@@ -71,8 +71,7 @@ public class DecimalFloatingPointLiteralParser extends Parser {
     protected boolean ExponentPartOrFloatTypeSuffixOrBoth(char c1) {
         switch (c1) {
             case 'e', 'E' -> {
-                next();
-                if(isEnd()) return false;
+                if(!hasNext()) return false;
                 if(!isSignedInteger()) return false;
                 if (isEnd()) { return true; }
                 else { return isFloatTypeSuffix(); }
