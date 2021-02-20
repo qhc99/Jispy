@@ -7,8 +7,7 @@ import java.io.*;
 
 class Main {
     public static void main(String[] args) {
-//        JispyApp(args);
-        var t = -0x1;
+        JispyApp(args);
     }
 
     static void JispyApp(String[] args) {
