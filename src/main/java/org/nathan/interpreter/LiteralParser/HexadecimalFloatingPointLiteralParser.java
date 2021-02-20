@@ -12,38 +12,42 @@ public class HexadecimalFloatingPointLiteralParser {
 
     public boolean parseSuccess() {
         if(s.startsWith("+") || s.startsWith("-")) idx++;
-        if(end()) return false;
+        if(isEnd()) return false;
         if (!s.startsWith("0x", idx) || !s.startsWith("0X", idx)) { return false; }
         idx += 2;
-        if (end()) { return false; }
-        if (s.charAt(idx) == '.') {
-            if (isHexDigits()) {
-                return end();
-            }
+        if (isEnd()) { return false; }
+        if (isChar('.')) {
+            if(isEnd()) return false;
+            if (isHexDigits()) { return isEnd(); }
             else { return false; }
         }
         else {
             if (isHexDigits()) {
-                if (end()) { return true; }
-                if (!(s.charAt(idx) == '.')) { return false; }
-                idx++;
-                if (end()) { return false; }
-                if (isHexDigits()) {
-                    return end();
-                }
+                if (isEnd()) { return true; }
+                else if (!isChar('.')) { return false; }
+                if (isEnd()) { return false; }
+                if (isHexDigits()) { return isEnd(); }
                 else { return false; }
             }
             else { return false; }
         }
     }
 
+    private boolean isChar(char c){
+        if(c == s.charAt(idx)){
+            idx++;
+            return true;
+        }
+        return false;
+    }
+
     private boolean isHexDigits() {
-        if (end()) { return false; }
+        if (isEnd()) { return false; }
         var c = s.charAt(idx);
         if (!isDigitOfHex(c)) { return false; }
         idx++;
-        if (end()) { return true; }
-        while (!end()) {
+        if (isEnd()) { return true; }
+        while (!isEnd()) {
             var c1 = s.charAt(idx);
             if (c1 == '_' || isDigitOfHex(c1)) { idx++; }
             else { break; }
@@ -62,7 +66,7 @@ public class HexadecimalFloatingPointLiteralParser {
         }
     }
 
-    private boolean end() {
+    private boolean isEnd() {
         return idx >= s.length();
     }
 }
