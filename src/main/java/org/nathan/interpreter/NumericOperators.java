@@ -2,7 +2,7 @@ package org.nathan.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jetbrains.annotations.NotNull;
-import org.nathan.interpreter.LiteralParser.DecimalFloatingPointLiteralParser;
+import org.nathan.interpreter.LiteralParser.FloatingPointLiteralsParser;
 import org.nathan.interpreter.magic.MagicUtils;
 
 import java.util.Optional;
@@ -300,8 +300,7 @@ class NumericOperators {
      * @return Double
      */
     static Optional<Double> tryParseDouble(@NotNull String s) {
-        var p = new DecimalFloatingPointLiteralParser(s);
-        if(p.parseSuccess()){
+        if(FloatingPointLiteralsParser.parseFloatingPointLiteralSuccess(s)){
             return Optional.of(Double.parseDouble(s));
         }
         else{
