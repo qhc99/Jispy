@@ -21,11 +21,12 @@ class DecimalFloatingPointLiteralTest {
                 1_1_1D,
                 0_0_0E0_0_0d,
                 -3.14E159,
-                2.0
+                2.0,
+                11.f
         };
         assertNotNull(t);
         assertTrue(new DecimalFloatingPointLiteral("00.").parseSuccess());
-        assertTrue(new DecimalFloatingPointLiteral("01.").parseSuccess());
+        assertTrue(new DecimalFloatingPointLiteral("01.F").parseSuccess());
         assertTrue(new DecimalFloatingPointLiteral("0____0.").parseSuccess());
         assertTrue(new DecimalFloatingPointLiteral("0_0_0.0_0").parseSuccess());
         assertTrue(new DecimalFloatingPointLiteral("00___0.e+0_0__0f").parseSuccess());
@@ -37,5 +38,12 @@ class DecimalFloatingPointLiteralTest {
         assertTrue(new DecimalFloatingPointLiteral("0_0_0E0_0_0d").parseSuccess());
         assertTrue(new DecimalFloatingPointLiteral("-3.14E159").parseSuccess());
         assertTrue(new DecimalFloatingPointLiteral("2.0").parseSuccess());
+        assertTrue(new DecimalFloatingPointLiteral("11.f").parseSuccess());
+        assertTrue(new DecimalFloatingPointLiteral("11f").parseSuccess());
+
+        assertFalse(new DecimalFloatingPointLiteral("").parseSuccess());
+        assertFalse(new DecimalFloatingPointLiteral("0__F.EF").parseSuccess());
+        assertFalse(new DecimalFloatingPointLiteral(".11a").parseSuccess());
+        assertFalse(new DecimalFloatingPointLiteral(".11DD").parseSuccess());
     }
 }

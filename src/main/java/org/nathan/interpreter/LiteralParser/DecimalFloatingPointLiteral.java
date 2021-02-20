@@ -54,11 +54,9 @@ public class DecimalFloatingPointLiteral extends Parser {
                 }
                 case 'e', 'E' -> {
                     if(!hasNext()) return false;
-                    if(isSignedInteger()){
-                        if (isEnd()) { return true; }
-                        return isFloatTypeSuffix();
-                    }
-                    else return false;
+                    if(!isSignedInteger()){ return false; }
+                    if (isEnd()) { return true; }
+                    else return isFloatTypeSuffix();
                 }
                 case 'f', 'F', 'd', 'D' -> {
                     return idx + 1 == s.length();
