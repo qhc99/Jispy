@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Parser {
     protected final String s;
     protected int idx;
-    public Parser(@NotNull String s){
+    protected Parser(@NotNull String s){
         this.s = s;
     }
 
