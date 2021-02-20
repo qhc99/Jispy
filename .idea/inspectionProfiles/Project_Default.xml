@@ -4,7 +4,8 @@
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="BooleanMethodIsAlwaysInverted" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="CommentedOutCode" enabled="true" level="INFORMATION" enabled_by_default="true" />
-    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+    <inspection_tool class="DuplicatedCode" enabled="true" level="INFORMATION" enabled_by_default="true">
+      <GlobalSettings restrictedDuplicateScope="SAME_FILE" />
       <Languages>
         <language minSize="15" name="Kotlin" />
       </Languages>
