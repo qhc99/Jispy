@@ -22,7 +22,10 @@ class FloatDecimalLiteralTest {
                 0_0_0E0_0_0d,
                 -3.14E159,
                 2.0,
-                11.f
+                11.f,
+                11f,
+                11E1,
+                11.e1
         };
         assertNotNull(t);
         assertTrue(new FloatDecimalLiteral("00.").parseSuccess());
@@ -40,10 +43,26 @@ class FloatDecimalLiteralTest {
         assertTrue(new FloatDecimalLiteral("2.0").parseSuccess());
         assertTrue(new FloatDecimalLiteral("11.f").parseSuccess());
         assertTrue(new FloatDecimalLiteral("11f").parseSuccess());
+        assertTrue(new FloatDecimalLiteral("11E1").parseSuccess());
+        assertTrue(new FloatDecimalLiteral("11.E1").parseSuccess());
 
         assertFalse(new FloatDecimalLiteral("").parseSuccess());
         assertFalse(new FloatDecimalLiteral("0__F.EF").parseSuccess());
         assertFalse(new FloatDecimalLiteral(".11a").parseSuccess());
         assertFalse(new FloatDecimalLiteral(".11DD").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("+").parseSuccess());
+        assertFalse(new FloatDecimalLiteral(".").parseSuccess());
+        assertFalse(new FloatDecimalLiteral(".M").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("0_00").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("11E").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("11EG").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("11K").parseSuccess());
+        assertFalse(new FloatDecimalLiteral(".11E").parseSuccess());
+        assertFalse(new FloatDecimalLiteral(".11EJ").parseSuccess());
+        assertFalse(new FloatDecimalLiteral(".11B").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("11.E").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("11.EJ").parseSuccess());
+        assertFalse(new FloatDecimalLiteral("11.G").parseSuccess());
+
     }
 }

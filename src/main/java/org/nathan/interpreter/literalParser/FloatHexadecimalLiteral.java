@@ -56,7 +56,6 @@ public class FloatHexadecimalLiteral extends LiteralParser{
         return c == s.charAt(idx);
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isHexDigits(){
         if(isEnd()){
             return false;

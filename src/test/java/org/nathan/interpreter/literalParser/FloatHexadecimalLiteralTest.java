@@ -23,5 +23,6 @@ class FloatHexadecimalLiteralTest {
         assertFalse(new FloatHexadecimalLiteral("+").parseSuccess());
         assertFalse(new FloatHexadecimalLiteral("0x.1B0").parseSuccess());
         assertFalse(new FloatHexadecimalLiteral("0xAAG").parseSuccess());
+        assertFalse(new FloatHexadecimalLiteral("00").parseSuccess());
     }
 }
