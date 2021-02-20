@@ -1,11 +1,11 @@
-package org.nathan.interpreter.LiteralParser;
+package org.nathan.interpreter.literalParser;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class Parser {
+public abstract class LiteralParser {
     protected final String s;
     protected int idx;
-    protected Parser(@NotNull String s){
+    protected LiteralParser(@NotNull String s){
         this.s = s;
     }
 

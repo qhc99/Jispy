@@ -1,10 +1,10 @@
-package org.nathan.interpreter.LiteralParser;
+package org.nathan.interpreter.literalParser;
 
 import org.jetbrains.annotations.NotNull;
 
-public class HexadecimalFloatingPointLiteral extends Parser {
+public class FloatHexadecimalLiteral extends LiteralParser {
 
-    public HexadecimalFloatingPointLiteral(@NotNull String source) {
+    public FloatHexadecimalLiteral(@NotNull String source) {
         super(source);
     }
 

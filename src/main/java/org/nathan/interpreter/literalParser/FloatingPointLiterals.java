@@ -1,4 +1,4 @@
-package org.nathan.interpreter.LiteralParser;
+package org.nathan.interpreter.literalParser;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -18,21 +18,21 @@ import org.jetbrains.annotations.NotNull;
 public class FloatingPointLiterals {
     public static boolean parseFloatingPointLiteralSuccess(@NotNull String source){
         if(source.length() <= 1) return false;
-        else if(source.length() == 2) return new DecimalFloatingPointLiteral(source).parseSuccess();
+        else if(source.length() == 2) return new FloatDecimalLiteral(source).parseSuccess();
         if(source.startsWith("+") || source.startsWith("-")){
             if(source.startsWith("0x", 1) || source.startsWith("0X", 1)){
-                return new HexadecimalFloatingPointLiteral(source).parseSuccess();
+                return new FloatHexadecimalLiteral(source).parseSuccess();
             }
             else{
-                return new DecimalFloatingPointLiteral(source).parseSuccess();
+                return new FloatDecimalLiteral(source).parseSuccess();
             }
         }
         else{
             if(source.startsWith("0x") || source.startsWith("0X")){
-                return new HexadecimalFloatingPointLiteral(source).parseSuccess();
+                return new FloatHexadecimalLiteral(source).parseSuccess();
             }
             else{
-                return new DecimalFloatingPointLiteral(source).parseSuccess();
+                return new FloatDecimalLiteral(source).parseSuccess();
             }
         }
     }

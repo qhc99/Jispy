@@ -1,10 +1,10 @@
-package org.nathan.interpreter.LiteralParser;
+package org.nathan.interpreter.literalParser;
 
 import org.jetbrains.annotations.NotNull;
 
-public class DecimalFloatingPointLiteral extends Parser {
+public class FloatDecimalLiteral extends LiteralParser {
 
-    public DecimalFloatingPointLiteral(@NotNull String source) {
+    public FloatDecimalLiteral(@NotNull String source) {
         super(source);
     }
 
