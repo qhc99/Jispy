@@ -18,7 +18,7 @@ public class HexadecimalFloatingPointLiteral extends Parser {
             if(!hasNext()) return false;
             if(!isHexDigits()) return false;
             return isBinaryExponentIndicatorWithFloatTypeSuffixOrNot();
-        } //.AAG
+        }
         else{
             if(!isHexDigits()) return false;
             if(isChar('.')){
