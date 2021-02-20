@@ -8,7 +8,7 @@ import java.io.*;
 class Main {
     public static void main(String[] args) {
 //        JispyApp(args);
-        var t = +.0;
+        var t = .000e-000D;
     }
 
     static void JispyApp(String[] args) {

@@ -10,7 +10,6 @@ public class DecimalFloatingPointLiteralParser {
         s = source;
     }
 
-    // TODO check and add tests
     public boolean parseSuccess() {
         if (s.length() == 0) {
             return false;
