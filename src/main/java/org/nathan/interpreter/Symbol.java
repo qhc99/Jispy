@@ -6,33 +6,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-class Symbol {
+class Symbol{
     final String str;
 
-    Symbol(@NotNull String s) {
+    Symbol(@NotNull String s){
         this.str = s;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || (getClass() != o.getClass() && !(o instanceof String))) {
-            return false;
-        }
-        if (o instanceof String) {
+    public boolean equals(Object o){
+        if(o == this){ return true; }
+        if(o instanceof String){
             return str.equals(o);
         }
-        Symbol symbol = (Symbol) o;
-        return str.equals(symbol.str);
+        else if(o instanceof Symbol){
+            return str.equals(((Symbol) o).str);
+        }
+        else{ return false; }
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode(){
         return Objects.hash(str);
     }
 
     @Override
-    public String toString() {
+    public String toString(){
         return str;
     }
 
