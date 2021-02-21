@@ -33,6 +33,12 @@ class NumericOperators{
 
     }
 
+    static double value(@NotNull Object o){
+        if(o instanceof Double){ return (Double) o; }
+        else if(o instanceof Integer){ return (Integer) o; }
+        else{ throw new SyntaxException("not number"); }
+    }
+
     static @NotNull Object plus(@NotNull Object a, @NotNull Object b){
         return biDispatch(a, b, _plusBiFunc);
     }
@@ -47,12 +53,6 @@ class NumericOperators{
 
     static @NotNull Object multiply(@NotNull Object a, @NotNull Object b){
         return biDispatch(a, b, _multiplyBiFunc);
-    }
-
-    static double value(@NotNull Object o){
-        if(o instanceof Double){ return (Double) o; }
-        else if(o instanceof Integer){ return (Integer) o; }
-        else{ throw new SyntaxException("not number"); }
     }
 
     private static Object biDispatch(@NotNull Object a, @NotNull Object b, @NotNull BiFunc op){
@@ -156,7 +156,23 @@ class NumericOperators{
         abstract Complex apply(Complex a, Complex b);
     }
 
-    private static class PlusBiFunc extends BiFunc{
+    private static abstract class SymmetryBiFunc extends BiFunc{
+
+        Double apply(Double a, Integer b){
+            return apply(b,a);
+        }
+
+        Complex apply(Complex a, Integer b){
+            return apply(b,a);
+        }
+
+        Complex apply(Complex a, Double b){
+            return apply(b,a);
+        }
+
+    }
+
+    private static class PlusBiFunc extends SymmetryBiFunc{
 
         @Override
         Integer apply(Integer a, Integer b){
@@ -174,11 +190,6 @@ class NumericOperators{
         }
 
         @Override
-        Double apply(Double a, Integer b){
-            return a + b;
-        }
-
-        @Override
         Double apply(Double a, Double b){
             return a + b;
         }
@@ -186,16 +197,6 @@ class NumericOperators{
         @Override
         Complex apply(Double a, Complex b){
             return b.add(a);
-        }
-
-        @Override
-        Complex apply(Complex a, Integer b){
-            return a.add(b);
-        }
-
-        @Override
-        Complex apply(Complex a, Double b){
-            return a.add(b);
         }
 
         @Override
@@ -300,7 +301,7 @@ class NumericOperators{
         }
     }
 
-    private static class MultiplyBiFunc extends BiFunc{
+    private static class MultiplyBiFunc extends SymmetryBiFunc{
 
         @Override
         Integer apply(Integer a, Integer b){
@@ -318,11 +319,6 @@ class NumericOperators{
         }
 
         @Override
-        Double apply(Double a, Integer b){
-            return a * b;
-        }
-
-        @Override
         Double apply(Double a, Double b){
             return a * b;
         }
@@ -330,16 +326,6 @@ class NumericOperators{
         @Override
         Complex apply(Double a, Complex b){
             return b.multiply(a);
-        }
-
-        @Override
-        Complex apply(Complex a, Integer b){
-            return a.multiply(b);
-        }
-
-        @Override
-        Complex apply(Complex a, Double b){
-            return a.multiply(b);
         }
 
         @Override
@@ -351,7 +337,6 @@ class NumericOperators{
     private enum NumberType{
         INT, DOUBLE, COMPLEX
     }
-
 
     static Optional<Complex> tryParseImaginary(@NotNull String s){
         if(s.length() <= 1){
