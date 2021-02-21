@@ -136,200 +136,200 @@ class NumericOperators{
 
     private static final MultiplyBiFunc _multiplyBiFunc = new MultiplyBiFunc();
 
-    private static abstract class BiFunc{
-        abstract Integer apply(Integer a, Integer b);
+    private interface BiFunc{
+        Integer apply(Integer a, Integer b);
 
-        abstract Double apply(Integer a, Double b);
+        Double apply(Integer a, Double b);
 
-        abstract Complex apply(Integer a, Complex b);
+        Complex apply(Integer a, Complex b);
 
-        abstract Double apply(Double a, Integer b);
+        Double apply(Double a, Integer b);
 
-        abstract Double apply(Double a, Double b);
+        Double apply(Double a, Double b);
 
-        abstract Complex apply(Double a, Complex b);
+        Complex apply(Double a, Complex b);
 
-        abstract Complex apply(Complex a, Integer b);
+        Complex apply(Complex a, Integer b);
 
-        abstract Complex apply(Complex a, Double b);
+        Complex apply(Complex a, Double b);
 
-        abstract Complex apply(Complex a, Complex b);
+        Complex apply(Complex a, Complex b);
     }
 
-    private static abstract class SymmetryBiFunc extends BiFunc{
+    private interface SymmetryBiFunc extends BiFunc{
 
-        Double apply(Double a, Integer b){
+        default Double apply(Double a, Integer b){
             return apply(b,a);
         }
 
-        Complex apply(Complex a, Integer b){
+        default Complex apply(Complex a, Integer b){
             return apply(b,a);
         }
 
-        Complex apply(Complex a, Double b){
+        default Complex apply(Complex a, Double b){
             return apply(b,a);
         }
 
     }
 
-    private static class PlusBiFunc extends SymmetryBiFunc{
+    private static class PlusBiFunc implements SymmetryBiFunc{
 
         @Override
-        Integer apply(Integer a, Integer b){
+        public Integer apply(Integer a, Integer b){
             return a + b;
         }
 
         @Override
-        Double apply(Integer a, Double b){
+        public Double apply(Integer a, Double b){
             return a + b;
         }
 
         @Override
-        Complex apply(Integer a, Complex b){
+        public Complex apply(Integer a, Complex b){
             return b.add(a);
         }
 
         @Override
-        Double apply(Double a, Double b){
+        public Double apply(Double a, Double b){
             return a + b;
         }
 
         @Override
-        Complex apply(Double a, Complex b){
+        public Complex apply(Double a, Complex b){
             return b.add(a);
         }
 
         @Override
-        Complex apply(Complex a, Complex b){
+        public Complex apply(Complex a, Complex b){
             return a.add(b);
         }
     }
 
-    private static class MinusBiFunc extends BiFunc{
+    private static class MinusBiFunc implements BiFunc{
 
         @Override
-        Integer apply(Integer a, Integer b){
+        public Integer apply(Integer a, Integer b){
             return a - b;
         }
 
         @Override
-        Double apply(Integer a, Double b){
+        public Double apply(Integer a, Double b){
             return a - b;
         }
 
         @Override
-        Complex apply(Integer a, Complex b){
+        public Complex apply(Integer a, Complex b){
             return b.negate().add(a);
         }
 
         @Override
-        Double apply(Double a, Integer b){
+        public Double apply(Double a, Integer b){
             return a - b;
         }
 
         @Override
-        Double apply(Double a, Double b){
+        public Double apply(Double a, Double b){
             return a - b;
         }
 
         @Override
-        Complex apply(Double a, Complex b){
+        public Complex apply(Double a, Complex b){
             return b.negate().add(a);
         }
 
         @Override
-        Complex apply(Complex a, Integer b){
+        public Complex apply(Complex a, Integer b){
             return a.negate().add(b).negate();
         }
 
         @Override
-        Complex apply(Complex a, Double b){
+        public Complex apply(Complex a, Double b){
             return a.negate().add(b).negate();
         }
 
         @Override
-        Complex apply(Complex a, Complex b){
+        public Complex apply(Complex a, Complex b){
             return a.negate().add(b).negate();
         }
     }
 
-    private static class DivideBiFunc extends BiFunc{
+    private static class DivideBiFunc implements BiFunc{
 
         @Override
-        Integer apply(Integer a, Integer b){
+        public Integer apply(Integer a, Integer b){
             return a / b;
         }
 
         @Override
-        Double apply(Integer a, Double b){
+        public Double apply(Integer a, Double b){
             return a / b;
         }
 
         @Override
-        Complex apply(Integer a, Complex b){
+        public Complex apply(Integer a, Complex b){
             return new Complex(1).divide(b.divide(a));
         }
 
         @Override
-        Double apply(Double a, Integer b){
+        public Double apply(Double a, Integer b){
             return a / b;
         }
 
         @Override
-        Double apply(Double a, Double b){
+        public Double apply(Double a, Double b){
             return a / b;
         }
 
         @Override
-        Complex apply(Double a, Complex b){
+        public Complex apply(Double a, Complex b){
             return new Complex(1).divide(b.divide(a));
         }
 
         @Override
-        Complex apply(Complex a, Integer b){
+        public Complex apply(Complex a, Integer b){
             return a.divide(b);
         }
 
         @Override
-        Complex apply(Complex a, Double b){
+        public Complex apply(Complex a, Double b){
             return a.divide(b);
         }
 
         @Override
-        Complex apply(Complex a, Complex b){
+        public Complex apply(Complex a, Complex b){
             return a.divide(b);
         }
     }
 
-    private static class MultiplyBiFunc extends SymmetryBiFunc{
+    private static class MultiplyBiFunc implements SymmetryBiFunc{
 
         @Override
-        Integer apply(Integer a, Integer b){
+        public Integer apply(Integer a, Integer b){
             return a * b;
         }
 
         @Override
-        Double apply(Integer a, Double b){
+        public Double apply(Integer a, Double b){
             return a * b;
         }
 
         @Override
-        Complex apply(Integer a, Complex b){
+        public Complex apply(Integer a, Complex b){
             return b.multiply(a);
         }
 
         @Override
-        Double apply(Double a, Double b){
+        public Double apply(Double a, Double b){
             return a * b;
         }
 
         @Override
-        Complex apply(Double a, Complex b){
+        public Complex apply(Double a, Complex b){
             return b.multiply(a);
         }
 
         @Override
-        Complex apply(Complex a, Complex b){
+        public Complex apply(Complex a, Complex b){
             return a.multiply(b);
         }
     }
