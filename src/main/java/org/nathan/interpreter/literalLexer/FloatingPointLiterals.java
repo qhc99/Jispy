@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
  * <br/>(\d[\d_]+\d|\d)([eE][+-]?(\d[\d_]+\d|\d))?([fFdD])))
  */
 public class FloatingPointLiterals {
-    public static boolean isFloatingPointLiteral(@NotNull String source){
+    static boolean isFloatingPointLiteral(@NotNull String source){
         if(source.length() <= 1) return false;
         else if(source.length() == 2) return new FloatDecimalLiteral(source).isTheLiteral();
         if(source.startsWith("+") || source.startsWith("-")){
@@ -35,5 +35,13 @@ public class FloatingPointLiterals {
                 return new FloatDecimalLiteral(source).isTheLiteral();
             }
         }
+    }
+
+    public static boolean isDoubleParsable(@NotNull String source){
+        return isFloatingPointLiteral(source);
+    }
+
+    public static boolean isFloatParsable(@NotNull String source){
+        return (source.endsWith("f") || source.endsWith("F")) && isFloatingPointLiteral(source);
     }
 }
