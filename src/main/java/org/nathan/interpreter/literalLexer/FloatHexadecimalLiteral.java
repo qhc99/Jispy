@@ -9,6 +9,9 @@ public class FloatHexadecimalLiteral extends LiteralLexer{
     }
 
     public boolean isTheLiteral(){
+        if(isFloatConstants()){
+            return true;
+        }
         if(s.startsWith("+") || s.startsWith("-")){
             if(!hasNext()){ return false; }
         }

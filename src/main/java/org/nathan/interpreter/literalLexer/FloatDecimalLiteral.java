@@ -12,6 +12,9 @@ public class FloatDecimalLiteral extends LiteralLexer{
         if(s.length() == 0){
             return false;
         }
+        if(isFloatConstants()){
+            return true;
+        }
         var first = s.charAt(idx);
         if(first == '+' || first == '-'){
             if(!hasNext()){

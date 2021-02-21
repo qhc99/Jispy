@@ -3,10 +3,19 @@ package org.nathan.interpreter.literalLexer;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class LiteralLexer{
-    protected final String s;
+    protected final @NotNull String s;
     protected int idx;
     protected LiteralLexer(@NotNull String s){
         this.s = s;
+    }
+
+    protected boolean isFloatConstants(){
+        switch(s){
+            case "+NaN","-NaN","NaN","+Infinity", "-Infinity","Infinity"->{
+                return true;
+            }
+            default -> { return false; }
+        }
     }
 
     protected boolean isFloatTypeSuffix() {
