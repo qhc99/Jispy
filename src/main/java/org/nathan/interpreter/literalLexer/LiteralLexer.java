@@ -2,7 +2,7 @@ package org.nathan.interpreter.literalLexer;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class LiteralLexer{
+abstract class LiteralLexer{
     protected final @NotNull String s;
     protected int idx;
     protected LiteralLexer(@NotNull String s){

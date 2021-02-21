@@ -2,9 +2,9 @@ package org.nathan.interpreter.literalLexer;
 
 import org.jetbrains.annotations.NotNull;
 
-public class FloatDecimalLiteral extends LiteralLexer{
+class FloatDecimalLiteral extends LiteralLexer{
 
-    public FloatDecimalLiteral(@NotNull String source){
+    FloatDecimalLiteral(@NotNull String source){
         super(source);
     }
 

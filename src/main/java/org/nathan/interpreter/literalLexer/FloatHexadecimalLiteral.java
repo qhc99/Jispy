@@ -2,9 +2,9 @@ package org.nathan.interpreter.literalLexer;
 
 import org.jetbrains.annotations.NotNull;
 
-public class FloatHexadecimalLiteral extends LiteralLexer{
+class FloatHexadecimalLiteral extends LiteralLexer{
 
-    public FloatHexadecimalLiteral(@NotNull String source){
+    FloatHexadecimalLiteral(@NotNull String source){
         super(source);
     }
 
@@ -55,7 +55,7 @@ public class FloatHexadecimalLiteral extends LiteralLexer{
         }
     }
 
-    protected boolean isChar(char c){
+    private boolean isChar(char c){
         return c == s.charAt(idx);
     }
 
