@@ -13,7 +13,7 @@ class InputPort implements Closeable {
     final BufferedReader file;
     String line = "";
     final Queue<String> queue = new LinkedList<>();
-    static final String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)(.*)";
+    static final String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)";
     static final Pattern pattern = Pattern.compile(tokenizer);
 
 
