@@ -40,22 +40,22 @@ class NumericOperators{
     }
 
     static @NotNull Object plus(@NotNull Object a, @NotNull Object b){
-        return biDispatch(a, b, _plusBiFunc);
+        return biDispatch(a, b, _plus);
     }
 
     static @NotNull Object minus(@NotNull Object a, @NotNull Object b){
-        return biDispatch(a, b, _minusBiFunc);
+        return biDispatch(a, b, _minus);
     }
 
     static @NotNull Object divide(@NotNull Object a, @NotNull Object b){
-        return biDispatch(a, b, _divideBiFunc);
+        return biDispatch(a, b, _divide);
     }
 
     static @NotNull Object multiply(@NotNull Object a, @NotNull Object b){
-        return biDispatch(a, b, _multiplyBiFunc);
+        return biDispatch(a, b, _multiply);
     }
 
-    private static Object biDispatch(@NotNull Object a, @NotNull Object b, @NotNull BiFunc op){
+    private static Object biDispatch(@NotNull Object a, @NotNull Object b, @NotNull NumericOperators.NumericBiFunc op){
         NumberType ta = getNumberType(a);
         NumberType tb = getNumberType(b);
 
@@ -119,52 +119,54 @@ class NumericOperators{
         else{ throw new RuntimeException(String.format("not such value type %s", o.getClass().getName())); }
     }
 
-    private static final MinusBiFunc _minusBiFunc = new MinusBiFunc();
-
-    private static final PlusBiFunc _plusBiFunc = new PlusBiFunc();
-
-    private static final DivideBiFunc _divideBiFunc = new DivideBiFunc();
-
-    private static final MultiplyBiFunc _multiplyBiFunc = new MultiplyBiFunc();
-
-    private interface BiFunc{
-        Integer apply(Integer a, Integer b);
-
-        Double apply(Integer a, Double b);
-
-        Complex apply(Integer a, Complex b);
-
-        Double apply(Double a, Integer b);
-
-        Double apply(Double a, Double b);
-
-        Complex apply(Double a, Complex b);
-
-        Complex apply(Complex a, Integer b);
-
-        Complex apply(Complex a, Double b);
-
-        Complex apply(Complex a, Complex b);
-    }
-
-    private interface SymmetryBiFunc extends BiFunc{
-
-        default Double apply(Double a, Integer b){
-            return apply(b,a);
+    private static final NumericBiFunc _minus = new NumericBiFunc(){
+        @Override
+        public Integer apply(Integer a, Integer b){
+            return a - b;
         }
 
-        default Complex apply(Complex a, Integer b){
-            return apply(b,a);
+        @Override
+        public Double apply(Integer a, Double b){
+            return a - b;
         }
 
-        default Complex apply(Complex a, Double b){
-            return apply(b,a);
+        @Override
+        public Complex apply(Integer a, Complex b){
+            return b.negate().add(a);
         }
 
-    }
+        @Override
+        public Double apply(Double a, Integer b){
+            return a - b;
+        }
 
-    private static class PlusBiFunc implements SymmetryBiFunc{
+        @Override
+        public Double apply(Double a, Double b){
+            return a - b;
+        }
 
+        @Override
+        public Complex apply(Double a, Complex b){
+            return b.negate().add(a);
+        }
+
+        @Override
+        public Complex apply(Complex a, Integer b){
+            return a.negate().add(b).negate();
+        }
+
+        @Override
+        public Complex apply(Complex a, Double b){
+            return a.negate().add(b).negate();
+        }
+
+        @Override
+        public Complex apply(Complex a, Complex b){
+            return a.negate().add(b).negate();
+        }
+    };
+
+    private static final NumericBiFunc _plus = new SymmetryNumericBiFunc(){
         @Override
         public Integer apply(Integer a, Integer b){
             return a + b;
@@ -194,58 +196,9 @@ class NumericOperators{
         public Complex apply(Complex a, Complex b){
             return a.add(b);
         }
-    }
+    };
 
-    private static class MinusBiFunc implements BiFunc{
-
-        @Override
-        public Integer apply(Integer a, Integer b){
-            return a - b;
-        }
-
-        @Override
-        public Double apply(Integer a, Double b){
-            return a - b;
-        }
-
-        @Override
-        public Complex apply(Integer a, Complex b){
-            return b.negate().add(a);
-        }
-
-        @Override
-        public Double apply(Double a, Integer b){
-            return a - b;
-        }
-
-        @Override
-        public Double apply(Double a, Double b){
-            return a - b;
-        }
-
-        @Override
-        public Complex apply(Double a, Complex b){
-            return b.negate().add(a);
-        }
-
-        @Override
-        public Complex apply(Complex a, Integer b){
-            return a.negate().add(b).negate();
-        }
-
-        @Override
-        public Complex apply(Complex a, Double b){
-            return a.negate().add(b).negate();
-        }
-
-        @Override
-        public Complex apply(Complex a, Complex b){
-            return a.negate().add(b).negate();
-        }
-    }
-
-    private static class DivideBiFunc implements BiFunc{
-
+    private static final NumericBiFunc _divide = new NumericBiFunc(){
         @Override
         public Integer apply(Integer a, Integer b){
             return a / b;
@@ -290,10 +243,9 @@ class NumericOperators{
         public Complex apply(Complex a, Complex b){
             return a.divide(b);
         }
-    }
+    };
 
-    private static class MultiplyBiFunc implements SymmetryBiFunc{
-
+    private static final NumericBiFunc _multiply = new SymmetryNumericBiFunc(){
         @Override
         public Integer apply(Integer a, Integer b){
             return a * b;
@@ -323,6 +275,42 @@ class NumericOperators{
         public Complex apply(Complex a, Complex b){
             return a.multiply(b);
         }
+    };
+
+    private interface NumericBiFunc{
+        Integer apply(Integer a, Integer b);
+
+        Double apply(Integer a, Double b);
+
+        Complex apply(Integer a, Complex b);
+
+        Double apply(Double a, Integer b);
+
+        Double apply(Double a, Double b);
+
+        Complex apply(Double a, Complex b);
+
+        Complex apply(Complex a, Integer b);
+
+        Complex apply(Complex a, Double b);
+
+        Complex apply(Complex a, Complex b);
+    }
+
+    private interface SymmetryNumericBiFunc extends NumericBiFunc{
+
+        default Double apply(Double a, Integer b){
+            return apply(b,a);
+        }
+
+        default Complex apply(Complex a, Integer b){
+            return apply(b,a);
+        }
+
+        default Complex apply(Complex a, Double b){
+            return apply(b,a);
+        }
+
     }
 
     private enum NumberType{
