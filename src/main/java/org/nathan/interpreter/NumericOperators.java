@@ -56,30 +56,8 @@ class NumericOperators{
     }
 
     private static Object biDispatch(@NotNull Object a, @NotNull Object b, @NotNull BiFunc op){
-        NumberType ta, tb;
-        if(a instanceof Integer){
-            ta = NumberType.INT;
-        }
-        else if(a instanceof Double){
-            ta = NumberType.DOUBLE;
-        }
-        else if(a instanceof Complex){
-            ta = NumberType.COMPLEX;
-        }
-        else{
-            throw new RuntimeException(String.format("not such value type %s", a.getClass().getName()));
-        }
-
-        if(b instanceof Integer){
-            tb = NumberType.INT;
-        }
-        else if(b instanceof Double){
-            tb = NumberType.DOUBLE;
-        }
-        else if(b instanceof Complex){
-            tb = NumberType.COMPLEX;
-        }
-        else{ throw new RuntimeException(String.format("not such value type %s", b.getClass().getName())); }
+        NumberType ta = getNumberType(a);
+        NumberType tb = getNumberType(b);
 
         switch(ta){
             case INT -> {
@@ -126,6 +104,19 @@ class NumericOperators{
             }
             default -> throw new RuntimeException();
         }
+    }
+
+    private static NumberType getNumberType(Object o){
+        if(o instanceof Integer){
+            return NumberType.INT;
+        }
+        else if(o instanceof Double){
+            return NumberType.DOUBLE;
+        }
+        else if(o instanceof Complex){
+            return NumberType.COMPLEX;
+        }
+        else{ throw new RuntimeException(String.format("not such value type %s", o.getClass().getName())); }
     }
 
     private static final MinusBiFunc _minusBiFunc = new MinusBiFunc();
