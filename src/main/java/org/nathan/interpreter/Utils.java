@@ -30,7 +30,7 @@ public class Utils {
         return new ArrayList<>(Arrays.asList(o));
     }
 
-    public static boolean isNil(Object o) {
+    static boolean isNil(Object o) {
         if (o instanceof List) {
             return ((List<?>) o).isEmpty();
         }
@@ -49,7 +49,7 @@ public class Utils {
         return false;
     }
 
-    public static boolean isTrue(Object o) {
+    static boolean isTrue(Object o) {
         if (o instanceof Boolean) {return (Boolean) o;}
         else if (o == null) { return false; }
         else if (o instanceof Integer || o instanceof Double) { return !o.equals(0); }

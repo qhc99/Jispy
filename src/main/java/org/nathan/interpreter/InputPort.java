@@ -37,7 +37,7 @@ class InputPort implements Closeable {
     /**
      * @return string or Symbol
      */
-    public Object nextToken() {
+    Object nextToken() {
         while (true) {
             if (!queue.isEmpty()) {
                 return queue.poll();
