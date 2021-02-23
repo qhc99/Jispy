@@ -10,9 +10,11 @@ class Main {
     }
 
     static void JispyApp(String[] args) {
-        if (args.length == 1) {
+        if (args.length == 2) {
             var f = new File(args[0]);
-            if (f.exists()) {
+            var l = new File(args[1]);
+            if (f.exists() && l.exists()) {
+                Jispy.loadLib(l);
                 Jispy.runFile(f);
             }
         }

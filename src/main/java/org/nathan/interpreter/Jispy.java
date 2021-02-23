@@ -1,7 +1,9 @@
 package org.nathan.interpreter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.nathan.interpreter.magic.MagicUtils;
 
@@ -67,6 +69,26 @@ public class Jispy {
         }
     }
 
+    public static void loadLib(File file){
+        try (var inPort = new InputPort(file)) {
+            while (true) {
+                try {
+                    var x = parse(inPort);
+                    if (x == null) { continue; }
+                    else if (x.equals(eof)) { return; }
+                    eval(x, GlobalEnv);
+                }
+                catch (Exception e) {
+                    e.printStackTrace(System.err);
+                }
+            }
+
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static void loadLib(String fileName, Environment env) {
         var file = new File(fileName);
         try (var inPort = new InputPort(file)) {
@@ -86,7 +108,6 @@ public class Jispy {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     static Object eval(Object x, @NotNull Environment env) {
@@ -184,7 +205,7 @@ public class Jispy {
     private static @NotNull Object toAtom(@NotNull String x) {
         if (x.equals("#t")) { return true; }
         else if (x.equals("#f")) { return false; }
-        else if (x.startsWith("\\")) { return x.substring(1, x.length() - 1); }
+        else if (x.startsWith("\"") && x.endsWith("\"")) { return x.substring(1, x.length() - 1); }
         else if (stringContainsDigit(x)) {
             var isInt = MagicUtils.tryParseInt(x);
             if (isInt.isPresent()) {
@@ -222,7 +243,7 @@ public class Jispy {
         else if (x.equals(true)) { return "#t"; }
         else if (x.equals(false)) { return "#f"; }
         else if (x instanceof Symbol) { return x.toString(); }
-        else if (x instanceof String) { return ((String) x).substring(1, ((String) x).length() - 1); }
+        else if (x instanceof String) { return StringEscapeUtils.unescapeJava((String) x); }
         else if (x instanceof List) {
             var s = new StringBuilder("(");
             for (var i : (List<Object>) x) {
