@@ -56,67 +56,40 @@ class NumericOperators{
     }
 
     private static Object biDispatch(@NotNull Object a, @NotNull Object b, @NotNull NumericOperators.NumericBiFunc op){
-        NumberType ta = getNumberType(a);
-        NumberType tb = getNumberType(b);
-
-        switch(ta){
-            case INT -> {
-                switch(tb){
-                    case INT -> {
-                        return op.apply((Integer) a, (Integer) b);
-                    }
-                    case DOUBLE -> {
-                        return op.apply((Integer) a, (Double) b);
-                    }
-                    case COMPLEX -> {
-                        return op.apply((Integer) a, (Complex) b);
-                    }
-                    default -> throw new RuntimeException();
-                }
+        if(a instanceof Integer){
+            if(b instanceof Integer){
+                return op.apply((Integer) a,(Integer) b);
             }
-            case DOUBLE -> {
-                switch(tb){
-                    case INT -> {
-                        return op.apply((Double) a, (Integer) b);
-                    }
-                    case DOUBLE -> {
-                        return op.apply((Double) a, (Double) b);
-                    }
-                    case COMPLEX -> {
-                        return op.apply((Double) a, (Complex) b);
-                    }
-                    default -> throw new RuntimeException();
-                }
+            else if(b instanceof Double){
+                return op.apply((Integer) a, (Double) b);
             }
-            case COMPLEX -> {
-                switch(tb){
-                    case INT -> {
-                        return op.apply((Complex) a, (Integer) b);
-                    }
-                    case DOUBLE -> {
-                        return op.apply((Complex) a, (Double) b);
-                    }
-                    case COMPLEX -> {
-                        return op.apply((Complex) a, (Complex) b);
-                    }
-                    default -> throw new RuntimeException();
-                }
+            else if(b instanceof Complex){
+                return op.apply((Integer) a, (Complex) b);
             }
-            default -> throw new RuntimeException();
         }
-    }
-
-    private static NumberType getNumberType(Object o){
-        if(o instanceof Integer){
-            return NumberType.INT;
+        else if(a instanceof Double){
+            if(b instanceof Integer){
+                return op.apply((Double) a, (Integer) b);
+            }
+            else if(b instanceof Double){
+                return op.apply((Double) a, (Double) b);
+            }
+            else if(b instanceof Complex){
+                return op.apply((Double) a, (Complex) b);
+            }
         }
-        else if(o instanceof Double){
-            return NumberType.DOUBLE;
+        else if(a instanceof Complex){
+            if(b instanceof Integer){
+                return op.apply((Complex) a, (Integer) b);
+            }
+            else if(b instanceof Double){
+                return op.apply((Complex) a, (Double) b);
+            }
+            else if(b instanceof Complex){
+                return op.apply((Complex) a, (Complex) b);
+            }
         }
-        else if(o instanceof Complex){
-            return NumberType.COMPLEX;
-        }
-        else{ throw new RuntimeException(String.format("not such value type %s", o.getClass().getName())); }
+        throw new RuntimeException("unexpected error");
     }
 
     private static final NumericBiFunc _minus = new NumericBiFunc(){
@@ -311,10 +284,6 @@ class NumericOperators{
             return apply(b,a);
         }
 
-    }
-
-    private enum NumberType{
-        INT, DOUBLE, COMPLEX
     }
 
     static Optional<Complex> tryParseImaginary(@NotNull String s){
