@@ -359,7 +359,7 @@ class Environment extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("display"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    System.out.println(evalToString(args.get(0)));
+                    System.out.print(evalToString(args.get(0)));
                     return null;
                 }),
                 Map.entry(new Symbol("port?"), (Lambda) args -> {
