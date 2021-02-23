@@ -1,6 +1,5 @@
 package org.nathan.interpreter;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.text.StringEscapeUtils;
