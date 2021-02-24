@@ -2,10 +2,10 @@ package org.nathan.interpreter.literalLexer;
 
 import org.jetbrains.annotations.NotNull;
 
-abstract class LiteralLexer{
+abstract class LiteralLexChecker{
     protected final @NotNull String s;
     protected int idx;
-    protected LiteralLexer(@NotNull String s){
+    protected LiteralLexChecker(@NotNull String s){
         this.s = s;
     }
 

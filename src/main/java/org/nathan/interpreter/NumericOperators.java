@@ -309,12 +309,6 @@ class NumericOperators{
         }
     }
 
-    /**
-     * @param s string
-     * @return Double
-     * @see
-     * <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 language specification 3.10.2. Floating-Point Literals</a>
-     */
     static Optional<Double> tryParseDouble(@NotNull String s){
         if(FloatingPointLiterals.isDoubleParsable(s)){
             return Optional.of(Double.parseDouble(s));

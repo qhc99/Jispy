@@ -2,7 +2,7 @@ package org.nathan.interpreter.literalLexer;
 
 import org.jetbrains.annotations.NotNull;
 
-class FloatHexadecimalLiteral extends LiteralLexer{
+class FloatHexadecimalLiteral extends LiteralLexChecker{
 
     FloatHexadecimalLiteral(@NotNull String source){
         super(source);
