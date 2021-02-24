@@ -26,7 +26,7 @@ public class FloatingPointLiterals {
 
     /**
      * @see
-     * <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 specification</a>
+     * <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-3.10.2">java 15 specification</a>
      * @param source string to check
      * @return whether a double literal
      */
@@ -36,7 +36,7 @@ public class FloatingPointLiterals {
 
     /**
      * @see
-     * <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-Digits">java 15 specification</a>
+     * <a href="https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-3.10.2">java 15 specification</a>
      * @param source string to check
      * @return whether a float literal
      */
