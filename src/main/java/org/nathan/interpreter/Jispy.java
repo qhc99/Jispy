@@ -16,8 +16,8 @@ import static org.nathan.interpreter.Utils.*;
 
 public class Jispy {
     static final List<Object> Nil = Collections.emptyList();
-    final Environment GlobalEnv = Environment.NewStandardEnv();
-    final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, this::let));
+    private final Environment GlobalEnv = Environment.NewStandardEnv();
+    private final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, this::let));
 
     {
         GlobalEnv.put(new Symbol("and"), (Lambda) args -> {
@@ -68,7 +68,7 @@ public class Jispy {
         }
     }
 
-    public void runFile(File file) {
+    public void runFile(@NotNull File file) {
         try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
@@ -98,7 +98,7 @@ public class Jispy {
         }
     }
 
-    public void loadLib(File file){
+    public void loadLib(@NotNull File file){
         try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
@@ -293,7 +293,7 @@ public class Jispy {
         else { return x.toString(); }
     }
 
-    Object expand(Object x) {
+    private Object expand(Object x) {
         return expand(x, false);
     }
 
@@ -405,11 +405,11 @@ public class Jispy {
         }
     }
 
-    @NotNull Object let(@NotNull List<Object> args){
+    private @NotNull Object let(@NotNull List<Object> args){
         return let(args,this);
     }
 
-    @NotNull Object let(@NotNull List<Object> args, Jispy interpreter) {
+    private static @NotNull Object let(@NotNull List<Object> args, Jispy interpreter) {
         List<Object> x = treeList(_let);
         x.add(args);
         require(x, x.size() > 1);

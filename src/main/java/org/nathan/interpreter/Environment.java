@@ -9,7 +9,7 @@ import java.util.*;
 import static org.nathan.interpreter.Jispy.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.isNil;
-import static org.nathan.interpreter.Utils.isTrue;
+
 
 
 class Environment extends HashMap<Object, Object> {
