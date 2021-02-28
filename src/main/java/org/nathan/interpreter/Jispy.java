@@ -14,7 +14,7 @@ import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
 
-public class Jispy {
+public final class Jispy {
     static final List<Object> Nil = Collections.emptyList();
     private final Environment GlobalEnv = Environment.NewStandardEnv();
     private final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, this::let));
