@@ -16,10 +16,41 @@ import static org.nathan.interpreter.Utils.*;
 
 public class Jispy {
     static final List<Object> Nil = Collections.emptyList();
-    static final Environment GlobalEnv = Environment.NewStandardEnv();
+    final Environment GlobalEnv = Environment.NewStandardEnv();
+    final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, this::let));
 
-    @SuppressWarnings({"InfiniteLoopStatement", "unused"})
-    public static void repl() {
+    {
+        GlobalEnv.put(new Symbol("and"), (Lambda) args -> {
+            if (args.size() < 1) { return true; }
+            else if (args.size() == 1) {
+                return args.get(0);
+            }
+            else {
+                var t = eval(expand(args.get(0)), GlobalEnv);
+                if (isTrue(t)) {
+                    List<Object> newExp = new ArrayList<>();
+                    newExp.add(new Symbol("and"));
+                    newExp.addAll(args.subList(1, args.size()));
+                    return eval(expand(newExp), GlobalEnv);
+                }
+                else {
+                    return false;
+                }
+            }
+        });
+        GlobalEnv.put(new Symbol("eval"), (Lambda) args -> {
+                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    return eval(expand(args.get(0)), GlobalEnv);
+                });
+        GlobalEnv.put(new Symbol("load"), (Lambda) args -> {
+            if (args.size() != 1) { throw new ArgumentsCountException(); }
+            loadLib(args.get(0).toString(), this);
+            return null;
+        });
+    }
+
+    @SuppressWarnings({"InfiniteLoopStatement"})
+    public void repl() {
         String prompt = "Jis.py>";
         InputPort inPort = new InputPort(System.in);
         System.out.println("Jispy version 2.0");
@@ -37,8 +68,7 @@ public class Jispy {
         }
     }
 
-    @SuppressWarnings("unused")
-    public static void runFile(File file) {
+    public void runFile(File file) {
         try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
@@ -57,18 +87,18 @@ public class Jispy {
         }
     }
 
-    public static Object evalScripts(@NotNull String program) {
+    public Object evalScripts(@NotNull String program) {
         return eval(parse(program), GlobalEnv);
     }
 
-    private static void evalAndPrint(Object x) {
+    private void evalAndPrint(Object x) {
         var val = eval(x, GlobalEnv);
         if (val != null) {
             System.out.println(evalToString(val));
         }
     }
 
-    public static void loadLib(File file){
+    public void loadLib(File file){
         try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
@@ -88,15 +118,15 @@ public class Jispy {
         }
     }
 
-    static void loadLib(String fileName, Environment env) {
+    static void loadLib(String fileName, Jispy interpreter) {
         var file = new File(fileName);
         try (var inPort = new InputPort(file)) {
             while (true) {
                 try {
-                    var x = parse(inPort);
+                    var x = interpreter.parse(inPort);
                     if (x == null) { continue; }
                     else if (x.equals(eof)) { return; }
-                    eval(x, env);
+                    eval(x, interpreter.GlobalEnv);
                 }
                 catch (Exception e) {
                     e.printStackTrace(System.err);
@@ -160,14 +190,18 @@ public class Jispy {
         }
     }
 
-    static Object parse(@NotNull Object in) {
+    Object parse(@NotNull Object in){
+        return parse(in, this);
+    }
+
+    static Object parse(@NotNull Object in, Jispy interpreter) {
         if (in instanceof String) {
             var t = read(new InputPort((String) in));
-            return expand(t, true);
+            return interpreter.expand(t, true);
         }
         else if (in instanceof InputPort) {
             var t = read((InputPort) in);
-            return expand(t, true);
+            return interpreter.expand(t, true);
         }
         else { throw new RuntimeException(); }
     }
@@ -259,11 +293,11 @@ public class Jispy {
         else { return x.toString(); }
     }
 
-    static Object expand(Object x) {
+    Object expand(Object x) {
         return expand(x, false);
     }
 
-    private static Object expand(Object x, boolean topLevel) {
+    private Object expand(Object x, boolean topLevel) {
         require(x, !isNil(x));
         if (!(x instanceof List)) { return x; }
         List<Object> l = (List<Object>) x;
@@ -275,7 +309,7 @@ public class Jispy {
         else if (op.equals(_if)) {
             if (l.size() == 3) { l.add(null); }
             require(x, l.size() == 4);
-            return l.stream().map(Jispy::expand).collect(Collectors.toList());
+            return l.stream().map(this::expand).collect(Collectors.toList());
         }
         else if (op.equals(_set)) {
             require(x, l.size() == 3);
@@ -337,7 +371,7 @@ public class Jispy {
         else if (op instanceof Symbol && macro_table.containsKey(op)) {
             return expand(macro_table.get(op).apply(l.subList(1, l.size())), topLevel);
         }
-        else { return l.stream().map(Jispy::expand).collect(Collectors.toList()); }
+        else { return l.stream().map(this::expand).collect(Collectors.toList()); }
     }
 
     private static @NotNull Object expandQuasiQuote(Object x) {
@@ -371,7 +405,11 @@ public class Jispy {
         }
     }
 
-    static @NotNull Object let(@NotNull List<Object> args) {
+    @NotNull Object let(@NotNull List<Object> args){
+        return let(args,this);
+    }
+
+    @NotNull Object let(@NotNull List<Object> args, Jispy interpreter) {
         List<Object> x = treeList(_let);
         x.add(args);
         require(x, x.size() > 1);
@@ -389,9 +427,9 @@ public class Jispy {
         List<Object> vars = bindings.stream().map(l -> l.get(0)).collect(Collectors.toList());
         List<Object> vals = bindings.stream().map(l -> l.get(1)).collect(Collectors.toList());
         var t = treeList(_lambda, vars);
-        t.addAll(body.stream().map(Jispy::expand).collect(Collectors.toList()));
+        t.addAll(body.stream().map(interpreter::expand).collect(Collectors.toList()));
         var r = treeList(t);
-        r.addAll(vals.stream().map(Jispy::expand).collect(Collectors.toList()));
+        r.addAll(vals.stream().map(interpreter::expand).collect(Collectors.toList()));
         return r;
     }
 

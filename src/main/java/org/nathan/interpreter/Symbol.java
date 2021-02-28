@@ -54,5 +54,4 @@ class Symbol{
     static final Symbol _append = new Symbol("append");
     static final Symbol _cons = new Symbol("cons");
     static final Symbol _let = new Symbol("let");
-    static final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, Jispy::let));
 }

@@ -297,15 +297,6 @@ class Environment extends HashMap<Object, Object> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     return args.get(0) instanceof File;
                 }),
-                Map.entry(new Symbol("eval"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    return eval(expand(args.get(0)), GlobalEnv);
-                }),
-                Map.entry(new Symbol("load"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
-                    loadLib(args.get(0).toString(), Jispy.GlobalEnv);
-                    return null;
-                }),
                 Map.entry(new Symbol("call/cc"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     return callcc((Lambda) args.get(0));
@@ -339,24 +330,7 @@ class Environment extends HashMap<Object, Object> {
                     }
                     else { throw new SyntaxException(evalToString(t) + " is not number"); }
                 }),
-                Map.entry(new Symbol("and"), (Lambda) args -> {
-                    if (args.size() < 1) { return true; }
-                    else if (args.size() == 1) {
-                        return args.get(0);
-                    }
-                    else {
-                        var t = eval(expand(args.get(0)), GlobalEnv);
-                        if (isTrue(t)) {
-                            List<Object> newExp = new ArrayList<>();
-                            newExp.add(new Symbol("and"));
-                            newExp.addAll(args.subList(1, args.size()));
-                            return eval(expand(newExp), GlobalEnv);
-                        }
-                        else {
-                            return false;
-                        }
-                    }
-                }),
+
                 Map.entry(new Symbol("display"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     System.out.print(evalToString(args.get(0)));
