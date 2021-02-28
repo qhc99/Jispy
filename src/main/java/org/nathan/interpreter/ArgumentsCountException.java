@@ -1,6 +1,6 @@
 package org.nathan.interpreter;
 
-class ArgumentsCountException extends RuntimeException {
+class ArgumentsCountException extends IllegalArgumentException {
     ArgumentsCountException() {
         super();
     }

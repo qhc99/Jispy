@@ -1,6 +1,8 @@
 package org.nathan.interpreter;
 
-class LookUpException extends RuntimeException {
+import java.util.NoSuchElementException;
+
+class LookUpException extends NoSuchElementException{
     LookUpException(String s) {
         super(s);
     }
