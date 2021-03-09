@@ -45,6 +45,12 @@ class FloatDecimalLiteralTest {
         assertTrue(new FloatDecimalLiteral("11f").isTheLiteral());
         assertTrue(new FloatDecimalLiteral("11E1").isTheLiteral());
         assertTrue(new FloatDecimalLiteral("11.E1").isTheLiteral());
+        assertTrue(new FloatDecimalLiteral("Infinity").isTheLiteral());
+        assertTrue(new FloatDecimalLiteral("+Infinity").isTheLiteral());
+        assertTrue(new FloatDecimalLiteral("-Infinity").isTheLiteral());
+        assertTrue(new FloatDecimalLiteral("NaN").isTheLiteral());
+        assertTrue(new FloatDecimalLiteral("+NaN").isTheLiteral());
+        assertTrue(new FloatDecimalLiteral("-NaN").isTheLiteral());
 
         assertFalse(new FloatDecimalLiteral("").isTheLiteral());
         assertFalse(new FloatDecimalLiteral("0__F.EF").isTheLiteral());

@@ -19,6 +19,12 @@ class FloatHexadecimalLiteralTest {
         assertTrue(new FloatHexadecimalLiteral("0x0a_1.p+02_02").isTheLiteral());
         assertTrue(new FloatHexadecimalLiteral("0x10F.0__1fp-0f").isTheLiteral());
         assertTrue(new FloatHexadecimalLiteral("0x.1B0P-2_2D").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("Infinity").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("+Infinity").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("-Infinity").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("NaN").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("+NaN").isTheLiteral());
+        assertTrue(new FloatHexadecimalLiteral("-NaN").isTheLiteral());
 
         assertFalse(new FloatHexadecimalLiteral("+").isTheLiteral());
         assertFalse(new FloatHexadecimalLiteral("0x.1B0").isTheLiteral());
