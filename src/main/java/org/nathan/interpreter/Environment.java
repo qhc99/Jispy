@@ -174,9 +174,10 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("cons"), (Lambda) (args ->
                 {
                     if (args.size() != 2) { throw new ArgumentsCountException(); }
-                    List<Object> t = new ArrayList<>();
+                    var content = (Collection<?>) args.get(1);
+                    List<Object> t = new ArrayList<>(content.size()+1);
                     t.add(args.get(0));
-                    t.addAll((Collection<?>) args.get(1));
+                    t.addAll(content);
                     return t;
                 })),
                 Map.entry(new Symbol("eq?"), (Lambda) (args ->
@@ -202,12 +203,7 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("list"), (Lambda) (args ->
                 {
                     if (args.size() < 1) { throw new ArgumentsCountException(); }
-                    var res = new ArrayList<>();
-                    res.add(args.get(0));
-                    for (int i = 1; i < args.size(); i++) {
-                        res.add(args.get(i));
-                    }
-                    return res;
+                    return new ArrayList<>(args);
                 })),
                 Map.entry(new Symbol("list?"), (Lambda) (args ->
                 {
@@ -220,7 +216,7 @@ class Environment extends HashMap<Object, Object> {
                     var lists = args.subList(1, args.size());
                     var res = new ArrayList<>();
                     while (true) {
-                        List<Object> vals = new ArrayList<>();
+                        List<Object> vals = new ArrayList<>(lists.size());
                         for (int i = 0; i < lists.size(); i++) {
                             if (!isNil(lists.get(i))) {
                                 var list = (List<Object>) (lists.get(i));

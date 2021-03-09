@@ -28,7 +28,7 @@ public final class Jispy {
             else {
                 var t = eval(expand(args.get(0)), GlobalEnv);
                 if (isTrue(t)) {
-                    List<Object> newExp = new ArrayList<>();
+                    List<Object> newExp = new ArrayList<>(args.size());
                     newExp.add(new Symbol("and"));
                     newExp.addAll(args.subList(1, args.size()));
                     return eval(expand(newExp), GlobalEnv);
@@ -357,7 +357,7 @@ public final class Jispy {
             Object exp;
             if (body.size() == 1) { exp = body.get(0); }
             else {
-                List<Object> t = new ArrayList<>();
+                List<Object> t = new ArrayList<>(body.size()+1);
                 exp = t;
                 t.add(_begin);
                 t.addAll(body);
