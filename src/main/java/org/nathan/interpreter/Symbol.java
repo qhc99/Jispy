@@ -23,7 +23,7 @@ class Symbol{
 
     @Override
     public int hashCode(){
-        return Objects.hash(str);
+        return Objects.hash(str, Symbol.class);
     }
 
     @Override
