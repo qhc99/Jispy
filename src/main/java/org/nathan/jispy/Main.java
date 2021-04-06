@@ -1,4 +1,4 @@
-
+package org.nathan.jispy;
 
 import org.nathan.interpreter.Jispy;
 
