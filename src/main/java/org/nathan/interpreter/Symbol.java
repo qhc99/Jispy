@@ -2,7 +2,6 @@ package org.nathan.interpreter;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
