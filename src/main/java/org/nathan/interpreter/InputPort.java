@@ -3,31 +3,31 @@ package org.nathan.interpreter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.regex.Pattern;
 
 import static org.nathan.interpreter.Symbol.*;
 
 class InputPort implements Closeable {
-    final BufferedReader file;
+    final BufferedReader reader;
     String line = "";
-    final Queue<String> queue = new LinkedList<>();
+    final Queue<String> queue = new ArrayDeque<>();
     static final String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)";
     static final Pattern pattern = Pattern.compile(tokenizer);
 
 
     InputPort(@NotNull InputStream in) {
-        file = new BufferedReader(new InputStreamReader(in));
+        reader = new BufferedReader(new InputStreamReader(in));
     }
 
     InputPort(@NotNull String in) {
-        file = new BufferedReader(new StringReader(in));
+        reader = new BufferedReader(new StringReader(in));
     }
 
     InputPort(@NotNull File file) {
         try {
-            this.file = new BufferedReader(new FileReader(file));
+            this.reader = new BufferedReader(new FileReader(file));
         }
         catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -44,7 +44,7 @@ class InputPort implements Closeable {
             }
             else if (line.equals("")) {
                 try {
-                    line = file.readLine();
+                    line = reader.readLine();
                 }
                 catch (IOException e) {
                     e.printStackTrace(System.err);
@@ -75,6 +75,6 @@ class InputPort implements Closeable {
 
     @Override
     public void close() throws IOException {
-        file.close();
+        reader.close();
     }
 }
