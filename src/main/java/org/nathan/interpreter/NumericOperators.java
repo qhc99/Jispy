@@ -29,14 +29,14 @@ class NumericOperators{
         if(a instanceof Integer){ return -(Integer) a; }
         else if(a instanceof Double){ return -(Double) a; }
         else if(a instanceof Complex){ return ((Complex) a).negate(); }
-        else{ throw new SyntaxException("not number"); }
+        else{ throw new Exceptions.SyntaxException("not number"); }
 
     }
 
     static double value(@NotNull Object o){
         if(o instanceof Double){ return (Double) o; }
         else if(o instanceof Integer){ return (Integer) o; }
-        else{ throw new SyntaxException("not number"); }
+        else{ throw new Exceptions.SyntaxException("not number"); }
     }
 
     static @NotNull Object plus(@NotNull Object a, @NotNull Object b){

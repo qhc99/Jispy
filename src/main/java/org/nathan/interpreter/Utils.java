@@ -53,6 +53,6 @@ public class Utils {
         if (o instanceof Boolean) {return (Boolean) o;}
         else if (o == null) { return false; }
         else if (o instanceof Integer || o instanceof Double) { return !o.equals(0); }
-        else { throw new SyntaxException("not bool"); }
+        else { throw new Exceptions.SyntaxException("not bool"); }
     }
 }

@@ -33,7 +33,7 @@ class Environment extends HashMap<Object, Object> {
                 }
             }
             else {
-                throw new TypeException(String.format("'expected %s, given %s",
+                throw new Exceptions.TypeException(String.format("'expected %s, given %s",
                         evalToString(params),
                         evalToString(args)));
             }
@@ -52,7 +52,7 @@ class Environment extends HashMap<Object, Object> {
             System.out.println(String.format("find symbol: <%s> in %s", o, this.hashCode()));
         }
         if (containsKey(o)) { return this; }
-        else if (outer == null) { throw new LookUpException(o.toString()); }
+        else if (outer == null) { throw new Exceptions.LookUpException(o.toString()); }
         else { return outer.find(o); }
 
     }
@@ -73,7 +73,7 @@ class Environment extends HashMap<Object, Object> {
     static Environment NewStandardEnv() {
         List<Map.Entry<Object, Object>> m = Arrays.asList(
                 Map.entry(new Symbol("+"), (Lambda) args -> {
-                    if (args.size() < 1) { throw new ArgumentsCountException(); }
+                    if (args.size() < 1) { throw new Exceptions.ArgumentsCountException(); }
                     if (args.size() == 1) {
                         var val = args.get(0);
                         if (lessThan(val, 0)) {
@@ -88,7 +88,7 @@ class Environment extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("-"), (Lambda) args ->
                 {
-                    if (args.size() != 1 && args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1 && args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     if (args.size() == 1) {
                         var val = args.get(0);
                         if (lessThan(0, val)) {
@@ -102,42 +102,42 @@ class Environment extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("*"), (Lambda) args ->
                 {
-                    if (args.size() < 2) { throw new ArgumentsCountException(); }
+                    if (args.size() < 2) { throw new Exceptions.ArgumentsCountException(); }
                     return args.stream().reduce(NumericOperators::multiply).get();
                 }),
                 Map.entry(new Symbol("/"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return divide(args.get(0), args.get(1));
                 })),
                 Map.entry(new Symbol(">"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return lessThan(args.get(1), args.get(0));
                 })),
                 Map.entry(new Symbol("<"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return lessThan(args.get(0), args.get(1));
                 })),
                 Map.entry(new Symbol(">="), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return lessOrEqual(args.get(1), args.get(0));
                 })),
                 Map.entry(new Symbol("<="), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return lessOrEqual(args.get(0), args.get(1));
                 })),
                 Map.entry(new Symbol("="), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return equal(args.get(0), args.get(1));
                 })),
                 Map.entry(new Symbol("abs"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     if (value(args.get(0)) >= 0) {
                         return args.get(0);
                     }
@@ -147,7 +147,7 @@ class Environment extends HashMap<Object, Object> {
                 })),
                 Map.entry(new Symbol("append"), (Lambda) (args ->
                 {
-                    if (args.size() < 2) { throw new ArgumentsCountException(); }
+                    if (args.size() < 2) { throw new Exceptions.ArgumentsCountException(); }
                     List<Object> res = new ArrayList<>((List<Object>) args.get(0));
                     for (int i = 1; i < args.size(); i++) {
                         res.addAll((List<Object>) args.get(i));
@@ -162,18 +162,18 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("begin"), (Lambda) (args -> args.get(args.size() - 1))),
                 Map.entry(new Symbol("car"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return ((List<Object>) args.get(0)).get(0);
                 })),
                 Map.entry(new Symbol("cdr"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     var t = (List<Object>) (args.get(0));
                     return t.subList(1, t.size());
                 })),
                 Map.entry(new Symbol("cons"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     var content = (Collection<?>) args.get(1);
                     List<Object> t = new ArrayList<>(content.size()+1);
                     t.add(args.get(0));
@@ -182,36 +182,36 @@ class Environment extends HashMap<Object, Object> {
                 })),
                 Map.entry(new Symbol("eq?"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) == args.get(1);
                 })),
                 Map.entry(new Symbol("expt"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return Math.pow(value(args.get(0)), value(args.get(1)));
                 })),
                 Map.entry(new Symbol("equal?"), (Lambda) (args ->
                 {
-                    if (args.size() != 2) { throw new ArgumentsCountException(); }
+                    if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0).equals(args.get(1));
                 })),
                 Map.entry(new Symbol("length"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return ((List<Object>) args.get(0)).size();
                 })),
                 Map.entry(new Symbol("list"), (Lambda) (args ->
                 {
-                    if (args.size() < 1) { throw new ArgumentsCountException(); }
+                    if (args.size() < 1) { throw new Exceptions.ArgumentsCountException(); }
                     return new ArrayList<>(args);
                 })),
                 Map.entry(new Symbol("list?"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) instanceof List;
                 })),
                 Map.entry(new Symbol("map"), (Lambda) (args -> {
-                    if (args.size() < 1) { throw new ArgumentsCountException(); }
+                    if (args.size() < 1) { throw new Exceptions.ArgumentsCountException(); }
                     Lambda proc = (Lambda) (args.get(0));
                     var lists = args.subList(1, args.size());
                     var res = new ArrayList<>();
@@ -248,57 +248,57 @@ class Environment extends HashMap<Object, Object> {
                 }))),
                 Map.entry(new Symbol("not"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return !(boolean) args.get(0);
                 })),
                 Map.entry(new Symbol("null?"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return isNil(args.get(0));
                 })),
                 Map.entry(new Symbol("number?"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) instanceof Integer ||
                             args.get(0) instanceof Double ||
                             args.get(0) instanceof Complex;
                 })),
                 Map.entry(new Symbol("print"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     System.out.println(args.get(0));
                     return null;
                 }),
                 Map.entry(new Symbol("procedure?"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) instanceof Procedure;
                 })),
                 Map.entry(new Symbol("round"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return Math.round(value(args.get(0)));
                 })),
                 Map.entry(new Symbol("symbol?"), (Lambda) (args ->
                 {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) instanceof Symbol;
                 })),
                 Map.entry(new Symbol("pi"), Math.PI),
                 Map.entry(new Symbol("nil"), JispyInterpreter.Nil),
                 Map.entry(new Symbol("boolean?"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) instanceof Boolean;
                 }),
                 Map.entry(new Symbol("port?"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return args.get(0) instanceof File;
                 }),
                 Map.entry(new Symbol("call/cc"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return callcc((Lambda) args.get(0));
                 }),
                 Map.entry(new Symbol("sqrt"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     var t = args.get(0);
                     if (t instanceof Integer) {
                         int i = (Integer) t;
@@ -324,16 +324,16 @@ class Environment extends HashMap<Object, Object> {
                         Complex c = (Complex) t;
                         return c.sqrt();
                     }
-                    else { throw new SyntaxException(evalToString(t) + " is not number"); }
+                    else { throw new Exceptions.SyntaxException(evalToString(t) + " is not number"); }
                 }),
 
                 Map.entry(new Symbol("display"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     System.out.print(evalToString(args.get(0)));
                     return null;
                 }),
                 Map.entry(new Symbol("port?"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     if (args.get(0) instanceof String) {
                         return new File((String) args.get(0)).exists();
                     }

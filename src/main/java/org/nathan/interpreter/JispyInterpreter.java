@@ -39,11 +39,11 @@ public final class JispyInterpreter{
             }
         });
         GlobalEnv.put(new Symbol("eval"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new ArgumentsCountException(); }
+                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     return eval(expand(args.get(0)), GlobalEnv);
                 });
         GlobalEnv.put(new Symbol("load"), (Lambda) args -> {
-            if (args.size() != 1) { throw new ArgumentsCountException(); }
+            if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
             loadLib(args.get(0).toString(), this);
             return null;
         });
@@ -227,9 +227,9 @@ public final class JispyInterpreter{
                 }
             }
         }
-        else if (token.equals(")")) { throw new SyntaxException("unexpected )"); }
+        else if (token.equals(")")) { throw new Exceptions.SyntaxException("unexpected )"); }
         else if (quotes.containsKey(token)) { return treeList(quotes.get(token), read(inPort)); }
-        else if (token.equals(eof)) { throw new SyntaxException("unexpected EOF in list"); }
+        else if (token.equals(eof)) { throw new Exceptions.SyntaxException("unexpected EOF in list"); }
         else {
             return toAtom((String) token);
         }
@@ -401,7 +401,7 @@ public final class JispyInterpreter{
 
     private static void require(Object x, boolean predicate, @NotNull String m) {
         if (!predicate) {
-            throw new SyntaxException(evalToString(x) + m);
+            throw new Exceptions.SyntaxException(evalToString(x) + m);
         }
     }
 
@@ -434,14 +434,14 @@ public final class JispyInterpreter{
     }
 
     static @NotNull Object callcc(@NotNull Lambda proc) {
-        var ball = new RuntimeWarning("Sorry, can't continue this continuation any longer.");
+        var ball = new Exceptions.RuntimeWarning("Sorry, can't continue this continuation any longer.");
         try {
             return proc.apply(treeList((Lambda) objects -> {
                 raise(objects.get(0), ball);
                 return null;
             }));
         }
-        catch (RuntimeWarning w) {
+        catch (Exceptions.RuntimeWarning w) {
             if (w.equals(ball)) {
                 return ball.returnValue;
             }
@@ -452,7 +452,7 @@ public final class JispyInterpreter{
 
     }
 
-    private static void raise(@NotNull Object r, @NotNull RuntimeWarning ball) {
+    private static void raise(@NotNull Object r, @NotNull Exceptions.RuntimeWarning ball) {
         ball.returnValue = r;
         throw ball;
     }

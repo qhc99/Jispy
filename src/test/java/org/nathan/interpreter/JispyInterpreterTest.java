@@ -95,7 +95,7 @@ public class JispyInterpreterTest{
 
     @Test
     public void exceptionTest() {
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(if 1 2 3 4 5)"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(if 1 2 3 4 5)"));
     }
 
     @Test
@@ -135,18 +135,18 @@ public class JispyInterpreterTest{
                 interpreter.evalScripts("((repeat riff-shuffle) (list 1 2 3 4 5 6 7 8))"));
         assertEquals(treeList(1, 2, 3, 4, 5, 6, 7, 8),
                 interpreter.evalScripts("(riff-shuffle (riff-shuffle (riff-shuffle (list 1 2 3 4 5 6 7 8))))"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("()"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(set! x)"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(define 3 4)"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(quote 1 2)"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(if 1 2 3 4)"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(lambda 3 3)"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(lambda (x))"));
-        assertThrows(SyntaxException.class,
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("()"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(set! x)"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(define 3 4)"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(quote 1 2)"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(if 1 2 3 4)"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(lambda 3 3)"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(lambda (x))"));
+        assertThrows(Exceptions.SyntaxException.class,
                 () -> interpreter.evalScripts("(if (= 1 2) (define-macro a 'a) \n" +
                         "(define-macro a 'b))"));
         assertEquals(4, interpreter.evalScripts("(twice 2)"));
-        assertThrows(TypeException.class, () -> interpreter.evalScripts("(twice 2 2)"));
+        assertThrows(Exceptions.TypeException.class, () -> interpreter.evalScripts("(twice 2 2)"));
         assertEquals(treeList(1, 2, 3, 4), interpreter.evalScripts("(lyst 1 2 3 (+ 2 2))"));
         assertEquals(2, interpreter.evalScripts("(if 1 2)"));
         assertNull(interpreter.evalScripts("(if (= 3 4) 2)"));
@@ -170,7 +170,7 @@ public class JispyInterpreterTest{
         assertEquals(new Complex(-1, 0), interpreter.evalScripts("(* 1i 1i)"));
         assertEquals(new Complex(0, 1), interpreter.evalScripts("(sqrt -1)"));
         assertEquals(3, interpreter.evalScripts("(let ((a 1) (b 2)) (+ a b))"));
-        assertThrows(SyntaxException.class, () -> interpreter.evalScripts("(let ((a 1) (b 2 3)) (+ a b))"));
+        assertThrows(Exceptions.SyntaxException.class, () -> interpreter.evalScripts("(let ((a 1) (b 2 3)) (+ a b))"));
         assertEquals(3, interpreter.evalScripts("(and 1 2 3)"));
         assertEquals(3, interpreter.evalScripts("(and (> 2 1) 2 3)"));
         assertTrue((Boolean) interpreter.evalScripts("(and)"));
