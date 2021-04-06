@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 
-import static org.nathan.interpreter.Jispy.*;
+import static org.nathan.interpreter.JispyInterpreter.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.nathan.interpreter.Utils.*;
 
-public class JispyTest {
+public class JispyInterpreterTest{
 
     private static final String LIB_FILE = "src/main/resources/functions.ss";
-    private static final Jispy interpreter = new Jispy();
+    private static final JispyInterpreter interpreter = new JispyInterpreter();
 
     static {
         loadLib(LIB_FILE, interpreter);

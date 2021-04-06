@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.*;
 
-import static org.nathan.interpreter.Jispy.*;
+import static org.nathan.interpreter.JispyInterpreter.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.isNil;
 
@@ -284,7 +284,7 @@ class Environment extends HashMap<Object, Object> {
                     return args.get(0) instanceof Symbol;
                 })),
                 Map.entry(new Symbol("pi"), Math.PI),
-                Map.entry(new Symbol("nil"), Jispy.Nil),
+                Map.entry(new Symbol("nil"), JispyInterpreter.Nil),
                 Map.entry(new Symbol("boolean?"), (Lambda) args -> {
                     if (args.size() != 1) { throw new ArgumentsCountException(); }
                     return args.get(0) instanceof Boolean;

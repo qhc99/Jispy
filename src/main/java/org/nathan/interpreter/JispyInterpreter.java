@@ -14,7 +14,7 @@ import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
 
-public final class Jispy {
+public final class JispyInterpreter{
     static final List<Object> Nil = Collections.emptyList();
     private final Environment GlobalEnv = Environment.NewStandardEnv();
     private final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, this::let));
@@ -118,7 +118,7 @@ public final class Jispy {
         }
     }
 
-    static void loadLib(String fileName, Jispy interpreter) {
+    static void loadLib(String fileName, JispyInterpreter interpreter) {
         var file = new File(fileName);
         try (var inPort = new InputPort(file)) {
             while (true) {
@@ -194,7 +194,7 @@ public final class Jispy {
         return parse(in, this);
     }
 
-    static Object parse(@NotNull Object in, Jispy interpreter) {
+    static Object parse(@NotNull Object in, JispyInterpreter interpreter) {
         if (in instanceof String) {
             var t = read(new InputPort((String) in));
             return interpreter.expand(t, true);
@@ -409,7 +409,7 @@ public final class Jispy {
         return let(args,this);
     }
 
-    private static @NotNull Object let(@NotNull List<Object> args, Jispy interpreter) {
+    private static @NotNull Object let(@NotNull List<Object> args, JispyInterpreter interpreter) {
         List<Object> x = treeList(_let);
         x.add(args);
         require(x, x.size() > 1);

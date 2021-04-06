@@ -10,7 +10,7 @@ interface Procedure extends Lambda {
         return new Procedure() {
             @Override
             public Object apply(List<Object> args) {
-                return Jispy.eval(exp, new Environment(params, args, env));
+                return JispyInterpreter.eval(exp, new Environment(params, args, env));
             }
 
             @Override
