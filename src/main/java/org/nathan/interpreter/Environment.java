@@ -47,14 +47,13 @@ class Environment extends HashMap<Object, Object> {
         outer = null;
     }
 
-
-    Environment find(@NotNull Object o) {
+    Environment findEnv(@NotNull Object o) {
         if (DEBUG) {
             System.out.println(String.format("find symbol: <%s> in %s", o, this.hashCode()));
         }
         if (containsKey(o)) { return this; }
         else if (outer == null) { throw new Exceptions.LookUpException(o.toString()); }
-        else { return outer.find(o); }
+        else { return outer.findEnv(o); }
 
     }
 

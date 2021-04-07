@@ -14,7 +14,6 @@ class Symbol{
 
     @Override
     public boolean equals(Object o){
-        if(o == this){ return true; }
         if(o instanceof Symbol){
             return str.equals(((Symbol) o).str);
         }

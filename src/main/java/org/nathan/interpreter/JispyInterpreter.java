@@ -21,171 +21,173 @@ public final class JispyInterpreter{
 
     {
         GlobalEnv.put(new Symbol("and"), (Lambda) args -> {
-            if (args.size() < 1) { return true; }
-            else if (args.size() == 1) {
+            if(args.size() < 1){ return true; }
+            else if(args.size() == 1){
                 return args.get(0);
             }
-            else {
+            else{
                 var t = eval(expand(args.get(0)), GlobalEnv);
-                if (isTrue(t)) {
+                if(isTrue(t)){
                     List<Object> newExp = new ArrayList<>(args.size());
                     newExp.add(new Symbol("and"));
                     newExp.addAll(args.subList(1, args.size()));
                     return eval(expand(newExp), GlobalEnv);
                 }
-                else {
+                else{
                     return false;
                 }
             }
         });
         GlobalEnv.put(new Symbol("eval"), (Lambda) args -> {
-                    if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
-                    return eval(expand(args.get(0)), GlobalEnv);
-                });
+            if(args.size() != 1){ throw new Exceptions.ArgumentsCountException(); }
+            return eval(expand(args.get(0)), GlobalEnv);
+        });
         GlobalEnv.put(new Symbol("load"), (Lambda) args -> {
-            if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
+            if(args.size() != 1){ throw new Exceptions.ArgumentsCountException(); }
             loadLib(args.get(0).toString(), this);
             return null;
         });
     }
 
     @SuppressWarnings({"InfiniteLoopStatement"})
-    public void repl() {
+    public void repl(){
         String prompt = "Jis.py>";
         InputPort inPort = new InputPort(System.in);
         System.out.println("Jispy version 2.0");
-        while (true) {
-            try {
+        while(true) {
+            try{
                 System.out.print(prompt);
                 var x = parse(inPort);
-                if (x == null) { continue; }
-                else if (x.equals(eof)) { continue; }
+                if(x == null){ continue; }
+                else if(x.equals(eof)){ continue; }
                 evalAndPrint(x);
             }
-            catch (Exception e) {
+            catch(Exception e){
                 e.printStackTrace(System.out);
             }
         }
     }
 
-    public void runFile(@NotNull File file) {
-        try (var inPort = new InputPort(file)) {
-            while (true) {
-                try {
+    public void runFile(@NotNull File file){
+        try(var inPort = new InputPort(file)){
+            while(true) {
+                try{
                     var x = parse(inPort);
-                    if (x == null) { continue; }
-                    else if (x.equals(eof)) { return; }
+                    if(x == null){ continue; }
+                    else if(x.equals(eof)){ return; }
                     evalAndPrint(x);
                 }
-                catch (Exception e) {
+                catch(Exception e){
                     System.out.println(String.format("%s", e.toString()));
                 }
             }
         }
-        catch (IOException e) {
+        catch(IOException e){
             throw new RuntimeException(e);
         }
     }
 
-    public Object evalScripts(@NotNull String program) {
+    public Object evalScripts(@NotNull String program){
         return eval(parse(program), GlobalEnv);
     }
 
-    private void evalAndPrint(Object x) {
+    private void evalAndPrint(Object x){
         var val = eval(x, GlobalEnv);
-        if (val != null) {
+        if(val != null){
             System.out.println(evalToString(val));
         }
     }
 
     public void loadLib(@NotNull File file){
-        try (var inPort = new InputPort(file)) {
-            while (true) {
-                try {
+        try(var inPort = new InputPort(file)){
+            while(true) {
+                try{
                     var x = parse(inPort);
-                    if (x == null) { continue; }
-                    else if (x.equals(eof)) { return; }
+                    if(x == null){ continue; }
+                    else if(x.equals(eof)){ return; }
                     eval(x, GlobalEnv);
                 }
-                catch (Exception e) {
+                catch(Exception e){
                     e.printStackTrace(System.err);
                 }
             }
 
         }
-        catch (IOException e) {
+        catch(IOException e){
             throw new RuntimeException(e);
         }
     }
 
-    static void loadLib(String fileName, JispyInterpreter interpreter) {
+    static void loadLib(String fileName, JispyInterpreter interpreter){
         var file = new File(fileName);
-        try (var inPort = new InputPort(file)) {
-            while (true) {
-                try {
+        try(var inPort = new InputPort(file)){
+            while(true) {
+                try{
                     var x = interpreter.parse(inPort);
-                    if (x == null) { continue; }
-                    else if (x.equals(eof)) { return; }
+                    if(x == null){ continue; }
+                    else if(x.equals(eof)){ return; }
                     eval(x, interpreter.GlobalEnv);
                 }
-                catch (Exception e) {
+                catch(Exception e){
                     e.printStackTrace(System.err);
                 }
             }
 
         }
-        catch (IOException e) {
+        catch(IOException e){
             throw new RuntimeException(e);
         }
     }
 
-    static Object eval(Object x, @NotNull Environment env) {
-        while (true) {
-            if (x instanceof Symbol) { return env.find(x).get(x); }
-            else if (!(x instanceof List)) { return x; }
+    static Object eval(Object x, @NotNull Environment env){
+        while(true) {
+            if(x instanceof Symbol){ return env.findEnv(x).get(x); }
+            else if(!(x instanceof List)){ return x; }
             List<Object> l = (List<Object>) x;
             var op = l.get(0);
-            if (op.equals(_quote)) { return l.get(1); }
-            else if (op.equals(_if)) {
+            if(op.equals(_quote)){ return l.get(1); }
+            else if(op.equals(_if)){
                 var test = l.get(1);
                 var conseq = l.get(2);
                 var alt = l.get(3);
                 boolean testBool = isTrue(eval(test, env));
-                if (testBool) { x = conseq; }
-                else { x = alt; }
+                if(testBool){ x = conseq; }
+                else{ x = alt; }
             }
-            else if (op.equals(_set)) {
+            else if(op.equals(_set)){
                 var v = l.get(1);
                 var exp = l.get(2);
-                env.find(v).put(v, eval(exp, env));
+                env.findEnv(v).put(v, eval(exp, env));
                 return null;
             }
-            else if (op.equals(_define)) {
+            else if(op.equals(_define)){
                 var v = l.get(1);
                 var exp = l.get(2);
                 env.put(v, eval(exp, env));
                 return null;
             }
-            else if (op.equals(_lambda)) {
+            else if(op.equals(_lambda)){
                 var vars = l.get(1);
                 var exp = l.get(2);
                 return Procedure.newProcedure(vars, exp, env);
             }
-            else if (op.equals(_begin)) {
-                for (var exp : l.subList(1, l.size() - 1)) eval(exp, env);
+            else if(op.equals(_begin)){
+                for(var exp : l.subList(1, l.size() - 1)){
+                    eval(exp, env);
+                }
                 x = l.get(l.size() - 1);
             }
-            else {
+            else{
                 Environment finalEnv = env;
                 List<Object> exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
                 var proc = exps.get(0);
                 exps = exps.subList(1, exps.size());
-                if (proc instanceof Procedure) {
+                if(proc instanceof Procedure){
                     Procedure p = (Procedure) proc;
                     x = p.expression();
                     env = new Environment(p.parameters(), exps, p.environment());
                 }
-                else { return ((Lambda) proc).apply(exps); }
+                else{ return ((Lambda) proc).apply(exps); }
             }
         }
     }
@@ -194,128 +196,128 @@ public final class JispyInterpreter{
         return parse(in, this);
     }
 
-    static Object parse(@NotNull Object in, JispyInterpreter interpreter) {
-        if (in instanceof String) {
+    static Object parse(@NotNull Object in, JispyInterpreter interpreter){
+        if(in instanceof String){
             var t = read(new InputPort((String) in));
             return interpreter.expand(t, true);
         }
-        else if (in instanceof InputPort) {
+        else if(in instanceof InputPort){
             var t = read((InputPort) in);
             return interpreter.expand(t, true);
         }
-        else { throw new RuntimeException(); }
+        else{ throw new RuntimeException(); }
     }
 
-    private static @NotNull Object read(@NotNull InputPort inPort) {
+    private static @NotNull Object read(@NotNull InputPort inPort){
         var token = inPort.nextToken();
-        if (token.equals(eof)) { return eof; }
-        else { return readAhead(token, inPort); }
+        if(token.equals(eof)){ return eof; }
+        else{ return readAhead(token, inPort); }
 
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private static @NotNull Object readAhead(@NotNull Object token, @NotNull InputPort inPort) {
-        if (token.equals("(")) {
+    private static @NotNull Object readAhead(@NotNull Object token, @NotNull InputPort inPort){
+        if(token.equals("(")){
             List<Object> l = new ArrayList<>();
-            while (true) {
+            while(true) {
                 token = inPort.nextToken();
-                if (token.equals(")")) {
+                if(token.equals(")")){
                     return l;
                 }
-                else {
+                else{
                     l.add(readAhead(token, inPort));
                 }
             }
         }
-        else if (token.equals(")")) { throw new Exceptions.SyntaxException("unexpected )"); }
-        else if (quotes.containsKey(token)) { return treeList(quotes.get(token), read(inPort)); }
-        else if (token.equals(eof)) { throw new Exceptions.SyntaxException("unexpected EOF in list"); }
-        else {
+        else if(token.equals(")")){ throw new Exceptions.SyntaxException("unexpected )"); }
+        else if(quotes.containsKey(token)){ return treeList(quotes.get(token), read(inPort)); }
+        else if(token.equals(eof)){ throw new Exceptions.SyntaxException("unexpected EOF in list"); }
+        else{
             return toAtom((String) token);
         }
     }
 
-    private static @NotNull Object toAtom(@NotNull String x) {
-        if (x.equals("#t")) { return true; }
-        else if (x.equals("#f")) { return false; }
-        else if (x.startsWith("\"") && x.endsWith("\"")) { return x.substring(1, x.length() - 1); }
-        else if (stringContainsDigit(x)) {
+    private static @NotNull Object toAtom(@NotNull String x){
+        if(x.equals("#t")){ return true; }
+        else if(x.equals("#f")){ return false; }
+        else if(x.startsWith("\"") && x.endsWith("\"")){ return x.substring(1, x.length() - 1); }
+        else if(stringContainsDigit(x)){
             var isInt = MagicUtils.tryParseInt(x);
-            if (isInt.isPresent()) {
+            if(isInt.isPresent()){
                 return isInt.get();
             }
-            else {
+            else{
                 var isDouble = tryParseDouble(x);
-                if (isDouble.isPresent()) {
+                if(isDouble.isPresent()){
                     return isDouble.get();
                 }
-                else {
+                else{
                     var isComplex = NumericOperators.tryParseImaginary(x);
-                    if (isComplex.isPresent()) {
+                    if(isComplex.isPresent()){
                         return isComplex.get();
                     }
-                    else {
+                    else{
                         return new Symbol(x);
                     }
                 }
             }
         }
-        else {
+        else{
             return new Symbol(x);
         }
     }
 
-    static String evalToString(Object x) {
-        if (x == null) { return null; }
-        else if (x.equals(true)) { return "#t"; }
-        else if (x.equals(false)) { return "#f"; }
-        else if (x instanceof Symbol) { return x.toString(); }
-        else if (x instanceof String) { return StringEscapeUtils.unescapeJava((String) x); }
-        else if (x instanceof List) {
+    static String evalToString(Object x){
+        if(x == null){ return null; }
+        else if(x.equals(true)){ return "#t"; }
+        else if(x.equals(false)){ return "#f"; }
+        else if(x instanceof Symbol){ return x.toString(); }
+        else if(x instanceof String){ return StringEscapeUtils.unescapeJava((String) x); }
+        else if(x instanceof List){
             var s = new StringBuilder("(");
-            for (var i : (List<Object>) x) {
+            for(var i : (List<Object>) x){
                 s.append(evalToString(i));
                 s.append(" ");
             }
-            if (((List<?>) x).size() >= 1) {
+            if(((List<?>) x).size() >= 1){
                 s.delete(s.length() - 1, s.length());
             }
             s.append(")");
             return s.toString();
         }
-        else if (x instanceof Complex) { return ComplexFormat.getInstance().format((Complex) x); }
-        else { return x.toString(); }
+        else if(x instanceof Complex){ return ComplexFormat.getInstance().format((Complex) x); }
+        else{ return x.toString(); }
     }
 
-    private Object expand(Object x) {
+    private Object expand(Object x){
         return expand(x, false);
     }
 
-    private Object expand(Object x, boolean topLevel) {
+    private Object expand(Object x, boolean topLevel){
         require(x, !isNil(x));
-        if (!(x instanceof List)) { return x; }
+        if(!(x instanceof List)){ return x; }
         List<Object> l = (List<Object>) x;
         var op = l.get(0);
-        if (op.equals(_quote)) {
+        if(op.equals(_quote)){
             require(x, l.size() == 2);
             return x;
         }
-        else if (op.equals(_if)) {
-            if (l.size() == 3) { l.add(null); }
+        else if(op.equals(_if)){
+            if(l.size() == 3){ l.add(null); }
             require(x, l.size() == 4);
             return l.stream().map(this::expand).collect(Collectors.toList());
         }
-        else if (op.equals(_set)) {
+        else if(op.equals(_set)){
             require(x, l.size() == 3);
             var v = l.get(1);
             require(x, v instanceof Symbol, "can set! only a symbol");
             return treeList(_set, v, expand(l.get(2)));
         }
-        else if (op.equals(_define) || op.equals(_define_macro)) {
+        else if(op.equals(_define) || op.equals(_define_macro)){
             require(x, l.size() >= 3);
             var v = l.get(1);
             var body = l.subList(2, l.size());
-            if (v instanceof List && !((List<?>) v).isEmpty()) {
+            if(v instanceof List && !((List<?>) v).isEmpty()){
                 List<Object> lv = (List<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
@@ -323,11 +325,11 @@ public final class JispyInterpreter{
                 t.addAll(body);
                 return expand(treeList(op, f, t));
             }
-            else {
+            else{
                 require(x, l.size() == 3);
                 require(x, v instanceof Symbol, "can define only a symbol");
                 var exp = expand(l.get(2));
-                if (op.equals(_define_macro)) {
+                if(op.equals(_define_macro)){
                     require(x, topLevel, "define-macro only allowed at top level");
                     var proc = eval(exp, GlobalEnv);
                     require(x, proc instanceof Lambda, "macro must be a procedure");
@@ -337,11 +339,11 @@ public final class JispyInterpreter{
                 return treeList(_define, v, exp);
             }
         }
-        else if (op.equals(_begin)) {
-            if (l.size() == 1) { return null; }
-            else { return l.stream().map(i -> expand(i, topLevel)).collect(Collectors.toList()); }
+        else if(op.equals(_begin)){
+            if(l.size() == 1){ return null; }
+            else{ return l.stream().map(i -> expand(i, topLevel)).collect(Collectors.toList()); }
         }
-        else if (op.equals(_lambda)) {
+        else if(op.equals(_lambda)){
             require(x, l.size() >= 3);
             var vars = l.get(1);
             var body = l.subList(2, l.size());
@@ -349,69 +351,69 @@ public final class JispyInterpreter{
                     ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)) ||
                     vars instanceof Symbol, "illegal lambda argument list");
             Object exp;
-            if (body.size() == 1) { exp = body.get(0); }
-            else {
-                List<Object> t = new ArrayList<>(body.size()+1);
+            if(body.size() == 1){ exp = body.get(0); }
+            else{
+                List<Object> t = new ArrayList<>(body.size() + 1);
                 exp = t;
                 t.add(_begin);
                 t.addAll(body);
             }
             return treeList(_lambda, vars, expand(exp));
         }
-        else if (op.equals(_quasi_quote)) {
+        else if(op.equals(_quasi_quote)){
             require(x, l.size() == 2);
             return expandQuasiQuote(l.get(1));
         }
-        else if (op instanceof Symbol && macro_table.containsKey(op)) {
+        else if(op instanceof Symbol && macro_table.containsKey(op)){
             return expand(macro_table.get(op).apply(l.subList(1, l.size())), topLevel);
         }
-        else { return l.stream().map(this::expand).collect(Collectors.toList()); }
+        else{ return l.stream().map(this::expand).collect(Collectors.toList()); }
     }
 
-    private static @NotNull Object expandQuasiQuote(Object x) {
-        if (!isPair(x)) {
+    private static @NotNull Object expandQuasiQuote(Object x){
+        if(!isPair(x)){
             return treeList(_quote, x);
         }
         List<Object> l = (List<Object>) x;
         require(x, !l.get(0).equals(_unquote_splicing), "can't splice here");
-        if (l.get(0).equals(_unquote)) {
+        if(l.get(0).equals(_unquote)){
             require(x, l.size() == 2);
             return l.get(1);
         }
-        else if (isPair(l.get(0)) && ((List<?>) l.get(0)).get(0).equals(_unquote_splicing)) {
+        else if(isPair(l.get(0)) && ((List<?>) l.get(0)).get(0).equals(_unquote_splicing)){
             require(l.get(0), ((List<?>) l.get(0)).size() == 2);
             return treeList(_append, ((List<?>) l.get(0)).get(1), expandQuasiQuote(l.subList(1, l.size())));
         }
-        else { return treeList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size()))); }
+        else{ return treeList(_cons, expandQuasiQuote(l.get(0)), expandQuasiQuote(l.subList(1, l.size()))); }
     }
 
-    private static boolean isPair(@NotNull Object x) {
+    private static boolean isPair(@NotNull Object x){
         return !isNil(x) && x instanceof List;
     }
 
-    private static void require(Object x, boolean predicate) {
+    private static void require(Object x, boolean predicate){
         require(x, predicate, " wrong length");
     }
 
-    private static void require(Object x, boolean predicate, @NotNull String m) {
-        if (!predicate) {
+    private static void require(Object x, boolean predicate, @NotNull String m){
+        if(!predicate){
             throw new Exceptions.SyntaxException(evalToString(x) + m);
         }
     }
 
     private @NotNull Object let(@NotNull List<Object> args){
-        return let(args,this);
+        return let(args, this);
     }
 
-    private static @NotNull Object let(@NotNull List<Object> args, JispyInterpreter interpreter) {
+    private static @NotNull Object let(@NotNull List<Object> args, JispyInterpreter interpreter){
         List<Object> x = treeList(_let);
         x.add(args);
         require(x, x.size() > 1);
         List<List<Object>> bindings;
-        try {
+        try{
             bindings = (List<List<Object>>) args.get(0);
         }
-        catch (ClassCastException e) {
+        catch(ClassCastException e){
             throw new ClassCastException("illegal binding list");
         }
         List<Object> body = args.subList(1, args.size());
@@ -427,26 +429,26 @@ public final class JispyInterpreter{
         return r;
     }
 
-    static @NotNull Object callcc(@NotNull Lambda proc) {
+    static @NotNull Object callcc(@NotNull Lambda proc){
         var ball = new Exceptions.RuntimeWarning("Sorry, can't continue this continuation any longer.");
-        try {
+        try{
             return proc.apply(treeList((Lambda) objects -> {
                 raise(objects.get(0), ball);
                 return null;
             }));
         }
-        catch (Exceptions.RuntimeWarning w) {
-            if (w.equals(ball)) {
+        catch(Exceptions.RuntimeWarning w){
+            if(w.equals(ball)){
                 return ball.returnValue;
             }
-            else {
+            else{
                 throw w;
             }
         }
 
     }
 
-    private static void raise(@NotNull Object r, @NotNull Exceptions.RuntimeWarning ball) {
+    private static void raise(@NotNull Object r, @NotNull Exceptions.RuntimeWarning ball){
         ball.returnValue = r;
         throw ball;
     }

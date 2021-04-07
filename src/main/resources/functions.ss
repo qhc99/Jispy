@@ -48,10 +48,12 @@
 (define square (lambda (x) (* x x)))
 
 (define range (lambda (a b) (if (= a b) nil (cons a (range (+ a 1) b)))))
-              (define (sum2 n acc)
-                  (if (= n 0)
-                      acc
-                      (sum2 (- n 1) (+ n acc))))
+
+
+(define (sum2 n acc)
+    (if (= n 0)
+        acc
+        (sum2 (- n 1) (+ n acc))))
 
 (define (cube x) (* x x x))
 
