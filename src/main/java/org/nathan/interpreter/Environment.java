@@ -212,7 +212,7 @@ class Environment extends HashMap<Object, Object> {
                     return args.get(0) instanceof List;
                 })),
                 Map.entry(new Symbol("map"), (Lambda) (args -> {
-                    if (args.size() < 1) { throw new Exceptions.ArgumentsCountException(); }
+                    if (args.size() < 2) { throw new Exceptions.ArgumentsCountException(); }
                     Lambda proc = (Lambda) (args.get(0));
                     var lists = args.subList(1, args.size());
                     var res = new ArrayList<>();
