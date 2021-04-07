@@ -14,7 +14,7 @@ import static org.nathan.interpreter.Utils.isNil;
 
 class Environment extends HashMap<Object, Object> {
 
-    private Environment outer;
+    private final Environment outer;
 
     private static final boolean DEBUG = false;
 
@@ -33,7 +33,7 @@ class Environment extends HashMap<Object, Object> {
                 }
             }
             else {
-                throw new Exceptions.TypeException(String.format("'expected %s, given %s",
+                throw new Exceptions.TypeException(String.format("expected %s, given %s",
                         evalToString(params),
                         evalToString(args)));
             }
@@ -44,6 +44,7 @@ class Environment extends HashMap<Object, Object> {
         for (var e : entries) {
             this.put(e.getKey(), e.getValue());
         }
+        outer = null;
     }
 
 
