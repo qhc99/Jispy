@@ -215,7 +215,7 @@ class Environment extends HashMap<Object, Object> {
                     if (args.size() < 2) { throw new Exceptions.ArgumentsCountException(); }
                     Lambda proc = (Lambda) (args.get(0));
                     var lists = args.subList(1, args.size());
-                    var res = new ArrayList<>();
+                    List<Object> res = new ArrayList<>(((List<Object>) lists.get(0)).size());
                     while (true) {
                         List<Object> vals = new ArrayList<>(lists.size());
                         for (int i = 0; i < lists.size(); i++) {
