@@ -266,7 +266,7 @@ class Environment extends HashMap<Object, Object> {
                 })),
                 Map.entry(new Symbol("print"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
-                    System.out.println(args.get(0));
+                    System.out.println(evalToString(args.get(0)));
                     return null;
                 }),
                 Map.entry(new Symbol("procedure?"), (Lambda) (args ->
