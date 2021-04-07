@@ -261,13 +261,7 @@ public final class JispyInterpreter{
             }
         }
         else {
-            var isComplex = NumericOperators.tryParseImaginary(x);
-            if (isComplex.isPresent()) {
-                return isComplex.get();
-            }
-            else {
-                return new Symbol(x);
-            }
+            return new Symbol(x);
         }
     }
 
