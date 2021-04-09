@@ -65,7 +65,7 @@ class Environment extends HashMap<Object, Object> {
         }
         s.append("\nouter:\n");
         if (outer != null) {
-            s.append(outer.toString());
+            s.append(outer);
         }
         return s.toString();
     }

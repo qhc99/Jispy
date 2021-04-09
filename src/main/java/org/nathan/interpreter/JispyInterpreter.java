@@ -78,7 +78,7 @@ public final class JispyInterpreter{
                     evalAndPrint(x);
                 }
                 catch(Exception e){
-                    System.out.println(String.format("%s", e.toString()));
+                    System.out.println(String.format("%s", e));
                 }
             }
         }
