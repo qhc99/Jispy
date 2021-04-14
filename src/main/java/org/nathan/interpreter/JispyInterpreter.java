@@ -142,7 +142,7 @@ public final class JispyInterpreter{
     static Object eval(Object x, @NotNull Environment env){
         while(true) {
             if(x instanceof Symbol){ return env.findEnv(x).get(x); }
-            else if(!(x instanceof List)){ return x; }
+            else if(!(x instanceof List<?>)){ return x; }
             List<Object> l = (List<Object>) x;
             var op = l.get(0);
             if(op.equals(_quote)){ return l.get(1); }
@@ -182,8 +182,7 @@ public final class JispyInterpreter{
                 List<Object> exps = l.stream().map(exp -> eval(exp, finalEnv)).collect(Collectors.toList());
                 var proc = exps.get(0);
                 exps = exps.subList(1, exps.size());
-                if(proc instanceof Procedure){
-                    Procedure p = (Procedure) proc;
+                if(proc instanceof Procedure p){
                     x = p.expression();
                     env = new Environment(p.parameters(), exps, p.environment());
                 }
@@ -197,12 +196,12 @@ public final class JispyInterpreter{
     }
 
     static Object parse(@NotNull Object in, JispyInterpreter interpreter){
-        if(in instanceof String){
-            var t = read(new InputPort((String) in));
+        if(in instanceof String strIn){
+            var t = read(new InputPort(strIn));
             return interpreter.expand(t, true);
         }
-        else if(in instanceof InputPort){
-            var t = read((InputPort) in);
+        else if(in instanceof InputPort inPort){
+            var t = read(inPort);
             return interpreter.expand(t, true);
         }
         else{ throw new RuntimeException(); }
@@ -271,11 +270,11 @@ public final class JispyInterpreter{
         if(x == null){ return null; }
         else if(x.equals(true)){ return "#t"; }
         else if(x.equals(false)){ return "#f"; }
-        else if(x instanceof Symbol){ return x.toString(); }
-        else if(x instanceof String){ return StringEscapeUtils.unescapeJava((String) x); }
-        else if(x instanceof List){
+        else if(x instanceof Symbol symX){ return symX.Value(); }
+        else if(x instanceof String strX){ return StringEscapeUtils.unescapeJava(strX); }
+        else if(x instanceof List<?> listX){
             var s = new StringBuilder("(");
-            for(var i : (List<Object>) x){
+            for(var i : listX){
                 s.append(evalToString(i));
                 s.append(" ");
             }
@@ -285,7 +284,7 @@ public final class JispyInterpreter{
             s.append(")");
             return s.toString();
         }
-        else if(x instanceof Complex){ return ComplexFormat.getInstance().format((Complex) x); }
+        else if(x instanceof Complex complexX){ return ComplexFormat.getInstance().format(complexX); }
         else{ return x.toString(); }
     }
 
@@ -295,7 +294,7 @@ public final class JispyInterpreter{
 
     private Object expand(Object x, boolean topLevel){
         require(x, !isNil(x));
-        if(!(x instanceof List)){ return x; }
+        if(!(x instanceof List<?>)){ return x; }
         List<Object> l = (List<Object>) x;
         var op = l.get(0);
         if(op.equals(_quote)){
@@ -317,7 +316,7 @@ public final class JispyInterpreter{
             require(x, l.size() >= 3);
             var v = l.get(1);
             var body = l.subList(2, l.size());
-            if(v instanceof List && !((List<?>) v).isEmpty()){
+            if(v instanceof List<?> listV && !listV.isEmpty()){
                 List<Object> lv = (List<Object>) v;
                 var f = lv.get(0);
                 var args = lv.subList(1, lv.size());
@@ -347,8 +346,8 @@ public final class JispyInterpreter{
             require(x, l.size() >= 3);
             var vars = l.get(1);
             var body = l.subList(2, l.size());
-            require(x, (vars instanceof List &&
-                    ((List<Object>) vars).stream().allMatch(v -> v instanceof Symbol)) ||
+            require(x, (vars instanceof List<?> listVars&&
+                    listVars.stream().allMatch(v -> v instanceof Symbol)) ||
                     vars instanceof Symbol, "illegal lambda argument list");
             Object exp;
             if(body.size() == 1){ exp = body.get(0); }
@@ -388,7 +387,7 @@ public final class JispyInterpreter{
     }
 
     private static boolean isPair(@NotNull Object x){
-        return !isNil(x) && x instanceof List;
+        return !isNil(x) && x instanceof List<?>;
     }
 
     private static void require(Object x, boolean predicate){

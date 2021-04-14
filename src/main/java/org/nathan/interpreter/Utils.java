@@ -12,7 +12,7 @@ public class Utils {
         while (i1.hasNext() && i2.hasNext()) {
             var item1 = i1.next();
             var item2 = i2.next();
-            if (!(item1 instanceof List)) {
+            if (!(item1 instanceof List<?>)) {
                 if (!item1.equals(item2)) {
                     return false;
                 }
@@ -31,8 +31,8 @@ public class Utils {
     }
 
     static boolean isNil(Object o) {
-        if (o instanceof List) {
-            return ((List<?>) o).isEmpty();
+        if (o instanceof List<?> listObj) {
+            return listObj.isEmpty();
         }
         else {
             return false;
@@ -50,7 +50,7 @@ public class Utils {
     }
 
     static boolean isTrue(Object o) {
-        if (o instanceof Boolean) {return (Boolean) o;}
+        if (o instanceof Boolean boolObj) {return boolObj;}
         else if (o == null) { return false; }
         else if (o instanceof Integer || o instanceof Double) { return !o.equals(0); }
         else { throw new Exceptions.SyntaxException("not bool"); }

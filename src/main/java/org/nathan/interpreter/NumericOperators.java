@@ -16,7 +16,7 @@ class NumericOperators{
         return value(a) <= value(b);
     }
 
-    static boolean equal(@NotNull Object a, @NotNull Object b){
+    static boolean valueEqual(@NotNull Object a, @NotNull Object b){
         if((!(a instanceof Complex)) && (!(b instanceof Complex))){
             return value(a) == value(b);
         }
@@ -26,16 +26,16 @@ class NumericOperators{
     }
 
     static @NotNull Object negative(@NotNull Object a){
-        if(a instanceof Integer){ return -(Integer) a; }
-        else if(a instanceof Double){ return -(Double) a; }
-        else if(a instanceof Complex){ return ((Complex) a).negate(); }
+        if(a instanceof Integer intA){ return -intA; }
+        else if(a instanceof Double doubleA){ return -doubleA; }
+        else if(a instanceof Complex complexA){ return complexA.negate(); }
         else{ throw new Exceptions.SyntaxException("not number"); }
 
     }
 
     static double value(@NotNull Object o){
-        if(o instanceof Double){ return (Double) o; }
-        else if(o instanceof Integer){ return (Integer) o; }
+        if(o instanceof Double doubleObj){ return doubleObj; }
+        else if(o instanceof Integer intObj){ return intObj; }
         else{ throw new Exceptions.SyntaxException("not number"); }
     }
 
@@ -56,37 +56,37 @@ class NumericOperators{
     }
 
     private static Object biDispatch(@NotNull Object a, @NotNull Object b, @NotNull NumericOperators.NumericBiFunc op){
-        if(a instanceof Integer){
-            if(b instanceof Integer){
-                return op.apply((Integer) a,(Integer) b);
+        if(a instanceof Integer intA){
+            if(b instanceof Integer intB){
+                return op.apply(intA,intB);
             }
-            else if(b instanceof Double){
-                return op.apply((Integer) a, (Double) b);
+            else if(b instanceof Double doubleB){
+                return op.apply(intA, doubleB);
             }
-            else if(b instanceof Complex){
-                return op.apply((Integer) a, (Complex) b);
-            }
-        }
-        else if(a instanceof Double){
-            if(b instanceof Integer){
-                return op.apply((Double) a, (Integer) b);
-            }
-            else if(b instanceof Double){
-                return op.apply((Double) a, (Double) b);
-            }
-            else if(b instanceof Complex){
-                return op.apply((Double) a, (Complex) b);
+            else if(b instanceof Complex complexB){
+                return op.apply(intA, complexB);
             }
         }
-        else if(a instanceof Complex){
-            if(b instanceof Integer){
-                return op.apply((Complex) a, (Integer) b);
+        else if(a instanceof Double doubleA){
+            if(b instanceof Integer intB){
+                return op.apply(doubleA, intB);
             }
-            else if(b instanceof Double){
-                return op.apply((Complex) a, (Double) b);
+            else if(b instanceof Double doubleB){
+                return op.apply(doubleA, doubleB);
             }
-            else if(b instanceof Complex){
-                return op.apply((Complex) a, (Complex) b);
+            else if(b instanceof Complex complexB){
+                return op.apply(doubleA, complexB);
+            }
+        }
+        else if(a instanceof Complex complexA){
+            if(b instanceof Integer intB){
+                return op.apply(complexA, intB);
+            }
+            else if(b instanceof Double doubleB){
+                return op.apply(complexA, doubleB);
+            }
+            else if(b instanceof Complex complexB){
+                return op.apply(complexA, complexB);
             }
         }
         throw new RuntimeException("unexpected error");

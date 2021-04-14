@@ -5,30 +5,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Objects;
 
-class Symbol{
-    final String str;
+record Symbol(String Value){
 
-    Symbol(@NotNull String s){
-        this.str = s;
-    }
+//    Symbol(@NotNull String s):this(s){
+//
+//    }
 
-    @Override
-    public boolean equals(Object o){
-        if(o instanceof Symbol){
-            return str.equals(((Symbol) o).str);
-        }
-        else{ return false; }
-    }
-
-    @Override
-    public int hashCode(){
-        return Objects.hash(str, Symbol.class);
-    }
-
-    @Override
-    public String toString(){
-        return str;
-    }
+//    @Override
+//    public boolean equals(Object o){
+//        if(o instanceof Symbol){
+//            return str.equals(((Symbol) o).str);
+//        }
+//        else{ return false; }
+//    }
+//
+//    @Override
+//    public int hashCode(){
+//        return Objects.hash(str, Symbol.class);
+//    }
+//
+//    @Override
+//    public String toString(){
+//        return str;
+//    }
 
     static final Symbol _quote = new Symbol("quote");
     static final Symbol _if = new Symbol("if");

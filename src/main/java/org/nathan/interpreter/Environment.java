@@ -133,7 +133,7 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("="), (Lambda) (args ->
                 {
                     if (args.size() != 2) { throw new Exceptions.ArgumentsCountException(); }
-                    return equal(args.get(0), args.get(1));
+                    return valueEqual(args.get(0), args.get(1));
                 })),
                 Map.entry(new Symbol("abs"), (Lambda) (args ->
                 {
@@ -208,7 +208,7 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("list?"), (Lambda) (args ->
                 {
                     if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
-                    return args.get(0) instanceof List;
+                    return args.get(0) instanceof List<?>;
                 })),
                 Map.entry(new Symbol("map"), (Lambda) (args -> {
                     if (args.size() < 2) { throw new Exceptions.ArgumentsCountException(); }
@@ -300,29 +300,26 @@ class Environment extends HashMap<Object, Object> {
                 Map.entry(new Symbol("sqrt"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
                     var t = args.get(0);
-                    if (t instanceof Integer) {
-                        int i = (Integer) t;
-                        if (i >= 0) {
-                            return Math.sqrt(i);
+                    if (t instanceof Integer intT) {
+                        if (intT >= 0) {
+                            return Math.sqrt(intT);
                         }
                         else {
-                            Complex c = new Complex(i);
+                            Complex c = new Complex(intT);
                             return c.sqrt();
                         }
                     }
-                    else if (t instanceof Double) {
-                        double d = (Double) t;
-                        if (d >= 0) {
-                            return Math.sqrt(d);
+                    else if (t instanceof Double doubleT) {
+                        if (doubleT >= 0) {
+                            return Math.sqrt(doubleT);
                         }
                         else {
-                            Complex c = new Complex(d);
+                            Complex c = new Complex(doubleT);
                             return c.sqrt();
                         }
                     }
-                    else if (t instanceof Complex) {
-                        Complex c = (Complex) t;
-                        return c.sqrt();
+                    else if (t instanceof Complex complexT) {
+                        return complexT.sqrt();
                     }
                     else { throw new Exceptions.SyntaxException(evalToString(t) + " is not number"); }
                 }),
@@ -334,11 +331,11 @@ class Environment extends HashMap<Object, Object> {
                 }),
                 Map.entry(new Symbol("port?"), (Lambda) args -> {
                     if (args.size() != 1) { throw new Exceptions.ArgumentsCountException(); }
-                    if (args.get(0) instanceof String) {
-                        return new File((String) args.get(0)).exists();
+                    if (args.get(0) instanceof String sArg) {
+                        return new File(sArg).exists();
                     }
-                    else if (args.get(0) instanceof Symbol) {
-                        return new File(((Symbol) args.get(0)).str).exists();
+                    else if (args.get(0) instanceof Symbol symArg) {
+                        return new File(symArg.Value()).exists();
                     }
                     else { throw new RuntimeException(); }
                 }));
