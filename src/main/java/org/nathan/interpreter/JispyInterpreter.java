@@ -4,7 +4,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.nathan.interpreter.magic.MagicUtils;
 
 import java.io.*;
 import java.util.*;
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
+import org.nathan.centralUtils.MagicUtils;
 
 public final class JispyInterpreter{
     static final List<Object> Nil = Collections.emptyList();
