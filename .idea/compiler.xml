@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Jispy" />
         <module name="Jisp" />
+        <module name="CentralUtils" />
       </profile>
     </annotationProcessing>
   </component>

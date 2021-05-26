@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
-import org.nathan.centralUtils.MagicUtils;
+import org.nathan.centralUtils.utils.MagicUtils;
 
 public final class JispyInterpreter{
     static final List<Object> Nil = Collections.emptyList();
