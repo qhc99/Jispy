@@ -7,11 +7,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static org.nathan.centralUtils.utils.LambdaUtils.stripCE;
 import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
+
+import org.nathan.centralUtils.classes.Ref;
 import org.nathan.centralUtils.utils.MagicUtils;
 
 public final class JispyInterpreter{
@@ -54,31 +58,48 @@ public final class JispyInterpreter{
         String prompt = "Jis.py>";
         InputPort inPort = new InputPort(System.in);
         System.out.println("Jispy version 2.0");
+        CompletableFuture<Void> exceptionPrint = null, resPrint = null;
         while(true) {
             try{
                 System.out.print(prompt);
                 var x = parse(inPort);
                 if(x == null){ continue; }
                 else if(x.equals(eof)){ continue; }
-                evalAndPrint(x);
+                if(resPrint != null){
+                    var resPrintRef = Ref.of(resPrint);
+                    stripCE(()->resPrintRef.deRef.get());
+                }
+                resPrint = evalAndPrint(x);
             }
             catch(Exception e){
-                e.printStackTrace(System.out);
+                if(exceptionPrint != null){
+                    var exceptionPrintRef = Ref.of(exceptionPrint);
+                    stripCE(()->exceptionPrintRef.deRef.get());
+                }
+                exceptionPrint =  CompletableFuture.runAsync(()->e.printStackTrace(System.out));
             }
         }
     }
 
     public void runFile(@NotNull File file){
         try(var inPort = new InputPort(file)){
+            CompletableFuture<Void> printTask = null, exceptionTask = null;
             while(true) {
                 try{
                     var x = parse(inPort);
                     if(x == null){ continue; }
                     else if(x.equals(eof)){ return; }
-                    evalAndPrint(x);
+                    if(printTask != null){
+                        printTask.get();
+                    }
+                    printTask = evalAndPrint(x);
                 }
                 catch(Exception e){
-                    System.out.println(String.format("%s", e));
+                    if(exceptionTask != null){
+                        var etRef = Ref.of(exceptionTask);
+                        stripCE(()->etRef.deRef.get());
+                    }
+                    exceptionTask = CompletableFuture.runAsync(()->System.out.println(String.format("%s", e)));
                 }
             }
         }
@@ -91,15 +112,19 @@ public final class JispyInterpreter{
         return eval(parse(program), GlobalEnv);
     }
 
-    private void evalAndPrint(Object x){
+    private CompletableFuture<Void> evalAndPrint(Object x){
         var val = eval(x, GlobalEnv);
         if(val != null){
-            System.out.println(evalToString(val));
+            return CompletableFuture.runAsync(()->System.out.println(evalToString(val)));
         }
+        return CompletableFuture.runAsync(()->{
+
+        });
     }
 
     public void loadLib(@NotNull File file){
         try(var inPort = new InputPort(file)){
+            CompletableFuture<Void> task_error = null;
             while(true) {
                 try{
                     var x = parse(inPort);
@@ -108,7 +133,11 @@ public final class JispyInterpreter{
                     eval(x, GlobalEnv);
                 }
                 catch(Exception e){
-                    e.printStackTrace(System.err);
+                    if(task_error != null){
+                        var task_error_ref = Ref.of(task_error);
+                        stripCE(()->task_error_ref.deRef.get());
+                    }
+                    task_error = CompletableFuture.runAsync(()->e.printStackTrace(System.err));
                 }
             }
 
@@ -121,6 +150,7 @@ public final class JispyInterpreter{
     static void loadLib(String fileName, JispyInterpreter interpreter){
         var file = new File(fileName);
         try(var inPort = new InputPort(file)){
+            CompletableFuture<Void> task_error = null;
             while(true) {
                 try{
                     var x = interpreter.parse(inPort);
@@ -129,7 +159,11 @@ public final class JispyInterpreter{
                     eval(x, interpreter.GlobalEnv);
                 }
                 catch(Exception e){
-                    e.printStackTrace(System.err);
+                    if(task_error != null){
+                        var task_error_ref = Ref.of(task_error);
+                        stripCE(()->task_error_ref.deRef.get());
+                    }
+                    task_error = CompletableFuture.runAsync(()->e.printStackTrace(System.err));
                 }
             }
 
