@@ -2,7 +2,6 @@ package org.nathan.interpreter;
 
 import java.util.Map;
 
-
 record Symbol(String Value){
 
     static final Symbol _quote = new Symbol("quote");
