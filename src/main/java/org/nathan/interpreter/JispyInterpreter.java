@@ -66,7 +66,6 @@ public final class JispyInterpreter{
                 flushConsole();
             }
             catch(Exception e){
-//                e.printStackTrace(System.out);
                 consoleWriteLine(e.toString());
                 flushConsole();
             }
@@ -130,7 +129,6 @@ public final class JispyInterpreter{
                     eval(x, GlobalEnv);
                 }
                 catch(Exception e){
-//                    e.printStackTrace(System.err);
                     consoleWriteLine(e.toString());
                 }
             }
@@ -155,7 +153,6 @@ public final class JispyInterpreter{
                     eval(x, interpreter.GlobalEnv);
                 }
                 catch(Exception e){
-//                    e.printStackTrace(System.err);
                     interpreter.consoleWriteLine(e.toString());
                 }
             }
