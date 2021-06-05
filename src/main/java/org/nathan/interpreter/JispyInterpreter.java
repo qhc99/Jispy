@@ -9,6 +9,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.nathan.centralUtils.utils.LambdaUtils.stripCE;
 import static org.nathan.interpreter.Symbol.*;
 import static org.nathan.interpreter.NumericOperators.*;
 import static org.nathan.interpreter.Utils.*;
@@ -18,6 +19,7 @@ public final class JispyInterpreter{
     static final List<Object> Nil = Collections.emptyList();
     private final Environment GlobalEnv = Environment.NewStandardEnv();
     private final Map<Symbol, Lambda> macro_table = new HashMap<>(Map.of(_let, this::let));
+    private final OutputStreamWriter console = new OutputStreamWriter(new BufferedOutputStream(System.out));
 
     {
         GlobalEnv.put(new Symbol("and"), (Lambda) args -> {
@@ -61,9 +63,12 @@ public final class JispyInterpreter{
                 if(x == null){ continue; }
                 else if(x.equals(eof)){ continue; }
                 evalAndPrint(x);
+                flushConsole();
             }
             catch(Exception e){
-                e.printStackTrace(System.out);
+//                e.printStackTrace(System.out);
+                consoleWriteLine(e.toString());
+                flushConsole();
             }
         }
     }
@@ -74,11 +79,14 @@ public final class JispyInterpreter{
                 try{
                     var x = parse(inPort);
                     if(x == null){ continue; }
-                    else if(x.equals(eof)){ return; }
+                    else if(x.equals(eof)){
+                        flushConsole();
+                        return;
+                    }
                     evalAndPrint(x);
                 }
                 catch(Exception e){
-                    System.out.println(String.format("%s", e));
+                    consoleWriteLine(String.format("%s", e));
                 }
             }
         }
@@ -94,8 +102,19 @@ public final class JispyInterpreter{
     private void evalAndPrint(Object x){
         var val = eval(x, GlobalEnv);
         if(val != null){
-            System.out.println(evalToString(val));
+            consoleWriteLine(evalToString(val));
         }
+    }
+
+    private void consoleWriteLine(String s){
+        stripCE(()->{
+            console.write(evalToString(s));
+            console.write("\n");
+        });
+    }
+
+    private void flushConsole(){
+        stripCE(console::flush);
     }
 
     public void loadLib(@NotNull File file){
@@ -104,11 +123,15 @@ public final class JispyInterpreter{
                 try{
                     var x = parse(inPort);
                     if(x == null){ continue; }
-                    else if(x.equals(eof)){ return; }
+                    else if(x.equals(eof)){
+                        flushConsole();
+                        return;
+                    }
                     eval(x, GlobalEnv);
                 }
                 catch(Exception e){
-                    e.printStackTrace(System.err);
+//                    e.printStackTrace(System.err);
+                    consoleWriteLine(e.toString());
                 }
             }
 
@@ -125,11 +148,15 @@ public final class JispyInterpreter{
                 try{
                     var x = interpreter.parse(inPort);
                     if(x == null){ continue; }
-                    else if(x.equals(eof)){ return; }
+                    else if(x.equals(eof)){
+                        interpreter.flushConsole();
+                        return;
+                    }
                     eval(x, interpreter.GlobalEnv);
                 }
                 catch(Exception e){
-                    e.printStackTrace(System.err);
+//                    e.printStackTrace(System.err);
+                    interpreter.consoleWriteLine(e.toString());
                 }
             }
 
