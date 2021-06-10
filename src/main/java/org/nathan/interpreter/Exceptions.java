@@ -3,36 +3,36 @@ package org.nathan.interpreter;
 import java.util.NoSuchElementException;
 
 class Exceptions{
-    static class SyntaxException extends RuntimeException {
+  static class SyntaxException extends RuntimeException{
 
-        SyntaxException(String s) {
-            super(s);
-        }
+    SyntaxException(String s){
+      super(s);
     }
+  }
 
-    static class RuntimeWarning extends RuntimeException {
-        Object returnValue;
+  static class RuntimeWarning extends RuntimeException{
+    Object returnValue;
 
-        RuntimeWarning(String m) {
-            super(m);
-        }
+    RuntimeWarning(String m){
+      super(m);
     }
+  }
 
-    static class ArgumentsCountException extends IllegalArgumentException {
-        ArgumentsCountException() {
-            super();
-        }
+  static class ArgumentsCountException extends IllegalArgumentException{
+    ArgumentsCountException(){
+      super();
     }
+  }
 
-    static class LookUpException extends NoSuchElementException{
-        LookUpException(String s) {
-            super(s);
-        }
+  static class LookUpException extends NoSuchElementException{
+    LookUpException(String s){
+      super(s);
     }
+  }
 
-    static class TypeException extends RuntimeException {
-        TypeException(String s) {
-            super(s);
-        }
+  static class TypeException extends RuntimeException{
+    TypeException(String s){
+      super(s);
     }
+  }
 }
