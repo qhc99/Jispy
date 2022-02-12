@@ -1,4 +1,4 @@
-package org.nathan.interpreter;
+package org.qhc99.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jetbrains.annotations.NotNull;
@@ -6,10 +6,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.*;
 
-import static org.nathan.interpreter.JispyInterpreter.callcc;
-import static org.nathan.interpreter.JispyInterpreter.evalToString;
-import static org.nathan.interpreter.NumericOperators.*;
-import static org.nathan.interpreter.Utils.isNil;
+import static org.qhc99.interpreter.JispyInterpreter.callcc;
+import static org.qhc99.interpreter.JispyInterpreter.evalToString;
+import static org.qhc99.interpreter.NumericOperators.*;
+import static org.qhc99.interpreter.Utils.isNil;
 
 
 class Environment extends HashMap<Object, Object>{

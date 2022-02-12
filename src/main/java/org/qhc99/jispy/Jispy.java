@@ -1,6 +1,6 @@
-package org.nathan.jispy;
+package org.qhc99.jispy;
 
-import org.nathan.interpreter.JispyInterpreter;
+import org.qhc99.interpreter.JispyInterpreter;
 
 import java.io.File;
 
@@ -15,7 +15,6 @@ public class Jispy{
       var l = new File(args[1]);
       if(f.exists() && l.exists()){
         long t1 = System.nanoTime();
-        int t = 0;
         JispyInterpreter interpreter = new JispyInterpreter();
         interpreter.loadLib(l);
         interpreter.runFile(f);

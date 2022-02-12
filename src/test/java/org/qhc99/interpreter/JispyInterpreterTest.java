@@ -1,4 +1,4 @@
-package org.nathan.interpreter;
+package org.qhc99.interpreter;
 
 
 import org.apache.commons.math3.complex.Complex;
@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 
-import static org.nathan.interpreter.JispyInterpreter.*;
+import static org.qhc99.interpreter.JispyInterpreter.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.nathan.interpreter.Utils.*;
+import static org.qhc99.interpreter.Utils.*;
 
 public class JispyInterpreterTest{
 

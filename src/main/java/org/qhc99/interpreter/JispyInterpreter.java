@@ -1,10 +1,10 @@
-package org.nathan.interpreter;
+package org.qhc99.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.nathan.centralUtils.utils.MagicUtils;
+import org.qhc99.centralibj.utils.MagicUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -13,10 +13,10 @@ import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.nathan.centralUtils.utils.LambdaUtils.stripCE;
-import static org.nathan.interpreter.NumericOperators.tryParseDouble;
-import static org.nathan.interpreter.Symbol.*;
-import static org.nathan.interpreter.Utils.*;
+import static org.qhc99.centralibj.utils.LambdaUtils.stripCE;
+import static org.qhc99.interpreter.NumericOperators.tryParseDouble;
+import static org.qhc99.interpreter.Symbol.*;
+import static org.qhc99.interpreter.Utils.*;
 
 public final class JispyInterpreter{
   static final List<Object> Nil = Collections.emptyList();
@@ -447,11 +447,11 @@ public final class JispyInterpreter{
             b.size() == 2 &&
             b.get(0) instanceof Symbol), "illegal binding list");
     List<Object> vars = bindings.stream().map(l -> l.get(0)).collect(Collectors.toList());
-    List<Object> vals = bindings.stream().map(l -> l.get(1)).collect(Collectors.toList());
+    List<Object> vals = bindings.stream().map(l -> l.get(1)).toList();
     var t = treeList(_lambda, vars);
-    t.addAll(body.stream().map(interpreter::expand).collect(Collectors.toList()));
+    t.addAll(body.stream().map(interpreter::expand).toList());
     var r = treeList(t);
-    r.addAll(vals.stream().map(interpreter::expand).collect(Collectors.toList()));
+    r.addAll(vals.stream().map(interpreter::expand).toList());
     return r;
   }
 

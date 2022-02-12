@@ -1,4 +1,4 @@
-package org.nathan.interpreter;
+package org.qhc99.interpreter;
 
 import org.jetbrains.annotations.NotNull;
 
