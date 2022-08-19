@@ -172,7 +172,9 @@ public final class JispyInterpreter{
       else if(!(x instanceof List<?>)){ return x; }
       List<Object> l = (List<Object>) x;
       var op = l.get(0);
-      if(op.equals(_quote)){ return l.get(1); }
+      if(op.equals(_quote)){
+        return l.get(1); // TODO return cons list
+      }
       else if(op.equals(_if)){
         var test = l.get(1);
         var conseq = l.get(2);

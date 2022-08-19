@@ -4,6 +4,7 @@ import org.qhc99.interpreter.JispyInterpreter;
 
 import java.io.File;
 
+// TODO fix logic bug of cons
 public class Jispy{
   public static void main(String[] args){
     JispyApp(args);
