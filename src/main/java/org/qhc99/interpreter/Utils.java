@@ -31,6 +31,7 @@ public class Utils{
   }
 
   static boolean isNil(Object o){
+    // TODO change
     if(o instanceof List<?> listObj){
       return listObj.isEmpty();
     }
