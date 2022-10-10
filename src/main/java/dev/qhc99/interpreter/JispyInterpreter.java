@@ -1,10 +1,11 @@
-package org.qhc99.interpreter;
+package dev.qhc99.interpreter;
 
+import dev.qhc99.centralibj.utils.MagicUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.qhc99.centralibj.utils.MagicUtils;
+
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -13,10 +14,10 @@ import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.qhc99.centralibj.utils.LambdaUtils.stripCE;
-import static org.qhc99.interpreter.NumericOperators.tryParseDouble;
-import static org.qhc99.interpreter.Symbol.*;
-import static org.qhc99.interpreter.Utils.*;
+import static dev.qhc99.centralibj.utils.LambdaUtils.stripCE;
+import static dev.qhc99.interpreter.NumericOperators.tryParseDouble;
+import static dev.qhc99.interpreter.Symbol.*;
+import static dev.qhc99.interpreter.Utils.*;
 
 public final class JispyInterpreter{
   static final List<Object> Nil = Collections.emptyList();

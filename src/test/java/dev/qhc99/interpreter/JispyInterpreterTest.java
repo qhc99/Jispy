@@ -1,4 +1,4 @@
-package org.qhc99.interpreter;
+package dev.qhc99.interpreter;
 
 
 import org.apache.commons.math3.complex.Complex;
@@ -7,9 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 
-import static org.qhc99.interpreter.JispyInterpreter.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.qhc99.interpreter.Utils.*;
+import static dev.qhc99.interpreter.Utils.*;
 
 public class JispyInterpreterTest{
 
@@ -17,7 +16,7 @@ public class JispyInterpreterTest{
     private static final JispyInterpreter interpreter = new JispyInterpreter();
 
     static {
-        loadLib(LIB_FILE, interpreter);
+        JispyInterpreter.loadLib(LIB_FILE, interpreter);
     }
 
     @Test

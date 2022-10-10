@@ -1,4 +1,4 @@
-package org.qhc99.interpreter;
+package dev.qhc99.interpreter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -7,7 +7,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.regex.Pattern;
 
-import static org.qhc99.interpreter.Symbol.eof;
+import static dev.qhc99.interpreter.Symbol.eof;
 
 class InputPort implements Closeable{
   final BufferedReader reader;

@@ -1,20 +1,13 @@
-package org.qhc99.jispy;
+package dev.qhc99.jispy;
 
-import org.qhc99.interpreter.JispyInterpreter;
+import dev.qhc99.interpreter.JispyInterpreter;
 
 import java.io.File;
 
 // TODO fix logic bug of cons
 public class Jispy {
-
   public static void main(String[] args) {
-    JispyApp();
-  }
-
-  static void JispyApp() {
-    String[] args = new String[]{"src/main/resources/lispytest.ss", "src/main/resources/functions.ss"};
-    final boolean repl = false;
-    if (!repl) {
+    if (args.length == 2) {
       var f = new File(args[0]);
       var l = new File(args[1]);
       if (f.exists() && l.exists()) {
@@ -25,7 +18,13 @@ public class Jispy {
         long t2 = System.nanoTime();
         System.out.printf("---run time: %fms---", (t2 - t1) / Math.pow(10, 6));
       }
-
+    }
+    else if(args.length == 1) {
+      var f = new File(args[0]);
+      if (f.exists()) {
+        JispyInterpreter interpreter = new JispyInterpreter();
+        interpreter.runFile(f);
+      }
     }
     else {
       JispyInterpreter interpreter = new JispyInterpreter();

@@ -1,4 +1,4 @@
-package org.qhc99.interpreter;
+package dev.qhc99.interpreter;
 
 import java.util.NoSuchElementException;
 

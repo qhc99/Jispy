@@ -1,9 +1,9 @@
-package org.qhc99.interpreter;
+package dev.qhc99.interpreter;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jetbrains.annotations.NotNull;
-import org.qhc99.centralibj.utils.literalLexer.FloatingPointLiterals;
-import org.qhc99.centralibj.utils.MagicUtils;
+import dev.qhc99.centralibj.utils.literalLexer.FloatingPointLiterals;
+import dev.qhc99.centralibj.utils.MagicUtils;
 
 import java.util.Optional;
 
