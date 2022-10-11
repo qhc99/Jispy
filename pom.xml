@@ -7,6 +7,7 @@
     <groupId>dev.qhc99</groupId>
     <artifactId>Jispy</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
