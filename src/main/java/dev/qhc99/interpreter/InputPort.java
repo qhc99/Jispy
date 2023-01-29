@@ -11,7 +11,6 @@ import static dev.qhc99.interpreter.Symbol.eof;
 
 class InputPort implements Closeable{
   final BufferedReader reader;
-  String line = "";
   final Queue<String> queue = new ArrayDeque<>();
   static final String tokenizer = "\\s*(,@|[('`,)]|\"(?:[\\\\].|[^\\\\\"])*\"|;.*|[^\\s('\"`,;)]*)";
   static final Pattern pattern = Pattern.compile(tokenizer);
@@ -38,13 +37,14 @@ class InputPort implements Closeable{
    * @return string or Symbol
    */
   Object nextToken(){
+    String line_cache = "";
     while(true) {
       if(!queue.isEmpty()){
         return queue.poll();
       }
-      else if(line.equals("")){
+      else if(line_cache.equals("")){
         try{
-          line = reader.readLine();
+          line_cache = reader.readLine();
         }
         catch(IOException e){
           e.printStackTrace(System.err);
@@ -52,24 +52,24 @@ class InputPort implements Closeable{
         }
       }
 
-      if(line == null){
+      if(line_cache == null){
         return eof;
       }
-      else if(line.equals("")){ continue; }
+      else if(line_cache.equals("")){ continue; }
 
-      var matcher = pattern.matcher(line);
+      var matcher = pattern.matcher(line_cache);
       int idx = 0;
       while(matcher.find(idx)) {
         var s = matcher.start(1);
         var e = matcher.end(1);
         if(s == e){break;}
-        var token = line.substring(s, e);
+        var token = line_cache.substring(s, e);
         idx = e;
         if(!token.startsWith(";")){
           queue.add(token);
         }
       }
-      line = "";
+      line_cache = "";
     }
   }
 
