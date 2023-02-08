@@ -481,25 +481,4 @@ public final class JispyInterpreter{
     ball.returnValue = r;
     throw ball;
   }
-
-    /*
-    private static @NotNull Object readChar(@NotNull InputPort inPort) {
-        if (!inPort.line.equals("")) {
-            var c = inPort.line.charAt(0);
-            inPort.line = inPort.line.substring(1);
-            return c;
-        }
-        else {
-            String c;
-            try {
-                c = Character.toString(inPort.file.read());
-            } catch (IOException ignore) {
-                return eof;
-            }
-            return c;
-        }
-    }
-    */
-
-
 }
